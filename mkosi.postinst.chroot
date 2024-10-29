@@ -29,7 +29,7 @@ kde_linux_packages_project_id=19668
 # Get the latest pipeline ID
 latest_pipeline_id=$(
   curl --silent \
-    "https://invent.kde.org/api/v4/projects/$kde_linux_packages_project_id/pipelines?ref=master&status=success&per_page=1" |
+    "https://invent.kde.org/api/v4/projects/$kde_linux_packages_project_id/pipelines?status=success&per_page=1" |
     jq -r '.[0].id'
 )
 # Get the latest job in the pipeline
