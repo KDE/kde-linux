@@ -67,3 +67,7 @@ rm -rfv \
 ## Do not be verbose here, we'd blow right through the log limit.
 rm -rf \
     /usr/share/doc/
+
+# Secure sysupdate files
+chmod 600 /usr/lib/sysupdate.d/50-root-x86-64.conf
+chmod 600 /usr/lib/sysupdate.d/60-esp.conf
