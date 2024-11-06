@@ -165,7 +165,7 @@ func main() {
 			continue
 		}
 		name := w.Stat().Name()
-		if !strings.HasPrefix(name, "kdeos_") && !strings.HasPrefix(name, "kde-linux_") {
+		if !strings.HasPrefix(name, "kdeos_") && !strings.HasPrefix(name, "kde-linux_") && strings.HasSuffix(name, ".torrent") {
 			continue
 		}
 		name = strings.TrimPrefix(name, "kdeos_")
