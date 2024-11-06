@@ -8,6 +8,11 @@
 # portion but leave a bit of a buffer behind. Then we keep resizing until the
 # resize starts failing.
 
+# TODO we can produce an even more squeezed image by deriving a complete partition
+# from the initial partition. https://btrfs.readthedocs.io/en/latest/Seeding-device.html
+# It essentially transfers the data from the seed device with nary a fragmentation.
+# Requires juggling loop devices though, and the gains are in the sub 500MiB range.
+
 import json
 import os
 import math

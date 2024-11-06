@@ -57,6 +57,9 @@ btrfs filesystem usage .
 duperemove -dr . > /dev/null
 btrfs subvolume sync .
 btrfs filesystem sync .
+btrfs balance start --full-balance --enqueue .
+btrfs subvolume sync .
+btrfs filesystem sync .
 ## And to finish things off we shrink the filesystem to the minimum size.
 $OUTPUT_DIR/btrfs-shrink.py
 ## Sync changes to disk.
