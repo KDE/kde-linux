@@ -80,7 +80,7 @@ LIVE_SIZE=""
 # Move /live out of the tree and into subvolume
 if $OUTPUT_IS_BTRFS_SUBVOLUME; then
     btrfs subvolume create "$OUTPUT.live"
-    cp -rf --reflink=always "$OUTPUT/live/." "$OUTPUT.live"
+    cp -rf --reflink=always "$OUTPUT/live/usr/." "$OUTPUT.live/usr"
     rm -rf "$OUTPUT/live"
     # Note that compression is applied on a mount-level via the host system.
     compsize "$OUTPUT.live"

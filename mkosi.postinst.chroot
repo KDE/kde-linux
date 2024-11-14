@@ -98,11 +98,7 @@ pacman --remove --noconfirm corrosion rust || true
 pacman --remove --noconfirm packagekit libpackagekit-glib || true
 
 # Calamares
-cd /tmp
-git clone --depth 1 https://github.com/calamares/calamares
-cmake -S calamares -B calamares/build -DCMAKE_INSTALL_PREFIX=/usr -DBUILD_TESTING=OFF -DWITH_QT6=ON
-cmake --build calamares/build "-j$(nproc)"
-DESTDIR=/live/ cmake --install calamares/build
+pacstrap /live calamares-git
 
 cat <<- EOF > /usr/share/icons/default/index.theme
 [Icon Theme]
