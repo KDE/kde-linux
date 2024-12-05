@@ -10,10 +10,6 @@ fi
 
 set -e
 
-# Trigger mount of ESP by accessing it.
-# TODO file bug that sysupdate doesn't do that.
-stat /efi/EFI 2>&1 > /dev/null
-
 SCRIPT_DIR="$(dirname "$(readlink -f "$0")")"
 export TAR_OPTIONS="--zstd"
 # FIXME set up signing shebang so we can run with verify
