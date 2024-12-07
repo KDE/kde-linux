@@ -162,6 +162,9 @@ cat <<- EOF >> /etc/samba/smb.conf
   usershare owner only = yes
 EOF
 
+# Set default shell as zsh for new users
+sed -i 's%^SHELL=/usr/bin/bash%SHELL=/usr/bin/zsh%' /etc/default/useradd
+
 plymouth-set-default-theme breeze-bgrt
 
 cd /tmp
