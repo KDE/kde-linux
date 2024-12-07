@@ -29,9 +29,12 @@ mount -v \
 # Make sure our subvolumes exist! In particular if we introduce subvolumes after installation.
 # FIXME This is a bit garbage. It'd be much tidier if we could tell repart to do this for us. But in some sort of
 # safe mode so it doesn't twiddle the partition table.
-# FIXME does this even work? do we have btrfs util in the initrd?
 
 [ -d "${sysroot}/system/@root" ] || btrfs subvolume create "${sysroot}/system/@root"
+
+# container storage benefits from not being inside a overlay filesystem
+[ -d "${sysroot}/system/@containers" ] || btrfs subvolume create "${sysroot}/system/@containers"
+[ -d "${sysroot}/system/@docker" ] || btrfs subvolume create "${sysroot}/system/@docker"
 
 mount -v \
     -o rw,subvol=@home \
@@ -53,5 +56,15 @@ mount -v \
     -t overlay \
     -o "rw,lowerdir=${sysroot}/var,upperdir=${sysroot}/system/@var-overlay/upper,workdir=${sysroot}/system/@var-overlay/work,index=off,metacopy=off" \
     overlay "${sysroot}/var"
+
+mkdir -p "${sysroot}/var/lib/containers"
+mount -v \
+    -o rw,subvol=@containers \
+    "$rootdisk" "${sysroot}/var/lib/containers"
+
+mkdir -p "${sysroot}/var/lib/docker"
+mount -v \
+    -o rw,subvol=@containers \
+    "$rootdisk" "${sysroot}/var/lib/docker"
 
 # TODO: should we maybe also mount /etc into the initrd /etc so we have early access to fstab and the like
