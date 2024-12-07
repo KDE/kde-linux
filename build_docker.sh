@@ -8,19 +8,40 @@
 # Exit immediately if any command fails.
 set -e
 
-# Exit if Docker is not available.
-if ! command -v docker 2>&1 > /dev/null; then
-  echo "Docker not available on the system! Make sure it is installed."
+# Store the absolute path the script is located in to $SCRIPT_DIR.
+SCRIPT_DIR="$(readlink --canonicalize "$(dirname "$0")")"
+
+CONTAINER_RUNTIME="docker"
+
+if [ "$1" = "--podman" ]; then
+  CONTAINER_RUNTIME="podman"
+  shift
+
+  if ! podman info | grep -q 'rootless: false'; then
+    echo "Podman must be running in rootful mode. Just run this script as root."
+    exit 1
+  fi
+
+  # podman requires the volume mount points to exist already
+  mkdir -p "${SCRIPT_DIR}/kde-linux.cache/pacman"
+fi
+
+# Exit if Docker or Podman are not available.
+if ! command -v "$CONTAINER_RUNTIME" 2>&1 > /dev/null; then
+  echo "$CONTAINER_RUNTIME not available on the system! Make sure it is installed."
   exit 1
 fi
 
-
 # Print some configuration instructions if we're not running Docker on btrfs, then exit.
-if ! docker info | grep --quiet "Storage Driver: btrfs"; then
-  echo "You should run this on a btrfs'd Docker instance."
-  echo "Other Docker storage drivers will not work at all!"
+if ! $CONTAINER_RUNTIME info | grep --quiet ": btrfs"; then
+  echo "You should run this on a btrfs'd Docker or Podman instance."
+  echo "Other storage drivers will not work at all!"
   echo
-  echo "If your host system is already running on btrfs,"
+  echo "If you are running Podman and btrfs:"
+  echo "Change the storage driver from overlay to btrfs in /etc/containers/storage.conf"
+  echo "and \`rm -rf /var/lib/containers/*\` to wipe out your existing containers."
+  echo
+  echo "If you use Docker and have btrfs:"
   echo "add the following to /etc/docker/daemon.json:"
   echo
   echo "{"
@@ -31,14 +52,15 @@ if ! docker info | grep --quiet "Storage Driver: btrfs"; then
   echo
   echo "# systemctl restart docker.socket docker.service"
   echo
-  echo "If not, create a btrfs filesystem inside of a file and mount it so Docker can use it:"
+  echo "If you are not using btrfs already, create a btrfs filesystem inside of a file"
+  echo "and mount it so Docker or Podman can use it. For Podman mount on to /var/lib/containers."
   echo
   echo "# fallocate -l 64G /docker.btrfs"
   echo "# mkfs.btrfs /docker.btrfs"
   echo "# mkdir -p /var/lib/docker"
   echo "# mount /docker.btrfs /var/lib/docker"
   echo
-  echo "Then edit /etc/docker/daemon.json as described above, restart Docker and re-run this script."
+  echo "Then follow the appropriate directions above."
   exit 1
 fi
 
@@ -46,15 +68,13 @@ fi
 # We only do this now not to clutter the printed configuration instructions above.
 set -x
 
-# Make sure we have the latest available Arch Linux Docker image.
-docker pull archlinux:latest
+# Make sure we have the latest available Arch Linux image.
+$CONTAINER_RUNTIME pull archlinux:latest
 
-# Store the absolute path the script is located in to $SCRIPT_DIR.
-SCRIPT_DIR="$(readlink --canonicalize "$(dirname "$0")")"
 
-# Spin up a new Arch Linux Docker container and run the in_docker.sh script inside of it,
+# Spin up a new Arch Linux container and run the in_docker.sh script inside of it,
 # passing any command line arguments to it and mounting $SCRIPT_DIR to /workspace.
-docker run \
+$CONTAINER_RUNTIME run \
   --privileged \
   --volume="${SCRIPT_DIR}:/workspace" \
   --volume="${SCRIPT_DIR}/kde-linux.cache/pacman:/var/cache/pacman/pkg" \
