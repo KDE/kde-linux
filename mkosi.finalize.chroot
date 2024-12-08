@@ -23,6 +23,11 @@ rm -rf \
     /etc/pacman.d/gnupg \
     /var/cache/pacman 
 
+## Pacman being present confuses users into thinking they can use it to install packages.
+## To query the image's pacman database, it can be used from a distrobox with:
+## pacman --root /run/host <rest of command>
+rm /usr/bin/pacman
+
 # Remove all excess things we don't want in the final image
 
 ## locale-gen doesn't work because /usr is read-only. Removing it means calamares won't attempt to use it.
