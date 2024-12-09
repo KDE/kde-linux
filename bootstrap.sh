@@ -8,6 +8,19 @@
 # Exit immediately if any command fails and print all commands before they are executed.
 set -ex
 
+cat <<- EOF >> /etc/pacman.conf
+[kde-linux]
+# Signature checking is not needed beacuse the packages are served over HTTPS and we have no mirrors
+SigLevel = Never
+Server = https://cdn.kde.org/kde-linux/packaging/packages/
+
+[kde-linux-debug]
+SigLevel = Never
+Server = https://cdn.kde.org/kde-linux/packaging/packages-debug/
+EOF
+
+cp /etc/pacman.conf mkosi.sandbox/etc
+
 # From https://hub.docker.com/_/archlinux/:
 #
 # "For Security Reasons, these images strip the pacman lsign key.
@@ -18,11 +31,27 @@ set -ex
 #
 pacman-key --init
 
+
+# Insert a fallback for starters
+# shellcheck disable=SC2016
+echo 'Server = https://mirror.rackspace.com/archlinux/$repo/os/$arch' >> /etc/pacman.d/mirrorlist
+# Then use fastest servers we can find
+pacman --sync --refresh --noconfirm reflector
+if [ ! -f mkosi.sandbox/etc/pacman.d/mirrorlist ]; then
+  reflector --protocol https --country ${MIRRORS_COUNTRY:-de} --score 10 --fastest 3 >mkosi.sandbox/etc/pacman.d/mirrorlist
+fi
+PARALLEL_DOWNLOADS=${PARALLEL_DOWNLOADS:-5}
+cp mkosi.sandbox/etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist
+
+# enable parallel downloads for m0ar speed!
+sed -i 's/#*\(ParallelDownloads =\) .*/\1 '"${PARALLEL_DOWNLOADS}"'/' mkosi.sandbox/etc/pacman.conf
+
 # Update the system and install packages we'll need for building KDE Linux.
 # Even though we use mkosi from Git, we'll grab the package,
 # to make sure all the dependencies are properly pulled.
 pacman --sync --refresh --noconfirm --sysupgrade \
     mkosi \
+    arch-install-scripts \
     base-devel \
     btrfs-progs \
     compsize \

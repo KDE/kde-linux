@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 # SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL
 # SPDX-FileCopyrightText: 2023 Harald Sitter <sitter@kde.org>
 # SPDX-FileCopyrightText: 2024 Bruno Pajdek <brupaj@proton.me>
@@ -8,6 +8,81 @@
 # ourselves.
 
 set -ex
+
+packages=(
+    sddm
+    bash-completion
+    pacman
+    mesa
+    pipewire
+    pipewire-pulse
+    pipewire-zeroconf
+    pipewire-libcamera
+    noto-fonts
+    acpid
+    busybox
+    nvme-cli
+    bind
+    dmidecode
+    ntfs-3g
+    iproute2
+    tpm2-tss
+    xz
+    wireplumber
+    flatpak
+    apparmor
+    ffmpeg # ffmpegthumbs
+    jxrlib # kimageformats
+    libavif # kimageformats
+    libheif # kimageformats
+    libjxl # kimageformats
+    libraw # kimageformats
+    openexr # kimageformats
+    freerdp2 # krdp
+    libmtp # kio-extras, for MTP support
+    libappimage # kio-extras, for AppImage app thumbnails
+    editorconfig-core-c # ktexteditor
+    aspell # sonnet
+    hspell # sonnet
+
+    # Install build and runtime dependencies
+    git base-devel cmake yaml-cpp boost-libs boost dosfstools btrfs-progs glib2-devel
+    # NOTE: plasma-workspace depends on phonon (to build integration plugins **for** phonon) but doesn't actually
+    #   need a working backend so we build without vlc for now.
+    # For discover backend
+    fwupd
+    # For kio-extras
+    smbclient
+    # For selenium
+    python-atspi
+    # For print-manager
+    cups cups-browsed system-config-printer
+    # For kdenetwork-filesharing
+    samba
+    # For spectacle
+    opencv
+    # For fingerprint login
+    fprintd
+    # For DDC/CI external monitors brightness; https://wiki.archlinux.org/title/backlight
+    ddcutil
+    # For users KCM
+    accountsservice
+
+    # All the KDE we plan to include in the base image
+    $(pacman --sync --groups --quiet kde-linux)
+
+    # AUR packages
+    snapd steam-devices-git systemd-bootchart
+
+    systemd-git
+    systemd-resolvconf-git
+    systemd-sysvcompat-git
+    systemd-ukify-git
+    #probably can be removed:
+    arch-install-scripts
+)
+printf -v packages_str "%s," "${packages[@]}"
+packages_str=${packages_str%,}
 
 VERSION=$(date +%Y%m%d%H%M) # Build version, will just be YYYYmmddHHMM for now
 OUTPUT=kde-linux_$VERSION   # Built rootfs path (mkosi uses this directory by default)
@@ -36,7 +111,9 @@ mkosi \
     --environment="CI_COMMIT_SHA=${CI_COMMIT_SHA:-unknownSHA}" \
     --environment="CI_PIPELINE_URL=${CI_PIPELINE_URL:-https://invent.kde.org}" \
     --image-version="$VERSION" \
+    --package-cache-dir=/var/cache/mkosi.pacman \
     --output-directory=. \
+    --package="${packages_str}" \
     "$@"
 
 # NOTE: /efi must be empty so auto mounting can happen. As such we put our templates in a different directory
@@ -49,8 +126,11 @@ cp -v "${OUTPUT}"/kde-linux.efi "$MAIN_UKI"
 mv -v "${OUTPUT}"/kde-linux.efi "${OUTPUT}/efi-template/EFI/Linux/$EFI"
 mv -v "${OUTPUT}"/live.efi "$LIVE_UKI"
 
-# Move debug tarball out of the tree
-mv -v "$OUTPUT/debug.tar.zst" "$DEBUG_TAR"
+
+# TODO this is clearly a goofy way to go about it:
+cp ${OUTPUT}/usr/lib/os-release /usr/lib/os-release
+mkosi.extra/usr/bin/_kde-linux-make-debug-archive
+mv -v "debug.tar.zst" "$DEBUG_TAR"
 
 # Now let's actually build a live raw image. First, the ESP.
 # We use kde-linux.cache instead of /tmp as usual because we'll probably run out of space there.

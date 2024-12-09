@@ -14,22 +14,5 @@ echo "$@"
 
 if [ "$1" = "final" ]; then
   env
-  pacman-key --init
-  pacman-key --populate
-
-  # Insert a fallback for starters
-  # shellcheck disable=SC2016
-  echo 'Server = https://mirror.rackspace.com/archlinux/$repo/os/$arch' >> /etc/pacman.d/mirrorlist
-  # Then use fastest servers we can find
-  pacman --sync --refresh --noconfirm reflector
-  reflector --protocol https --country ${MIRRORS_COUNTRY:-de} --score 10 --fastest 3 >/etc/pacman.d/mirrorlist
-
-  PARALLELL_DOWNLOADS=${PARALLELL_DOWNLOADS:-5}
-
-  # enable parallel downloads for m0ar speed!
-  sed -i "s/#ParallelDownloads = 5/ParallelDownloads = $PARALLELL_DOWNLOADS/" /etc/pacman.conf
-
-  # Flatpak
-  pacman --sync --noconfirm flatpak
   flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
 fi

@@ -15,65 +15,6 @@ bootctl install
 echo 'timeout 5' >> "$SYSTEMD_ESP_PATH/loader/loader.conf"
 cp /usr/share/edk2-shell/x64/Shell.efi "$SYSTEMD_ESP_PATH/shellx64.efi"
 
-# TODO: validate our sysupdate definitions are correct
-
-# Add the kde-linux repository to pacman.conf.
-cat <<- EOF >> /etc/pacman.conf
-[kde-linux]
-# Signature checking is not needed beacuse the packages are served over HTTPS and we have no mirrors
-SigLevel = Never
-Server = https://cdn.kde.org/kde-linux/packaging/packages/
-
-[kde-linux-debug]
-SigLevel = Never
-Server = https://cdn.kde.org/kde-linux/packaging/packages-debug/
-EOF
-
-pacman --sync --refresh
-
-# Install build and runtime dependencies
-packages=(
-  git base-devel cmake yaml-cpp boost-libs boost dosfstools btrfs-progs glib2-devel
-  # NOTE: plasma-workspace depends on phonon (to build integration plugins **for** phonon) but doesn't actually
-  #   need a working backend so we build without vlc for now.
-  # For discover backend
-  fwupd
-  # For kio-extras
-  smbclient
-  # For selenium
-  python-atspi
-  # For print-manager
-  cups cups-browsed system-config-printer
-  # For kdenetwork-filesharing
-  samba
-  # For spectacle
-  opencv
-  # For fingerprint login
-  fprintd
-  # For DDC/CI external monitors brightness; https://wiki.archlinux.org/title/backlight
-  ddcutil
-  # For users KCM
-  accountsservice
-
-  # All the KDE we plan to include in the base image
-  $(pacman --sync --groups --quiet kde-linux)
-
-  # AUR packages
-  snapd steam-devices-git systemd-bootchart
-
-  systemd-git
-  systemd-resolvconf-git
-  systemd-sysvcompat-git
-  systemd-ukify-git
-
-  # for _kde-linux-make-debug-archive
-  arch-install-scripts
-)
-
-# Install in parallel to improve performance
-# --noconfirm won't replace conflicts so we use `yes`
-yes | pacman --sync --refresh --needed "${packages[@]}"
-
 # Meanwhile cleanup a bit
 ## Unnecessary for us
 pacman --remove --noconfirm qt6-doc qt6-examples || true
@@ -117,10 +58,6 @@ KDE_LINUX_CI_URL=$CI_PIPELINE_URL
 EOF
 [ -f /usr/lib/os-release ] || false
 cat /usr/lib/os-release
-
-# Generate the debug archive after the os-release so we can easily turn it into a systemd-sysext
-cd /
-_kde-linux-make-debug-archive
 
 mkdir flatpak
 flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo

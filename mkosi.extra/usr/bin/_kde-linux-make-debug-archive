@@ -10,8 +10,8 @@ mkdir -p "$debugroot"
 
 # The debug packages are not in a group, so we make 
 # pacman list every package in the kde-linux-debug repo
-pacstrap "$debugroot" $(pacman --sync --list --quiet kde-linux-debug)
-
+pacstrap -c "$debugroot" $(pacman --sync --list --quiet kde-linux-debug)
+rm -rf "${debugroot}/var/lib/pacman"
 extension_dir="${debugroot}/usr/lib/extension-release.d/"
 mkdir -p "$extension_dir"
 
