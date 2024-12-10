@@ -24,9 +24,8 @@ rm -rf \
     /var/cache/pacman 
 
 ## Pacman being present confuses users into thinking they can use it to install packages.
-## To query the image's pacman database, it can be used from a distrobox with:
-## pacman --root /run/host <rest of command>
-rm /usr/bin/pacman
+## Rename it to kde-linux-readonly-pacman so they're less likely to find it.
+mv /usr/bin/{,kde-linux-readonly-}pacman
 
 # Remove all excess things we don't want in the final image
 
