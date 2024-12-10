@@ -15,3 +15,5 @@
 mkosi.local.conf
 
 kde-linux_*
+/mkosi.sandbox/etc/pacman.conf
+/mkosi.sandbox/etc/pacman.d/mirrorlist
