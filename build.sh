@@ -50,7 +50,6 @@ download_flatpaks() {
         org.kde.kate \
         org.kde.haruna \
         org.kde.konsole \
-        org.kde.kwalletmanager5 \
         org.kde.kwrite \
         org.kde.okular \
         org.mozilla.firefox
