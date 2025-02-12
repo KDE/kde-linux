@@ -1,6 +1,14 @@
 # SPDX-License-Identifier: BSD-2-Clause
 # SPDX-FileCopyrightText: None
 
+
+include:
+  - project: sysadmin/ci-utilities
+    file:
+      - /gitlab-templates/reuse-lint.yml
+      - /gitlab-templates/xml-lint.yml
+      - /gitlab-templates/yaml-lint.yml
+
 stages:
   - start
 
