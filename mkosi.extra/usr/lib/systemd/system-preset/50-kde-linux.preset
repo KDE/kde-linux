@@ -32,7 +32,6 @@ enable var-lib-snapd-snap.mount
 disable systemd-networkd-wait-online.service
 disable systemd-networkd.service
 
-
 # Pacman - we don't do packages
 disable dirmngr@etc-pacman.d-gnupg.socket
 disable gpg-agent-browser@etc-pacman.d-gnupg.socket
