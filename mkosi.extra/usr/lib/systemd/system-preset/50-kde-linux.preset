@@ -32,8 +32,6 @@ enable var-lib-snapd-snap.mount
 disable systemd-networkd-wait-online.service
 disable systemd-networkd.service
 
-# systemd-resolved - we use avahi with mDNS
-systemctl disable systemd-resolved
 
 # Pacman - we don't do packages
 disable dirmngr@etc-pacman.d-gnupg.socket
