@@ -98,4 +98,4 @@ rm -rf /usr/share/xsessions/
 sed -i 's/org.kde.falkon.desktop/org.mozilla.firefox.desktop/' /usr/share/applications/kde-mimeapps.list
 
 ## Allow local domain resolution for Avahi and its glibc plugin mDNS
-sudo sed -i '/^hosts:/ {/mdns_minimal NOTFOUND=return/! s/^hosts: /hosts: mdns_minimal [NOTFOUND=return] /}' /etc/nsswitch.conf
+sed -i '/^hosts:/ {/mdns_minimal \[NOTFOUND=return\]/! s/^hosts:/hosts: mdns_minimal [NOTFOUND=return] /}' /etc/nsswitch.conf
