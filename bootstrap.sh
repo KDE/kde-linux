@@ -35,7 +35,8 @@ pacman-key --init
 if [ ! -f mkosi.sandbox/etc/pacman.d/mirrorlist ]; then
   # Insert a fallback for starters
   # shellcheck disable=SC2016
-  echo 'Server = https://mirror.rackspace.com/archlinux/$repo/os/$arch' >> /etc/pacman.d/mirrorlist
+  # Use static repo from 1 day ago to avoid changes during build
+  echo "Server = https://archive.archlinux.org/repos/$(date -d '1 day ago' +%Y)/$(date -d '1 day ago' +%m)/$(date -d '1 day ago' +%d)/\$repo/os/\$arch" >> /etc/pacman.d/mirrorlist
   # Then use fastest servers we can find
   pacman --sync --refresh --noconfirm reflector
   reflector --protocol https --country ${MIRRORS_COUNTRY:-de} --score 10 --fastest 3 >mkosi.sandbox/etc/pacman.d/mirrorlist
