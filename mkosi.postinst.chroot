@@ -60,6 +60,12 @@ EOF
 [ -f /usr/lib/os-release ] || false
 cat /usr/lib/os-release
 
+# Get our logo into Info Center
+cat <<- EOF >> /etc/xdg/kcm-about-distrorc
+[General]
+LogoPath=/usr/share/pixmaps/kde-linux-logo.png
+EOF
+
 # Fetch latest distrobox config from the kde-linux-containers repo
 mkdir -p /usr/share/distrobox
 curl --output /usr/share/distrobox/distrobox.conf \
