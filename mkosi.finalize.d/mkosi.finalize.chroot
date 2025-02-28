@@ -97,6 +97,3 @@ rm -rf /usr/share/xsessions/
 
 ## Replace Falkon with Firefox as the default browser, since that's what we pre-install.
 sed -i 's/org.kde.falkon.desktop/org.mozilla.firefox.desktop/' /usr/share/applications/kde-mimeapps.list
-
-## Execute the modify /etc/nsswitch FileCopyrightText
-python modify_nsswitch.py
