@@ -1,0 +1,102 @@
+#!/bin/sh
+# SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL
+# SPDX-FileCopyrightText: 2023 Harald Sitter <sitter@kde.org>
+
+set -ex
+
+userdel --remove --force builder || true
+passwd --delete root
+passwd --lock root
+
+if [ -f "$SRCDIR/.secure_files/gpg.public.key" ]; then # only useful and available for publishing branches
+    # Put our key into the systemd keyring
+        export GNUPGHOME="$SRCDIR/.secure_files/gpg"
+            KEYRING=/usr/lib/systemd/import-pubring.gpg
+                rm -rf "$GNUPGHOME"
+                    mkdir "$GNUPGHOME"
+                        rm -f "$KEYRING"
+                            gpg --no-options --no-default-keyring --keyring="$KEYRING" --homedir="$GNUPGHOME" --import "$SRCDIR/.secure_files/gpg.public.key"
+                            fi
+
+                            # De-initialize pacman
+                            rm -rf \
+                                /etc/pacman.d/gnupg \
+                                    /var/cache/pacman 
+
+                                    ## Pacman being present confuses users into thinking they can use it to install packages.
+                                    ## Rename it to kde-linux-readonly-pacman so they're less likely to find it.
+                                    mv /usr/bin/{,_kde-linux-readonly-}pacman
+
+                                    # Remove all excess things we don't want in the final image
+
+                                    ## locale-gen doesn't work because /usr is read-only. Removing it means calamares won't attempt to use it.
+                                    rm -rf \
+                                        /etc/locale.gen \
+                                            /usr/bin/locale-gen
+
+                                            ## Multimedia players we only want for their libraries
+                                            rm -rf \
+                                                /usr/share/applications/vlc.desktop \
+                                                    /usr/bin/vlc \
+                                                        /usr/share/applications/mpv.desktop \
+                                                            /usr/bin/mpv
+
+                                                            ## Development tools that aren't useful even for the development edition
+                                                            rm -rf \
+                                                                /usr/bin/assistant \
+                                                                    /usr/bin/assistant-qt5 \
+                                                                        /usr/share/applications/assistant.desktop \
+                                                                            /usr/bin/designer \
+                                                                                /usr/bin/designer-qt5 \
+                                                                                    /usr/share/applications/designer.desktop \
+                                                                                        /usr/bin/linguist \
+                                                                                            /usr/bin/linguist-qt5 \
+                                                                                                /usr/share/applications/linguist.desktop \
+                                                                                                    /usr/bin/qdbusviewer \
+                                                                                                        /usr/bin/qdbusviewer-qt5 \
+                                                                                                            /usr/share/applications/qdbusviewer.desktop \
+                                                                                                                /usr/share/applications/qv4l2.desktop \
+                                                                                                                    /usr/bin/qvidcap \
+                                                                                                                        /usr/share/applications/qvidcap.desktop \
+
+                                                                                                                        ## HP device management apps that are useless even for 99% of HP device owners, and we have our own better stuff
+                                                                                                                        rm -rf \
+                                                                                                                            /usr/share/applications/hp-uiscan.desktop \
+                                                                                                                                /usr/bin/hp-uiscan \
+                                                                                                                                    /usr/share/applications/hplip.desktop \
+                                                                                                                                        /usr/bin/hp-toolbox
+
+                                                                                                                                        ## Miscellaneous application entries that have zero value because we either have better stuff or they're for terminal applications
+                                                                                                                                        rm -rf \
+                                                                                                                                            /usr/share/applications/avahi-discover.desktop \
+                                                                                                                                                /usr/share/applications/vim.desktop \
+                                                                                                                                                    /usr/share/applications/htop.desktop \
+                                                                                                                                                        /usr/share/applications/lstopo.desktop \
+                                                                                                                                                            /usr/share/applications/bssh.desktop \
+                                                                                                                                                                /usr/share/applications/bvnc.desktop \
+                                                                                                                                                                    /usr/share/applications/cups.desktop \
+                                                                                                                                                                        /usr/share/applications/system-config-printer.desktop \
+
+                                                                                                                                                                        ## Remove documentation cruft. Offline documentation while neat is really not that useful in this day and age.
+                                                                                                                                                                        ## Do not be verbose here, we'd blow right through the log limit.
+                                                                                                                                                                        rm -rf \
+                                                                                                                                                                            /usr/share/doc/
+
+                                                                                                                                                                            ## /boot is now the preferred mount point for systemd and BLS:
+                                                                                                                                                                            ## https://uapi-group.org/specifications/specs/boot_loader_specification/#mount-points
+                                                                                                                                                                            ## However, its content are no longer necessary, since we've already created our initrd.
+                                                                                                                                                                            # shellcheck disable=SC2114
+                                                                                                                                                                            rm -rf /boot/*
+
+                                                                                                                                                                            ## Not sure where this comes from, but it's not useful.
+                                                                                                                                                                            rm -rf /.cache
+
+                                                                                                                                                                            ## Don't expose any X11 sessions; we're all-in on Wayland.
+                                                                                                                                                                            rm -rf /usr/share/xsessions/
+
+                                                                                                                                                                            ## Replace Falkon with Firefox as the default browser, since that's what we pre-install.
+                                                                                                                                                                            sed -i 's/org.kde.falkon.desktop/org.mozilla.firefox.desktop/' /usr/share/applications/kde-mimeapps.list
+
+                                                                                                                                                                            ## Allow local domain resolution for Avahi and its glibc plugin mDNS
+                                                                                                                                                                            sed -i '/^hosts:/ {/mdns_minimal \[NOTFOUND=return\]/! s/^hosts:/hosts: mdns_minimal [NOTFOUND=return] /}' /etc/nsswitch.conf
+                                                                                                                                                                            
