@@ -21,7 +21,7 @@ fi
 # De-initialize pacman
 rm -rf \
     /etc/pacman.d/gnupg \
-    /var/cache/pacman 
+    /var/cache/pacman
 
 ## Pacman being present confuses users into thinking they can use it to install packages.
 ## Rename it to kde-linux-readonly-pacman so they're less likely to find it.
