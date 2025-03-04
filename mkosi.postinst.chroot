@@ -49,7 +49,7 @@ DOCUMENTATION_URL="https://userbase.kde.org/KDE_Linux"
 SUPPORT_URL="https://kde.org/support/"
 BUG_REPORT_URL="https://bugs.kde.org/enter_bug.cgi?product=kde-linux"
 PRIVACY_POLICY_URL="https://kde.org/privacypolicy-apps/"
-LOGO=kde-symbolic
+LOGO=/usr/share/pixmaps/kde-linux-logo.png
 IMAGE_ID=kde-linux
 IMAGE_VERSION=$IMAGE_VERSION
 # KDE Linux specific keys.
