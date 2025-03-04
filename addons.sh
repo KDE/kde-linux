@@ -4,8 +4,8 @@
 
 set -ex
 
-rm -vf ./*.addon.efi
-rm -rfv /efi/EFI/Linux/kde-linux_*.efi.extra.d
+#rm -vf ./*.addon.efi
+#rm -rfv /efi/EFI/Linux/kde-linux_*.efi.extra.d
 
 if [ "$@" != "" ]; then
   # any argument de-addons
