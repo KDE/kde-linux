@@ -81,7 +81,8 @@ rm -rf \
 ## Remove documentation cruft. Offline documentation while neat is really not that useful in this day and age.
 ## Do not be verbose here, we'd blow right through the log limit.
 rm -rf \
-    /usr/share/doc/
+    /usr/share/doc/ \
+    /usr/share/man/
 
 ## /boot is now the preferred mount point for systemd and BLS:
 ## https://uapi-group.org/specifications/specs/boot_loader_specification/#mount-points
