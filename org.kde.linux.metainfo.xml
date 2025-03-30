@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+SPDX-FileCopyrightText: 2025 Lasath Fernando <devel@lasath.org>
+SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL
+-->
+
+<component type="operating-system">
+  <id>org.kde.linux</id>
+  <name>KDE Linux</name>
+  <summary>A modern Linux distribution focused on the KDE Plasma desktop environment</summary>
+  <pkgname>host</pkgname>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>GPL-3.0+</project_license>
+  <description>
+    <p>KDE Linux is a user-friendly operating system built around the KDE Plasma desktop environment. It provides a complete computing experience with a focus on productivity, customization, and ease of use.</p>
+    <ul>
+      <li>Latest KDE Plasma desktop environment</li>
+      <li>Comprehensive suite of KDE applications</li>
+      <li>Rolling release model for up-to-date software</li>
+      <li>Strong focus on system stability</li>
+      <li>User-friendly installation process</li>
+    </ul>
+  </description>
+  <url type="homepage">https://kdelinux.org</url>
+  <url type="bugtracker">https://bugs.kdelinux.org</url>
+  <url type="help">https://docs.kdelinux.org</url>
+  <developer_name>KDE Linux Team</developer_name>
+  <project_group>KDE</project_group>
+  <provides>
+    <modalias>linux</modalias>
+  </provides>
+  <releases>
+    <release version="1.0.0" date="2025-01-15" type="stable">
+      <description>
+	<p>Initial release of KDE Linux featuring:</p>
+	<ul>
+	  <li>KDE Plasma 6.0</li>
+	  <li>Linux kernel 6.7</li>
+	  <li>Updated KDE Applications suite</li>
+	  <li>New system installer</li>
+	</ul>
+      </description>
+    </release>
+  </releases>
+  <screenshots>
+    <screenshot type="default">
+      <caption>KDE Linux desktop with Plasma 6.0</caption>
+      <image type="source" width="1920" height="1080">https://kdelinux.org/screenshots/desktop.png</image>
+    </screenshot>
+  </screenshots>
+  <content_rating type="oars-1.1" />
+</component>
