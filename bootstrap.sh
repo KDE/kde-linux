@@ -68,6 +68,7 @@ pacman --sync --refresh --noconfirm --sysupgrade \
     git \
     go \
     openssh \
+    qemu-base \
     qemu-img \
     rsync \
     ruby \

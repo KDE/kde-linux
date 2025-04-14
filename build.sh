@@ -43,7 +43,8 @@ ROOTFS_TAR=${OUTPUT}_root-x86-64.tar # Output rootfs tarball path (.zst will be 
 ROOTFS_EROFS=${OUTPUT}_root-x86-64.erofs # Output erofs image path
 IMG=${OUTPUT}.raw                    # Output raw image path
 
-EFI=kde-linux_${VERSION}+3.efi # Name of primary UKI in the image's ESP
+EFI_BASE=kde-linux_${VERSION} # Base name of the UKI in the image's ESP (exported so it can be used in basic-test-efi-addon.sh)
+EFI=${EFI_BASE}+3.efi # Name of primary UKI in the image's ESP
 
 ZSTD_LEVEL=3 # Compression level for zstd (3 = default of erofs as well)
 if [ "$CI_COMMIT_BRANCH" = "$CI_DEFAULT_BRANCH" ]; then
@@ -191,6 +192,8 @@ time mkfs.erofs -d0 -zzstd "$ROOTFS_EROFS" "$OUTPUT" > /dev/null 2>&1
 # Now assemble the two generated images using systemd-repart and the definitions in mkosi.repart into $IMG.
 touch "$IMG"
 systemd-repart --no-pager --empty=allow --size=auto --dry-run=no --root=kde-linux.cache --definitions=mkosi.repart "$IMG"
+
+./basic-test.py "$IMG" "$EFI_BASE" || exit 1
 
 # Create a torrent for the image
 ./torrent-create.rb "$VERSION" "$OUTPUT" "$IMG"

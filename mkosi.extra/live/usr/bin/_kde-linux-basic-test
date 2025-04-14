@@ -1,0 +1,29 @@
+#!/bin/env python3
+# SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL
+# SPDX-FileCopyrightText: 2025 Harald Sitter <sitter@kde.org>
+
+import os
+import subprocess
+import time
+from pathlib import Path
+
+callback = None
+with open('/proc/cmdline') as cmdline:
+    data = cmdline.read()
+    entries = data.split(' ')
+    for entry in entries:
+        if entry.startswith('kde-linux.basic-test-callback='):
+            # We don't support quoting of any kind.
+            callback = entry.split('=', 2)[1]
+            callback = callback.strip()
+            break
+
+if callback is None:
+    print('No callback specified. set kde-linux.basic-test-callback=')
+    exit(1)
+
+while True:
+    # 1000 is the uid of the live user. always.
+    if Path('/run/user/1000/kde-linux-bless-session').is_file():
+        subprocess.check_call(['curl', callback])
+    time.sleep(30)
