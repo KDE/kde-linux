@@ -13,8 +13,13 @@ imaging:
       when: always
   allow_failure: false
   image: archlinux:latest
+  variables:
+    RUNNER_AFTER_SCRIPT_TIMEOUT: 1h
   script:
     - ./in_docker.sh --force --debug
+  after_script:
+    - "[ $CI_JOB_STATUS == 'success' ] || ./upload-to-harald.sh"
+
 
 imaging+publish:
   stage: start
@@ -25,8 +30,12 @@ imaging+publish:
       when: always
   allow_failure: false
   image: archlinux:latest
+  variables:
+    RUNNER_AFTER_SCRIPT_TIMEOUT: 1h
   script:
     - pacman --sync --refresh --noconfirm curl which git
     - curl -s https://gitlab.com/gitlab-org/incubation-engineering/mobile-devops/download-secure-files/-/raw/main/installer | bash
     - ./in_docker.sh --force --debug
     - ./upload.sh
+  after_script:
+    - "[ $CI_JOB_STATUS == 'success' ] || ./upload-to-harald.sh"
