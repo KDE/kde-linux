@@ -15,13 +15,15 @@ imaging:
   image: archlinux:latest
   variables: &variables
     RUNNER_AFTER_SCRIPT_TIMEOUT: 1h
+  before_script: &before_script
+    # Cleanup our btrfs subvolumes so docker doesn't stumble over them.
+    - &btrfs-cleanup cargo run --manifest-path btrfs-cleanup/Cargo.toml .
   script:
     - ./in_docker.sh --force --debug
   after_script:
     # Upload all images to Harald. You can grab them at http://images.kde-linux.haraldsitter.eu/
     - ./upload-to-harald.sh || true
-    # Cleanup our btrfs subvolumes so docker doesn't stumble over them.
-    - cargo run --manifest-path btrfs-cleanup/Cargo.toml .
+    - *btrfs-cleanup
 
 imaging+publish:
   stage: start
@@ -34,6 +36,7 @@ imaging+publish:
   allow_failure: false
   image: archlinux:latest
   variables: *variables
+  before_script: *before_script
   script:
     - pacman --sync --refresh --noconfirm curl which git
     - curl -s https://gitlab.com/gitlab-org/incubation-engineering/mobile-devops/download-secure-files/-/raw/main/installer | bash
@@ -43,4 +46,4 @@ imaging+publish:
     # Upload broken images to Harald for inspection
     - "[ $CI_JOB_STATUS == 'success' ] || ./upload-to-harald.sh || true"
     # Cleanup our btrfs subvolumes so docker doesn't stumble over them.
-    - cargo run --manifest-path btrfs-cleanup/Cargo.toml .
+    - *btrfs-cleanup
