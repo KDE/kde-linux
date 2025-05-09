@@ -76,7 +76,7 @@ After=imports.target
 After=blockdev@dev-gpt\x2dauto\x2droot.target
 
 [Mount]
-What=/sysroot/system/kde-linux.erofs
+What=/sysroot/system/kde-linux_${BUILD_ID}.erofs
 Where=/sysusr/usr
 Options=ro,X-mount.subdir=usr
 EOF
