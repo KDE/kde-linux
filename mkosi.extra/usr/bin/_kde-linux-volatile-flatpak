@@ -15,7 +15,7 @@ if [ "$(readlink --canonicalize /dev/disk/by-label/KDELinuxLive)" != "$(readlink
 fi
 
 # Replicate what systemd-volatile-root does. Unfortunately we can't just use the volatile root because you can't
-# overlay with an overlay. This means we potentialy claim a lot of RAM (25% for root + 15% for flatpaks).
+# overlay with an overlay. This means we potentially claim a lot of RAM (25% for root + 15% for flatpaks).
 # Not ideal but there's no way I can see to get access to the volatile-sysroot (it gets unmounted and removed
 # before systemd-volatile-root exits).
 
