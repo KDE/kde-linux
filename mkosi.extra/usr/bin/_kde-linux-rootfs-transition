@@ -36,7 +36,7 @@ fi
 # We need access to our usr so we can import the /usr/share/factory/var.
 # Previously this was an overlay so we don't really know which files were used from the lower dir.
 mkdir /run/kde-linux-rootfs-transition-usr
-mount -o ro,X-mount.subdir=usr "/run/kde-linux-rootfs-transition/kde-linux_$VERSION_ID.erofs" /run/kde-linux-rootfs-transition-usr
+mount -o ro,X-mount.subdir=usr "/run/kde-linux-rootfs-transition/kde-linux_$IMAGE_VERSION.erofs" /run/kde-linux-rootfs-transition-usr
 
 _kde-linux-btrfs-migrator /run/kde-linux-rootfs-transition /run/kde-linux-rootfs-transition-usr
 
