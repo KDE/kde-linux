@@ -4,6 +4,8 @@
 
 set -eux
 
+. /etc/os-release
+
 if [ -b /dev/gpt-auto-root ]; then
     echo "gpt-auto-root exists"
 else
@@ -19,6 +21,11 @@ fi
 mkdir /run/kde-linux-rootfs-transition
 mount -o rw,subvol=/ /dev/gpt-auto-root /run/kde-linux-rootfs-transition
 
+# NOTE: this is required to be here!
+# It's a bit awkward but the system drive is not mounted yet, so we can only peek into it through our mount.
+# This is effectively the no-op condition that should be in the unit but can't be because we need the mount.
+# In a way we could think about moving the mounts into a generator TBH. Then we can do proper condition management on
+# the systemd side. Question is if they get correctly unmounted automatically.
 if [ -e /run/kde-linux-rootfs-transition/@system ]; then
     echo "@system exists"
     cd /
@@ -26,24 +33,13 @@ if [ -e /run/kde-linux-rootfs-transition/@system ]; then
     exit 0
 fi
 
-cd /run/kde-linux-rootfs-transition
-btrfs --verbose subvolume create /run/kde-linux-rootfs-transition/@system
+# We need access to our usr so we can import the /usr/share/factory/var.
+# Previously this was an overlay so we don't really know which files were used from the lower dir.
+mkdir /run/kde-linux-rootfs-transition-usr
+mount -o ro,X-mount.subdir=usr "/run/kde-linux-rootfs-transition/kde-linux_$VERSION_ID.erofs" /run/kde-linux-rootfs-transition-usr
 
-# overlays
-cp --recursive --archive --reflink=always /run/kde-linux-rootfs-transition/@etc-overlay/upper @system/etc || true
-cp --recursive --archive --reflink=always /run/kde-linux-rootfs-transition/@var-overlay/upper @system/var || true
-
-# subvolumes. these are technically difficult because they may contain subvolumes. Not really a good way to deal with that
-# outside writing a custom tool, so we just pretend they don't contain subvolumes yet.
-cp --recursive --archive --reflink=always /run/kde-linux-rootfs-transition/@home @system/home || true
-cp --recursive --archive --reflink=always /run/kde-linux-rootfs-transition/@root @system/root || true
-cp --recursive --archive --reflink=always /run/kde-linux-rootfs-transition/@snap @system/snap || true
-
-## We do not transition @containers nor @docker because of the subvolume complexity. With how few users we have they can
-## just transition these manually if they need them.
-
-# TODO turn all our subvolumes into readonly snapshots for backup purposes
-# TODO inform user of the change somehow
+_kde-linux-btrfs-migrator /run/kde-linux-rootfs-transition /run/kde-linux-rootfs-transition-usr
 
 cd /
+umount --recursive --lazy /run/kde-linux-rootfs-transition-usr
 umount --recursive --lazy /run/kde-linux-rootfs-transition

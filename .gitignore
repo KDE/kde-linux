@@ -12,6 +12,7 @@
 /upload-vacuum/upload-vacuum
 /upload-vacuum/vendor/
 /btrfs-cleanup/target/
+/btrfs-migrator/target/
 
 mkosi.local.conf
 
