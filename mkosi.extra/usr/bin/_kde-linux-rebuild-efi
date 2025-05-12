@@ -20,7 +20,7 @@ FILES=()
 HOOKS=(base systemd modconf kms keyboard block sd-encrypt filesystems fsck systemd-extension plymouth microcode)
 EOF
 
-echo "rw rootflags=subvol=@kde-linux_$IMAGE_VERSION,compress=zstd:1 \
+echo "rw rootflags=subvol=@system,compress=zstd:1 \
   systemd.volatile=overlay systemd.firstboot=false systemd.hostname=kde-linux kde-linux.live=1 plasma.live.user=live \
   lsm=landlock,lockdown,yama,integrity,apparmor,bpf \
   quiet splash" > cmdline
@@ -32,7 +32,7 @@ ukify build \
   --output live.efi
 
 # lsm= defaulting to apparmor from https://wiki.archlinux.org/title/AppArmor
-echo "rw rootflags=subvol=@kde-linux_$IMAGE_VERSION,compress=zstd:1 \
+echo "rw rootflags=subvol=@system,compress=zstd:1 \
   lsm=landlock,lockdown,yama,integrity,apparmor,bpf \
   quiet splash" > cmdline
 mkinitcpio --config mkinitcpio.conf --generate initrd --kernel "$kernel_version"
