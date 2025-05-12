@@ -1,0 +1,16 @@
+# SPDX-License-Identifier: BSD-2-Clause
+# SPDX-FileCopyrightText: None
+
+[package]
+name = "btrfs-migrator"
+version = "0.1.0"
+edition = "2024"
+
+[[bin]]
+name = "_kde-linux-btrfs-migrator"
+path = "src/main.rs"
+
+[dependencies]
+dialoguer = "0.11.0"
+fstab = "0.4.0"
+libbtrfsutil = "0.7.1"
