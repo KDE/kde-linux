@@ -41,7 +41,7 @@ fn run(root: &Path, usr: &Path) -> Result<(), Box<dyn Error>> {
     }
     if concerning_fstab_entries > 0 {
         let _ = Command::new("plymouth")
-            .arg("deactivate")
+            .arg("hide-splash")
             .status();
 
         println!("Found {concerning_fstab_entries} concerning fstab entries. This suggests you have a more complicated fstab setup that we cannot auto-migrate. \
@@ -163,7 +163,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     match run(root, usr) {
         Ok(_) => {
             // Reactivate in case we deactivated it earlier
-            let _ = Command::new("plymouth").arg("reactivate").status();
+            let _ = Command::new("plymouth").arg("show-splash").status();
             Ok(())
         }
         Err(e) => {
@@ -171,7 +171,7 @@ fn main() -> Result<(), Box<dyn Error>> {
             Command::new("plymouth")
                 .arg("quit")
                 .status()
-                .expect("failed to execute plymouth reactivate");
+                .expect("failed to execute plymouth show-splash");
             Err(e)
         }
     }
