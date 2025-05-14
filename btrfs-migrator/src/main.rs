@@ -72,6 +72,7 @@ fn run(root: &Path, usr: &Path) -> Result<(), Box<dyn Error>> {
             .arg("--recursive")
             .arg("--archive")
             .arg("--reflink=auto")
+            .arg("--no-target-directory")
             .arg(&lower_path)
             .arg(dir)
             .status()
@@ -87,6 +88,7 @@ fn run(root: &Path, usr: &Path) -> Result<(), Box<dyn Error>> {
             .arg("--recursive")
             .arg("--archive")
             .arg("--reflink=auto")
+            .arg("--no-target-directory")
             .arg(&dir_path)
             .arg(dir)
             .status().expect("Failed to copy upper dir");
