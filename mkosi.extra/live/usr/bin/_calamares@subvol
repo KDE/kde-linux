@@ -24,32 +24,26 @@ rm -rfv ./*
 btrfs subvolume sync . || true
 umount -R --lazy "$ROOT" # unmount is important as otherwise we still hold a subvolume open and it can never sync deletion
 
-mount -o ro /dev/gpt-auto-root /system
 mount -o rw "$device" "$tmpdir"
 cd "$tmpdir"
 rm -rfv ./*
 btrfs subvolume sync . || true
 
 btrfs quota enable --simple .
-btrfs send --compressed-data "/system/@kde-linux_$IMAGE_VERSION" | btrfs receive .
-btrfs subvolume create @home
-btrfs subvolume create @root
-btrfs subvolume create @locale
-btrfs subvolume create @snap
-btrfs subvolume create @var-overlay
-btrfs subvolume create @etc-overlay
-mkdir @var-overlay/upper @var-overlay/work @etc-overlay/upper @etc-overlay/work
+btrfs subvolume create @system
+mkdir @system/boot @system/proc @system/sys @system/dev @system/run @system/usr
+cp /dev/gpt-auto-root kde-linux_$IMAGE_VERSION.erofs
 
 # Overmount calamares' mount with the subvol mount
-mount -o "subvol=@kde-linux_$IMAGE_VERSION" "$device" "$ROOT"
+mount -o "subvol=@system" "$device" "$ROOT"
 mount -t proc proc "$ROOT/proc"
 mount -t sysfs sys "$ROOT/sys"
 mount -o bind /dev "$ROOT/dev"
 mount -t tmpfs tmpfs "$ROOT/run"
-mkdir "$ROOT/run/udev"
+mkdir "$ROOT/run/udev" # This is not part of @system but rather the $ROOT (do not move this to the mkdir list of @system!)
 mount -o bind /run/udev "$ROOT/run/udev"
 mount -t efivarfs efivarfs "$ROOT/sys/firmware/efi/efivars"
-_kde-linux-overlay "$device" "$ROOT"
+mount -o ro,X-mount.subdir=usr /dev/gpt-auto-root "$ROOT/usr"
 
 # ESP is a bit tricky. Find the block device of the root partition and then we'll ask systemd for an ESP on that device.
 # ... and luks devices are even more tricky because we need to get the real device first
@@ -64,9 +58,13 @@ blockdev=/dev/$(basename "$(readlink --canonicalize "/sys/class/block/$realdevic
 espdev=$(_kde-linux-find-esp "$blockdev")
 mount "$espdev" "$ROOT/boot"
 
-# Once everything is in place we'll shove some extra data into the overlays.
-# We notably don't want to carry flatpaks in the rootfs but for purposes of the image file they must be shipped somehow.
-# In the live session they are mounted in place, for the installed system we actually seed /var/lib/flatpak with data.
-# TODO: doing it this way means we can't factory reset flatpaks. Figure out what to do about that.
-rm -rf "$ROOT/var/lib/flatpak"
-cp -ra /system/@flatpak "$ROOT/var/lib/flatpak"
+# TODO: fix in calamares (doesn't mkdir properly)
+mkdir --parents "$ROOT/etc/sudoers.d/"
+
+# Bit of a crutch to get systemd's base_filesystem_create() to run so the / gets populated with symlinks.
+systemd-nspawn -D "$ROOT" "true" || true
+
+# Initialize systemd stuff
+systemd-sysusers --root="$ROOT"
+# exclude /usr because some tmpfiles are rubbish and assume /usr is writable...
+systemd-tmpfiles --root="$ROOT" --exclude-prefix=/usr --create
