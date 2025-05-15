@@ -4,4 +4,4 @@
 
 set -eux
 
-flatpak install --noninteractive --assumeyes --sideload-repo=/system/@flatpak/.ostree/repo org.kde.dolphin org.kde.elisa org.kde.gwenview org.kde.okular org.kde.konsole org.kde.kate org.kde.kwrite org.kde.haruna org.kde.ark org.mozilla.firefox
+flatpak install --noninteractive --assumeyes --sideload-repo=/usr/share/factory/var/lib/flatpak/.ostree/repo org.kde.dolphin org.kde.elisa org.kde.gwenview org.kde.okular org.kde.konsole org.kde.kate org.kde.kwrite org.kde.haruna org.kde.ark org.mozilla.firefox
