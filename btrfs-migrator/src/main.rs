@@ -44,6 +44,8 @@ fn run(root: &Path, usr: &Path) -> Result<(), Box<dyn Error>> {
             .arg("hide-splash")
             .status();
 
+        let _ = qr2term::print_qr("https://community.kde.org/KDE_Linux/RootFSv2");
+
         println!("Found {concerning_fstab_entries} concerning fstab entries. This suggests you have a more complicated fstab setup that we cannot auto-migrate. \
             If nothing critically important is managed by fstab you can let the auto-migration run. If you have entries that are required for the system to boot you should manually migrate to @system.");
         // TODO: add wiki link to migration instructions
