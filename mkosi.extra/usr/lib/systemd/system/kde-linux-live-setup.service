@@ -6,11 +6,11 @@ Description=KDE Linux Live Session Setup
 Requires=systemd-logind.service
 Before=display-manager.service
 After=systemd-logind.service systemd-homed.service
-ConditionPathExists=/system/@live/usr/bin/_kde-linux-live-setup
+ConditionPathExists=/live/usr/bin/_kde-linux-live-setup
 ConditionKernelCommandLine=kde-linux.live=1
 
 [Service]
-ExecStart=/system/@live/usr/bin/_kde-linux-live-setup
+ExecStart=/live/usr/bin/_kde-linux-live-setup
 ExecStartPost=/usr/bin/systemctl disable %n
 
 [Install]

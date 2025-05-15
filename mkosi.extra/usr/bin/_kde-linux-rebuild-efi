@@ -21,7 +21,7 @@ HOOKS=(base systemd modconf kms keyboard block sd-encrypt filesystems fsck syste
 EOF
 
 # TODO: drop kde-linux.erofs=1
-echo "rw rootflags=subvol=@system,compress=zstd:1 \
+echo "rw \
   systemd.volatile=overlay systemd.firstboot=false systemd.hostname=kde-linux kde-linux.live=1 plasma.live.user=live \
   lsm=landlock,lockdown,yama,integrity,apparmor,bpf \
   quiet splash kde-linux.erofs=1" > cmdline

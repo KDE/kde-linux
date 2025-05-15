@@ -10,13 +10,14 @@ if ! grep "kde-linux.live=1" /proc/cmdline; then
     exit 1
 fi
 
-if [ "$(readlink --canonicalize /dev/disk/by-label/KDELinuxLive)" != "$(readlink --canonicalize /dev/gpt-auto-root)" ]; then
+if [ "$(readlink --canonicalize /dev/disk/by-partlabel/KDELinuxLive)" != "$(readlink --canonicalize /dev/gpt-auto-root)" ]; then
     echo "gpt-auto-root is not KDELinuxLive"
     exit 1
 fi
 
 mkdir --mode 0755 /run/extensions/
-ln -s /system/@live /run/extensions/live
+# Mind that /live is only available if the erofs is mounted as rootfs. On the final system we selectively only mount usr from the erofs!
+ln -s /live /run/extensions/live
 systemd-sysext refresh
 
 useradd --create-home --comment "Live User" live
@@ -29,7 +30,7 @@ ln -s ../usr/share/zoneinfo/UTC /etc/localtime
 timedatectl set-timezone UTC
 localectl set-locale C.UTF-8
 
-mkdir /etc/sddm.conf.d/
+mkdir --parents /etc/sddm.conf.d/
 cat << EOF > /etc/sddm.conf.d/live.conf
 [Autologin]
 User=live
@@ -60,7 +61,7 @@ Enabled=false
 EOF
 
 # Allow sudo in the live environment for troubleshooting
-mkdir -p /etc/sudoers.d
+mkdir --parents /etc/sudoers.d
 cat << EOF > /etc/sudoers.d/04_live
 %wheel ALL=(ALL:ALL) NOPASSWD: ALL
 EOF
