@@ -115,85 +115,12 @@ umount esp.raw.mnt
 # Copy back the main UKI for the root.
 cp "$MAIN_UKI" "${OUTPUT}/efi-template/EFI/Linux/$EFI"
 
-# Create an 8G large btrfs filesystem inside of root.raw.
-# Don't fret, we'll shrink this down to however much we actually need later.
-fallocate -l 8G root.raw
-mkfs.btrfs -L KDELinuxLive root.raw
-
-# Mount it to root.raw.mnt.
-mkdir -p root.raw.mnt # The -p prevents failure if directory already exists
-mount -o compress-force=zstd:${ZSTD_LEVEL} root.raw root.raw.mnt
-
-# Change to root.raw.mnt since we'll be working there.
-cd root.raw.mnt
-
-# Enable compression filesystem-wide.
-btrfs property set . compression zstd:${ZSTD_LEVEL}
-
-# Store both data and metadata only once for more compactness.
-btrfs balance start --force -mconvert=single -dconvert=single .
-
-# Create all the subvolumes we need.
-btrfs subvolume create \
-    @home \
-    @root \
-    @locale \
-    @snap \
-    @etc-overlay \
-    @var-overlay \
-    @live \
-    @flatpak \
-    "@kde-linux_$VERSION"
-
-mkdir @etc-overlay/upper \
-    @etc-overlay/work \
-    @var-overlay/upper \
-    @var-overlay/work
-
-# For performance reasons we now transfer the entire subvolume into our mount point. This is a deep copy but by streaming
-# the entire subvolume is much faster than doing a file-by-file copy instead. Still. This is a major bottleneck.
-btrfs property set "${OUTPUT}" ro true
-time btrfs send "${OUTPUT}" | btrfs receive .
-OUTPUT_NAME=$(basename "${OUTPUT}")
-# make writable
-mv "${OUTPUT_NAME}" "${OUTPUT_NAME}.ro"
-btrfs subvolume snapshot "${OUTPUT_NAME}.ro" "${OUTPUT_NAME}"
-btrfs subvolume delete "${OUTPUT_NAME}.ro"
-
-# Create read-only subvolumes from chroot's /live, /var/lib/flatpak, and /.
-# mv what we can move to improve speed. when copying force reflinks, also for speed reasons.
-mv ${OUTPUT_NAME}/live/* @live/
-mv ${OUTPUT_NAME}/var/lib/flatpak/* @flatpak/
-time cp --reflink=always --recursive --archive "${OUTPUT_NAME}/." "@kde-linux_$VERSION"
-btrfs subvolume delete "${OUTPUT_NAME}"
-btrfs property set @live ro true
-btrfs property set @flatpak ro true
-btrfs property set "@kde-linux_$VERSION" ro true
-
-# Make a symlink called @kde-linux to the rootfs subvolume.
-ln --symbolic "@kde-linux_$VERSION" @kde-linux
-
-# Make sure everything is written before we continue.
-btrfs filesystem sync .
-
-# Optimize the filesystem for better shrinking/performance.
-btrfs filesystem defragment -r .
-btrfs filesystem sync .
-duperemove -rdq .
-btrfs filesystem sync .
-btrfs balance start --full-balance --enqueue .
-btrfs filesystem sync .
-
-cd .. # up to kde-linux.cache
-time ../btrfs-shrink-and-umount.py
 cd .. # and back to root
 
 # Create rootfs tarball for consumption by systemd-sysext (doesn't currently support consuming raw images :()
-rm -rf "$ROOTFS_TAR" ./*.tar
-time tar -C "${OUTPUT}"/ --xattrs --xattrs-include=*.* -cf "$ROOTFS_TAR" .
-time zstd -T0 --rm "$ROOTFS_TAR"
 
 time mkfs.erofs -d0 -zzstd "$ROOTFS_EROFS" "$OUTPUT" > /dev/null 2>&1
+cp --reflink=auto "$ROOTFS_EROFS" kde-linux.cache/root.raw
 
 # Now assemble the two generated images using systemd-repart and the definitions in mkosi.repart into $IMG.
 touch "$IMG"
