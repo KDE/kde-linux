@@ -78,11 +78,11 @@ mkosi \
 # NOTE: /efi must be empty so auto mounting can happen. As such we put our templates in a different directory
 rm -rfv "${OUTPUT}/efi"
 [ -d "${OUTPUT}/efi" ] || mkdir --mode 0700 "${OUTPUT}/efi"
-[ -d "${OUTPUT}/efi-template" ] || mkdir --mode 0700 "${OUTPUT}/efi-template"
-[ -d "${OUTPUT}/efi-template/EFI" ] || mkdir --mode 0700 "${OUTPUT}/efi-template/EFI"
-[ -d "${OUTPUT}/efi-template/EFI/Linux" ] || mkdir --mode 0700 "${OUTPUT}/efi-template/EFI/Linux"
+[ -d "${OUTPUT}/usr/share/factory/boot" ] || mkdir --mode 0700 "${OUTPUT}/usr/share/factory/boot"
+[ -d "${OUTPUT}/usr/share/factory/boot/EFI" ] || mkdir --mode 0700 "${OUTPUT}/usr/share/factory/boot/EFI"
+[ -d "${OUTPUT}/usr/share/factory/boot/EFI/Linux" ] || mkdir --mode 0700 "${OUTPUT}/usr/share/factory/boot/EFI/Linux"
 cp -v "${OUTPUT}"/kde-linux.efi "$MAIN_UKI"
-mv -v "${OUTPUT}"/kde-linux.efi "${OUTPUT}/efi-template/EFI/Linux/$EFI"
+mv -v "${OUTPUT}"/kde-linux.efi "${OUTPUT}/usr/share/factory/boot/EFI/Linux/$EFI"
 mv -v "${OUTPUT}"/live.efi "$LIVE_UKI"
 
 make_debug_archive
@@ -91,7 +91,7 @@ make_debug_archive
 # We use kde-linux.cache instead of /tmp as usual because we'll probably run out of space there.
 
 # Since we're building a live image, replace the main UKI with the live one.
-cp "$LIVE_UKI" "${OUTPUT}/efi-template/EFI/Linux/$EFI"
+cp "$LIVE_UKI" "${OUTPUT}/usr/share/factory/boot/EFI/Linux/$EFI"
 
 # Change to kde-linux.cache since we'll be working there.
 cd kde-linux.cache
@@ -104,8 +104,8 @@ mkfs.fat -F 32 esp.raw
 mkdir -p esp.raw.mnt # The -p prevents failure if directory already exists
 mount esp.raw esp.raw.mnt
 
-# Copy everything from /efi-template into esp.raw.mnt.
-cp --archive --recursive "${OUTPUT}/efi-template/." esp.raw.mnt
+# Copy everything from /usr/share/factory/boot into esp.raw.mnt.
+cp --archive --recursive "${OUTPUT}/usr/share/factory/boot/." esp.raw.mnt
 
 # We're done, unmount esp.raw.mnt.
 umount esp.raw.mnt
@@ -113,7 +113,7 @@ umount esp.raw.mnt
 # Now, the root.
 
 # Copy back the main UKI for the root.
-cp "$MAIN_UKI" "${OUTPUT}/efi-template/EFI/Linux/$EFI"
+cp "$MAIN_UKI" "${OUTPUT}/usr/share/factory/boot/EFI/Linux/$EFI"
 
 cd .. # and back to root
 
