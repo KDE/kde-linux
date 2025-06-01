@@ -68,3 +68,6 @@ systemd-nspawn -D "$ROOT" "true" || true
 systemd-sysusers --root="$ROOT"
 # exclude /usr because some tmpfiles are rubbish and assume /usr is writable...
 systemd-tmpfiles --root="$ROOT" --exclude-prefix=/usr --create
+# Make sure presets are applied
+systemctl --root="$ROOT" preset-all
+systemctl --root="$ROOT" preset-all --global
