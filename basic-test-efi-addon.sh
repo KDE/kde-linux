@@ -4,7 +4,7 @@
 
 set -eux
 
-cd efi/EFI/Linux/
+cd boot/EFI/Linux/
 
 dir="$UKI.extra.d"
 [ -d "$dir" ] || mkdir "$dir"
