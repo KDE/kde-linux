@@ -37,8 +37,7 @@ subprocess.check_call(['cp', '--reflink=auto', img, test_img])
 subprocess.check_call(['systemd-dissect', test_img, '--with', f'{os.path.dirname(os.path.realpath(__file__))}/basic-test-efi-addon.sh'],
                       env={'PORT': str(server.server_port),
                            'UKI': efi_base},
-                      stdout=subprocess.PIPE,
-                      stderr=subprocess.PIPE)
+                      stdout=sys.stdout, stderr=sys.stderr)
 
 # I ought to point out that this leaks the process in case of failure. It will however get reaped by the docker container shutdown.
 qemu = subprocess.Popen([
