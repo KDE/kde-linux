@@ -119,7 +119,16 @@ cd .. # and back to root
 
 # Create rootfs tarball for consumption by systemd-sysext (doesn't currently support consuming raw images :()
 
-time mkfs.erofs -d0 -zzstd "$ROOTFS_EROFS" "$OUTPUT" > /dev/null 2>&1
+# Currently our build machine's kernel doesn't support zstd so we use xz instead.
+# This is a temporary workaround until the great CI VM transition happens and we can use a more recent kernel.
+erofs_algorithm=zstd
+algorithm_timeout=1751612936 # Friday, July 4, 2025 7:08:56 AM
+if [ "$(date +%s)" -le $algorithm_timeout ]; then
+  erofs_algorithm=deflate
+fi
+echo "Using erofs algorithm: $erofs_algorithm"
+
+time mkfs.erofs -d0 "-z$erofs_algorithm" "$ROOTFS_EROFS" "$OUTPUT" > /dev/null 2>&1
 cp --reflink=auto "$ROOTFS_EROFS" kde-linux.cache/root.raw
 
 # Now assemble the two generated images using systemd-repart and the definitions in mkosi.repart into $IMG.
