@@ -5,7 +5,6 @@
 build() {
     map add_binary \
         /usr/lib/systemd/systemd-volatile-root \
-        /usr/bin/_kde-linux-overlay \
         /usr/bin/_kde-linux-rootfs-transition \
         /usr/bin/_kde-linux-btrfs-migrator \
         /usr/lib/systemd/system-generators/kde-linux-live-generator \
@@ -15,7 +14,6 @@ build() {
 
     map add_systemd_unit \
         systemd-volatile-root.service \
-        kde-linux-overlay.service \
         systemd-bootchart.service
 
     # Make double sure the dissection rule is present. Without it booting doesn't work because we can't find a root.

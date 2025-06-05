@@ -19,11 +19,6 @@ if grep "kde-linux.live=1" /proc/cmdline; then
     exit 0
 fi
 
-if ! grep "kde-linux.erofs=1" /proc/cmdline; then
-    echo "kde-linux.erofs=1 not in cmdline. Not generating mount units."
-    exit 0
-fi
-
 if [ "$SYSTEMD_IN_INITRD" = "1" ]; then
 
     # The transition service in case the system needs transitioning still
