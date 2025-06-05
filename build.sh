@@ -41,7 +41,6 @@ OUTPUT="$(readlink --canonicalize-missing "$OUTPUT")"
 MAIN_UKI=${OUTPUT}.efi               # Output main UKI path
 LIVE_UKI=${OUTPUT}_live.efi          # Output live UKI path
 DEBUG_TAR=${OUTPUT}_debug-x86-64.tar # Output debug archive path (.zst will be added)
-ROOTFS_TAR=${OUTPUT}_root-x86-64.tar # Output rootfs tarball path (.zst will be added)
 ROOTFS_EROFS=${OUTPUT}_root-x86-64.erofs # Output erofs image path
 IMG=${OUTPUT}.raw                    # Output raw image path
 
