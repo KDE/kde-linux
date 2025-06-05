@@ -48,12 +48,6 @@ IMG=${OUTPUT}.raw                    # Output raw image path
 EFI_BASE=kde-linux_${VERSION} # Base name of the UKI in the image's ESP (exported so it can be used in basic-test-efi-addon.sh)
 EFI=${EFI_BASE}+3.efi # Name of primary UKI in the image's ESP
 
-ZSTD_LEVEL=3 # Compression level for zstd (3 = default of erofs as well)
-if [ "$CI_COMMIT_BRANCH" = "$CI_DEFAULT_BRANCH" ]; then
-  # If we are on the default branch, use the highest compression level.
-  ZSTD_LEVEL=15
-fi
-
 # Clean up old build artifacts.
 rm --recursive --force kde-linux.cache/*.raw kde-linux.cache/*.mnt
 
