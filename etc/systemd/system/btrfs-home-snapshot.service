@@ -1,0 +1,6 @@
+[Unit]
+Description=Create Btrfs snapshot of /home
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/btrfs subvolume snapshot -r /home /home/.snapshots/home-$(date +%%Y-%%m-%%d_%%H-%%M-%%S)

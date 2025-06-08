@@ -1,0 +1,6 @@
+[Unit]
+Description=Prune old Btrfs snapshots
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/btrfs-snapshot-prune.sh
