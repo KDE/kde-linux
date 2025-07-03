@@ -14,12 +14,13 @@ stages:
 imaging:
   stage: start
   tags:
-    - kde-linux-image-x86_64
+    - VM
+    - amd64
   rules:
     - if: $CI_COMMIT_REF_PROTECTED != 'true' || $CI_DEFAULT_BRANCH != $CI_COMMIT_REF_NAME || $CI_PROJECT_PATH != 'kde-linux/kde-linux'
       when: always
   allow_failure: false
-  image: archlinux:latest
+  image: storage.kde.org/vm-images/kde-linux-builder
   variables: &variables
     RUNNER_AFTER_SCRIPT_TIMEOUT: 1h
   script:
