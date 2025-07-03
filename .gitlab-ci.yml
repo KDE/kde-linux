@@ -14,16 +14,17 @@ stages:
 imaging:
   stage: start
   tags:
-    - kde-linux-image-x86_64
+    - VM
+    - amd64
   rules:
     - if: $CI_COMMIT_REF_PROTECTED != 'true' || $CI_DEFAULT_BRANCH != $CI_COMMIT_REF_NAME || $CI_PROJECT_PATH != 'kde-linux/kde-linux'
       when: always
   allow_failure: false
-  image: archlinux:latest
+  image: storage.kde.org/vm-images/kde-linux-builder
   variables: &variables
     RUNNER_AFTER_SCRIPT_TIMEOUT: 1h
   script:
-    - ./in_docker.sh --force --debug
+    - sudo ./build.sh --force --debug # bootstap.sh happens as part of CI image build
   after_script:
     # Upload all images to Harald. You can grab them at http://images.kde-linux.haraldsitter.eu/
     - ./upload-to-harald.sh || true
@@ -42,9 +43,9 @@ imaging+publish:
   image: archlinux:latest
   variables: *variables
   script:
-    - pacman --sync --refresh --noconfirm curl which git
-    - curl -s https://gitlab.com/gitlab-org/incubation-engineering/mobile-devops/download-secure-files/-/raw/main/installer | bash
-    - ./in_docker.sh --force --debug
+    - sudo pacman --sync --refresh --noconfirm curl which git
+    - curl -s https://gitlab.com/gitlab-org/incubation-engineering/mobile-devops/download-secure-files/-/raw/main/installer | sudo bash
+    - sudo ./in_docker.sh --force --debug
     - ./upload.sh
   after_script:
     # Upload broken images to Harald for inspection
