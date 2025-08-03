@@ -72,13 +72,10 @@ download_flatpaks() {
     flatpak remote-add --if-not-exists kde-runtime-nightly https://cdn.kde.org/flatpak/kde-runtime-nightly/kde-runtime-nightly.flatpakrepo
 
     kde_nightly=(
-        ark
-        dolphin
         elisa
         gwenview
         kate
         haruna
-        konsole
     )
 
     # Add Nightly repos
