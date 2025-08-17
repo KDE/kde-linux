@@ -25,13 +25,6 @@ pacman --remove --noconfirm corrosion rust || true
 # No packagekit support or AppStream metadata in discover please! We don't want discover talking about pacman things.
 pacman --remove --noconfirm packagekit libpackagekit-glib archlinux-appstream-data || true
 
-# Calamares
-cd /tmp
-git clone --depth 1 https://codeberg.org/Calamares/calamares.git
-cmake -S calamares -B calamares/build -DCMAKE_INSTALL_PREFIX=/usr -DBUILD_TESTING=OFF -DWITH_QT6=ON
-cmake --build calamares/build "-j$(nproc)"
-DESTDIR=/live/ cmake --install calamares/build
-
 cat <<- EOF > /usr/share/icons/default/index.theme
 [Icon Theme]
 Inherits=breeze_cursors
