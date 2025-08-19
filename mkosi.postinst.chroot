@@ -32,6 +32,13 @@ cmake -S calamares -B calamares/build -DCMAKE_INSTALL_PREFIX=/usr -DBUILD_TESTIN
 cmake --build calamares/build "-j$(nproc)"
 DESTDIR=/live/ cmake --install calamares/build
 
+# 💋 hack to shortcut our incredibly long package pipeline
+cd /tmp
+git clone --depth 1 https://invent.kde.org/system/kiss.git
+cmake -S kiss -B kiss/build -DCMAKE_INSTALL_PREFIX=/usr -DBUILD_TESTING=OFF
+cmake --build kiss/build "-j$(nproc)"
+cmake --install kiss/build
+
 cat <<- EOF > /usr/share/icons/default/index.theme
 [Icon Theme]
 Inherits=breeze_cursors

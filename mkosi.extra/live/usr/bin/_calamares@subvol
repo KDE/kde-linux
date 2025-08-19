@@ -72,3 +72,5 @@ systemd-tmpfiles --root="$ROOT" --exclude-prefix=/usr --create
 systemctl --root="$ROOT" preset-all
 systemctl --root="$ROOT" preset-all --global
 
+systemctl --root="$ROOT" enable kde-initial-system-setup.service
+
