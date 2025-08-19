@@ -76,6 +76,9 @@ echo "Server = https://archive.archlinux.org/repos/${BUILD_DATE}/\$repo/os/\$arc
 cargo build --release --manifest-path btrfs-migrator/Cargo.toml
 cp -v btrfs-migrator/target/release/_kde-linux-btrfs-migrator mkosi.extra/usr/bin/
 
+git clone https://invent.kde.org/kde-linux/kde-linux-sysupdated
+DESTDIR=$PWD/mkosi.extra make --directory=kde-linux-sysupdated install
+
 mkosi \
     --environment="CI_COMMIT_SHORT_SHA=${CI_COMMIT_SHORT_SHA:-unknownSHA}" \
     --environment="CI_COMMIT_SHA=${CI_COMMIT_SHA:-unknownSHA}" \
