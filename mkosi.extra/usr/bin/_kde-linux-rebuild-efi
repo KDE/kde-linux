@@ -24,7 +24,7 @@ echo "rw \
   systemd.volatile=overlay systemd.firstboot=false systemd.hostname=kde-linux kde-linux.live=1 plasma.live.user=live \
   lsm=landlock,lockdown,yama,integrity,apparmor,bpf \
   vt.global_cursor_default=0 quiet splash loglevel=3" > cmdline
-mkinitcpio --config mkinitcpio.conf --generate initrd --kernel "$kernel_version"
+mkinitcpio --verbose --config mkinitcpio.conf --generate initrd --kernel "$kernel_version"
 ukify build \
   --linux /boot/vmlinuz-linux \
   --initrd initrd \
