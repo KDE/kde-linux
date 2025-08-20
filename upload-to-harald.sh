@@ -11,7 +11,7 @@ echo "[images.kde-linux.haraldsitter.eu]:2022 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AA
 chmod 600 ~/.ssh/known_hosts
 
 echo "cd images" > upload-to-harald.sftp
-for f in *.raw *.erofs *.efi; do
+for f in *.raw *.erofs *.efi *.tar.zst; do
     if [[ $f == *.test.raw ]]; then
         # Skip test images
         continue
