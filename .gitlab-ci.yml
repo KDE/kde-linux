@@ -38,7 +38,7 @@ imaging+publish:
     - amd64
   rules:
     # NOTE: these are different from the regular imaging job!
-    - if: $CI_COMMIT_REF_PROTECTED == 'true' && $CI_DEFAULT_BRANCH == $CI_COMMIT_REF_NAME && $CI_PROJECT_PATH == 'kde-linux/kde-linux'
+    - if: $CI_PROJECT_PATH == 'kde-linux/kde-linux' && (($CI_COMMIT_REF_PROTECTED == 'true' && $CI_DEFAULT_BRANCH == $CI_COMMIT_REF_NAME) || ($CI_COMMIT_REF_NAME == 'work/sitter/legacy2v2'))
       when: always
   allow_failure: false
   image: storage.kde.org/vm-images/kde-linux-builder
