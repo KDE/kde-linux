@@ -30,6 +30,7 @@ enable kde-linux-live-setup.service
 enable kde-linux-volatile-var-lib-flatpak.service
 enable plasma-setup-live-system.service
 enable var-lib-snapd-snap.mount
+enable fstrim.timer
 
 # networkd - we use networkmanager
 disable systemd-networkd-wait-online.service
