@@ -16,6 +16,7 @@ enable systemd-zram-setup@zram0.service
 enable systemd-oomd.service
 enable bluetooth.service
 enable cups.service
+enable kde-linux-powertop.service
 enable tuned.service
 enable tuned-ppd.service
 enable thermald.service

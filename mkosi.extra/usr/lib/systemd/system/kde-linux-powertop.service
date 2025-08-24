@@ -1,0 +1,13 @@
+# SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL
+# SPDX-FileCopyrightText: 2025 Nate Graham <nate@kde.org>
+
+[Unit]
+Description=Power tunings
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/powertop --auto-tune
+ExecStartPost=/usr/bin/_kde-linux-disable-usb-autosuspend-for-input-devices
+
+[Install]
+WantedBy=multi-user.target sleep.target

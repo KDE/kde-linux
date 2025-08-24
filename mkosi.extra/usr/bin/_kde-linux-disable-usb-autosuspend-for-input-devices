@@ -1,0 +1,16 @@
+#!/bin/sh
+# SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL
+# SPDX-FileCopyrightText: 2025 Nate Graham <nate@kde.org>
+
+# Turn off USB auto-suspend for USB input devices, because
+# this can make them borderline unusable.
+
+set -e
+
+INPUT_DEVICE_IDS=$(find /sys/bus/usb/drivers/usbhid -regex '.*\/[0-9:.-]+' -printf '%f\n' | cut -d ":" -f 1 | sort -u)
+
+for DEVICE_ID in $INPUT_DEVICE_IDS; do
+    DEVICE_PRETTY_NAME=$(cat /sys/bus/usb/devices/$DEVICE_ID/product)
+    echo "Disabling USB auto-suspend for device \"$DEVICE_PRETTY_NAME\" (with ID $DEVICE_ID)"
+    echo "on" >| "/sys/bus/usb/devices/$DEVICE_ID/power/control";
+done
