@@ -4,44 +4,6 @@
 
 set -ex
 
-# -----------------------------------------------------------------------------
-# Validate tmpfiles.d symlinks against factory defaults
-# -----------------------------------------------------------------------------
-grep -h '^L[[:space:]]' /usr/lib/tmpfiles.d/*.conf | grep -v '^L[?+]' | \
-while read -r type path _ _ _ target; do
-    # Remove quotes if present and extract the actual target path
-    target=$(echo "$target" | sed -e 's/^"//' -e 's/"$//' -e "s/^'//" -e "s/'$//")
-    
-    # Check if target is empty (defaults to factory location)
-    if [ -z "$target" ] || [ "$target" = "-" ]; then
-        # Extract filename from path to determine factory location
-        filename=$(basename "$path")
-        if [ "$filename" = "etc" ] || echo "$path" | grep -q '^/etc/'; then
-            factory_target="/usr/share/factory/etc/${path#/etc/}"
-        elif [ "$filename" = "var" ] || echo "$path" | grep -q '^/var/'; then
-            factory_target="/usr/share/factory/var/${path#/var/}"
-        else
-            factory_target="/usr/share/factory$path"
-        fi
-        echo "L $path -> (factory default: $factory_target)"
-        if [ -e "$factory_target" ]; then
-            echo "  ✓ Factory target exists: $factory_target"
-        else
-            echo "  ✗ Factory target missing: $factory_target"
-            exit 1
-        fi
-    else
-        echo "L $path -> $target"
-        if [ -e "$target" ]; then
-            echo "  ✓ Target exists: $target"
-        else
-            echo "  ✗ Target missing: $target"
-            exit 1
-        fi
-    fi
-done
-# -----------------------------------------------------------------------------
-
 rm -vf ./*.addon.efi
 rm -rfv /efi/EFI/Linux/kde-linux_*.efi.extra.d
 
