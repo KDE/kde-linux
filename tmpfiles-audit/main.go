@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL
-// SPDX-FileCopyrightText: 2025 Hadi Chokr <hadichokr@icloud.com>
+// SPDX-FileCopyrightText: 2025 Hadi Chokr hadichokr@icloud.com
 
 package main
 
@@ -33,6 +33,18 @@ func cleanQuotes(s string) string {
 	return s
 }
 
+// resolveTargetPath resolves a target path relative to the symlink's directory
+func resolveTargetPath(symlinkPath, target string) string {
+	// If target is already absolute, return as-is
+	if filepath.IsAbs(target) {
+		return target
+	}
+	
+	// Resolve relative to the symlink's directory
+	symlinkDir := filepath.Dir(symlinkPath)
+	return filepath.Clean(filepath.Join(symlinkDir, target))
+}
+
 // factoryTarget returns the "factory default" target for a given path.
 // /etc and /var have special handling; others are under /usr/share/factory.
 func factoryTarget(path string) string {
@@ -55,7 +67,11 @@ func processLine(line string, linkedDirs map[string]map[string]bool) error {
 	}
 
 	// Determine prefix: normal, optional, or force recreate
-	prefix := line[:2]
+	prefix := line[:1]
+	if len(line) > 1 && (line[1] == '?' || line[1] == '+') {
+		prefix = line[:2]
+	}
+	
 	targetOptional := false
 	recreate := false
 
@@ -104,22 +120,27 @@ func processLine(line string, linkedDirs map[string]map[string]bool) error {
 			linkedDirs[dir][filepath.Base(ft)] = true
 		}
 	} else {
-		// Explicit target given
+		// Explicit target given - resolve relative path if needed
+		resolvedTarget := resolveTargetPath(path, target)
 		fmt.Printf("%s -> %s\n", path, target)
-		if _, err := os.Stat(target); err == nil {
-			fmt.Printf("  %s✓ Target exists: %s%s\n", colorGreen, target, colorReset)
-			dir := filepath.Dir(target)
+		if resolvedTarget != target {
+			fmt.Printf("  %sResolved target: %s%s\n", colorYellow, resolvedTarget, colorReset)
+		}
+		
+		if _, err := os.Stat(resolvedTarget); err == nil {
+			fmt.Printf("  %s✓ Target exists: %s%s\n", colorGreen, resolvedTarget, colorReset)
+			dir := filepath.Dir(resolvedTarget)
 			if !isBaseDir(dir) {
 				if _, ok := linkedDirs[dir]; !ok {
 					linkedDirs[dir] = make(map[string]bool)
 				}
-				linkedDirs[dir][filepath.Base(target)] = true
+				linkedDirs[dir][filepath.Base(resolvedTarget)] = true
 			}
 		} else if targetOptional {
-			fmt.Printf("  %s⚠ Target missing (optional): %s%s\n", colorYellow, target, colorReset)
+			fmt.Printf("  %s⚠ Target missing (optional): %s%s\n", colorYellow, resolvedTarget, colorReset)
 		} else {
-			fmt.Printf("  %s✗ Target missing: %s%s\n", colorRed, target, colorReset)
-			return fmt.Errorf("missing target: %s", target)
+			fmt.Printf("  %s✗ Target missing: %s%s\n", colorRed, resolvedTarget, colorReset)
+			return fmt.Errorf("missing target: %s", resolvedTarget)
 		}
 	}
 
@@ -132,7 +153,7 @@ func processLine(line string, linkedDirs map[string]map[string]bool) error {
 
 // isBaseDir returns true if a directory is considered a base system dir
 func isBaseDir(dir string) bool {
-	baseDirs := []string{"/etc", "/var", "/usr", "/bin", "/sbin", "/lib", "/lib64"}
+	baseDirs := []string{"/etc", "/var", "/usr", "/bin", "/sbin", "/lib", "/lib64", "/proc", "/run"}
 	for _, b := range baseDirs {
 		if dir == b {
 			return true
@@ -169,6 +190,11 @@ func loadIgnoreFiles() map[string]bool {
 func checkDirectoryCompleteness(linkedDirs map[string]map[string]bool, ignoredFiles map[string]bool) error {
 	hadError := false
 	for dir, linkedFiles := range linkedDirs {
+		// Skip checking certain directories that aren't meant to be fully linked
+		if strings.Contains(dir, "/.git") || dir == "." || dir == ".." {
+			continue
+		}
+		
 		entries, err := os.ReadDir(dir)
 		if err != nil {
 			continue
@@ -204,6 +230,11 @@ func checkDirectoryCompleteness(linkedDirs map[string]map[string]bool, ignoredFi
 func printSummary(linkedDirs map[string]map[string]bool, ignoredFiles map[string]bool) {
 	fmt.Println("\n=== Summary of Linked/Ignored/Missing Files ===")
 	for dir, linkedFiles := range linkedDirs {
+		// Skip certain directories in summary
+		if strings.Contains(dir, "/.git") || dir == "." || dir == ".." {
+			continue
+		}
+		
 		entries, err := os.ReadDir(dir)
 		if err != nil {
 			fmt.Printf("%sDirectory: %s (cannot read: %v)%s\n", colorRed, dir, err, colorReset)
@@ -268,6 +299,11 @@ func main() {
 		scanner := bufio.NewScanner(f)
 		for scanner.Scan() {
 			line := scanner.Text()
+			// Skip comments and empty lines
+			line = strings.TrimSpace(line)
+			if line == "" || strings.HasPrefix(line, "#") {
+				continue
+			}
 			// Only handle symlink lines (L, L?, L+)
 			if strings.HasPrefix(line, "L") {
 				if err := processLine(line, linkedDirs); err != nil {
