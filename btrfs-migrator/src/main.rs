@@ -11,7 +11,7 @@ use std::{
 };
 #[macro_use(defer)]
 extern crate scopeguard;
-use dialoguer::{self, Confirm};
+use dialoguer::Confirm;
 use fstab::FsTab;
 use libbtrfsutil::{CreateSnapshotOptions, CreateSubvolumeOptions, DeleteSubvolumeOptions};
 
@@ -34,7 +34,6 @@ fn find_rootfs_v1(root: &Path) -> Option<PathBuf> {
             continue;
         }
         if !path.join("etc").exists() {
-            // This is not a useful/valid rootfs v1 subvolume.
             continue;
         }
         let mut parts = name.splitn(2, '_');
@@ -47,24 +46,12 @@ fn find_rootfs_v1(root: &Path) -> Option<PathBuf> {
                 }
             }
             Err(_) => {
-                println!("Invalid version number in subvolume name: {name} -- {version}");
+                eprintln!("Invalid version number in subvolume name: {name} -- {version}");
             }
         }
     }
 
-    match candidate {
-        Some(c) => {
-            println!(
-                "Found legacy rootfs v1 at {:?} with version {}",
-                c.path, c.version
-            );
-            Some(c.path)
-        }
-        None => {
-            println!("No legacy rootfs v1 found.");
-            None
-        }
-    }
+    candidate.map(|c| c.path)
 }
 
 fn run(root: &Path) -> Result<(), Box<dyn Error>> {
@@ -72,13 +59,9 @@ fn run(root: &Path) -> Result<(), Box<dyn Error>> {
 
     let system_path = root.join("@system");
     if system_path.exists() {
-        println!("@system exists already. Skipping migration.");
         return Ok(());
     }
 
-    // Wait for devices to settle down a bit, otherwise we risk breaking plymouth and printing into the void, leaving
-    // the user without any indication what is going on.
-    // We do this relatively late in the transition progress so it doesn't unnecessarily delay regular boots.
     let _ = Command::new("udevadm")
         .arg("settle")
         .arg("--timeout=8")
@@ -91,13 +74,12 @@ fn run(root: &Path) -> Result<(), Box<dyn Error>> {
 
     let import_path = root.join("@system.import");
     if import_path.exists() {
-        println!("@system.import exists. Deleting it.");
         match DeleteSubvolumeOptions::new()
             .recursive(true)
             .delete(&import_path)
         {
-            Ok(_) => println!("Deleted subvolume: {import_path:?}"),
-            Err(error) => println!("Problem deleting subvolume {import_path:?}: {error:?}"),
+            Ok(_) => {}
+            Err(error) => eprintln!("Problem deleting subvolume {import_path:?}: {error:?}"),
         }
     }
     CreateSubvolumeOptions::new()
@@ -105,9 +87,7 @@ fn run(root: &Path) -> Result<(), Box<dyn Error>> {
         .map_err(|error| format!("Problem creating subvolume {import_path:?}: {error:?}"))?;
 
     env::set_current_dir(&import_path)?;
-    println!("Current directory: {:?}", env::current_dir()?);
 
-    // May or may not exist. Don't trip over it!
     let fstab = FsTab::new(&root.join("@etc-overlay/upper/fstab"));
     let mut concerning_fstab_entries = 0;
     for entry in fstab.get_entries().unwrap_or_default() {
@@ -117,12 +97,10 @@ fn run(root: &Path) -> Result<(), Box<dyn Error>> {
     }
     if concerning_fstab_entries > 0 {
         let _ = Command::new("plymouth").arg("hide-splash").status();
-
         let _ = qr2term::print_qr("https://community.kde.org/KDE_Linux/RootFSv2");
-
-        println!(
-            "Found {concerning_fstab_entries} concerning fstab entries. This suggests you have a more complicated fstab setup that we cannot auto-migrate. \
-            If nothing critically important is managed by fstab you can let the auto-migration run. If you have entries that are required for the system to boot you should manually migrate to @system."
+        eprintln!(
+            "Found {concerning_fstab_entries} concerning fstab entries. This suggests you have a more complicated fstab setup that we cannot auto-migrate.\n\
+             If nothing critically important is managed by fstab you can let the auto-migration run. If you have entries that are required for the system to boot you should manually migrate to @system."
         );
         io::stdout().flush().unwrap();
 
@@ -164,22 +142,13 @@ fn run(root: &Path) -> Result<(), Box<dyn Error>> {
             .status()
             .expect("Failed to mount overlay for etc/var");
         if !mount_result.success() {
-            println!("Failed to mount {}", compose_dir.display());
+            eprintln!("Failed to mount {}", compose_dir.display());
             return Err("Failed to mount compose dir".into());
         }
         defer! {
-            println!("Unmounting overlay for {}", dir);
-            Command::new("umount")
-                .arg(&compose_dir)
-                .status()
-                .expect("Failed to unmount overlay for etc/var");
+            let _ = Command::new("umount").arg(&compose_dir).status();
         }
 
-        println!(
-            "Copying {} to {}",
-            compose_dir.display(),
-            import_path.join(dir).display()
-        );
         let cp_result = Command::new("cp")
             .arg("--recursive")
             .arg("--archive")
@@ -190,7 +159,7 @@ fn run(root: &Path) -> Result<(), Box<dyn Error>> {
             .status()
             .expect("Failed to copy upper dir");
         if !cp_result.success() {
-            println!("Failed to copy upper dir {compose_dir:?} to {dir:?}");
+            eprintln!("Failed to copy upper dir {compose_dir:?} to {dir:?}");
             return Err("Failed to copy upper dir".into());
         }
     }
@@ -204,26 +173,15 @@ fn run(root: &Path) -> Result<(), Box<dyn Error>> {
     ];
 
     for (subvol, target) in subvol_targets {
-        println!("Snapshotting {} to {}", root.join(subvol).display(), target);
         let target_path = Path::new(target);
 
-        // Inside var the target_path may already exist if they predate the subvolumes. Originally contianers and docker were not subvolumes.
-        // Make sure to throw the data away before trying to snapshot, otherwise the snapshot will fail.
         if target_path.exists() {
-            println!("Removing pre-existing directory {target_path:?}");
             fs::remove_dir_all(target_path)?;
         }
 
-        match target_path.parent() {
-            Some(dir) => {
-                if dir != Path::new("") && !dir.exists() {
-                    // bit crap but parent of a relative path is the empty path.
-                    println!("create_dir {dir:?}");
-                    fs::create_dir(dir)?;
-                }
-            }
-            None => {
-                println!("No parent directory for {target_path:?}");
+        if let Some(dir) = target_path.parent() {
+            if dir != Path::new("") && !dir.exists() {
+                fs::create_dir(dir)?;
             }
         }
 
@@ -232,36 +190,27 @@ fn run(root: &Path) -> Result<(), Box<dyn Error>> {
             .create(root.join(subvol), Path::new(target))?;
     }
 
-    println!("Renaming {import_path:?} to {system_path:?}");
-    fs::rename(import_path, system_path)?; // fatal problem
-
-    return Ok(());
+    fs::rename(import_path, system_path)?;
+    Ok(())
 }
 
 fn main() -> Result<(), Box<dyn Error>> {
     let args: Vec<String> = env::args().collect();
     if args.len() < 2 {
-        println!("Usage: {} system_mount", args[0]);
-        println!("Migrates a legacy subvol (pre-May-2025) to v2 rootfs");
+        eprintln!("Usage: {} system_mount", args[0]);
+        eprintln!("Migrates a legacy subvol (pre-May-2025) to v2 rootfs");
         return Err("Not enough arguments".into());
     }
-
-    println!("Migrating to v2 rootfs. This will take a while.");
 
     let root = Path::new(&args[1]);
 
     match run(root) {
         Ok(_) => {
-            // Reactivate in case we deactivated it earlier
             let _ = Command::new("plymouth").arg("show-splash").status();
             Ok(())
         }
         Err(e) => {
-            // Quit plymouth if there was a fatal problem so the user can see the output
-            Command::new("plymouth")
-                .arg("quit")
-                .status()
-                .expect("failed to execute plymouth show-splash");
+            let _ = Command::new("plymouth").arg("quit").status();
             Err(e)
         }
     }
