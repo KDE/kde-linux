@@ -279,7 +279,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	releases, err := loadReleases(client, path, config)
+	releases, err := loadReleases(client, root_path, config)
 	if err != nil {
 		log.Fatal(err)
 	}
