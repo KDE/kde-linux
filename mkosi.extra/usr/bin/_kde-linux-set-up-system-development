@@ -1,0 +1,57 @@
+#!/bin/sh
+# SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL
+# SPDX-FileCopyrightText: 2025 Nate Graham <nate@kde.org>
+
+# Set up the rudiments of a development environment for developing KDE software
+# that's shipped on the KDE Linux OS image
+
+set -e
+
+SYSEXT_LOCATION=$HOME/kde/usr/lib/extension-release.d/
+SYSEXT_ROOT_LOCATION=/var/lib/extensions/
+DID_SOMETHING=false
+
+if [ ! -f "$SYSEXT_LOCATION/extension-release.kde" ]; then
+    echo '== Setting up systemd system extension at "$SYSEXT_LOCATION" =='
+
+    # Create directory to hold this system extension
+    mkdir -p "$SYSEXT_LOCATION"
+    sudo mkdir -p "$SYSEXT_ROOT_LOCATION"
+    sudo ln -fs "$HOME/kde" "$SYSEXT_ROOT_LOCATION"
+
+    # Copy the system os-release file to be an extension-release file that identifies this extension
+    sudo cp /usr/lib/os-release "$SYSEXT_LOCATION/extension-release.kde"
+
+    # Set its ID to "_any" so system updates don't break the extension
+    # Skip this step if you want the extension to only work for the current system build
+    sed -i "s/^ID=.*/ID=_any/g" "$SYSEXT_LOCATION/extension-release.kde"
+
+    # Make the release file owned by root so it can't be accidentally removed
+    sudo chown root:root "$SYSEXT_LOCATION/extension-release.kde"
+
+    sudo systemd-sysext merge
+    DID_SOMETHING=true
+fi
+
+if [ ! -f "$HOME/.local/bin/kde-builder" ]; then
+    echo "== Downloading and installing kde-builder build tool =="
+    cd ~
+    curl 'https://invent.kde.org/sdk/kde-builder/-/raw/master/scripts/initial_setup.sh' > initial_setup.sh
+    bash initial_setup.sh
+    DID_SOMETHING=true
+fi
+
+if [ ! -f "$HOME/.config/kde-builder.yaml" ]; then
+    echo "== Generating a config file for kde-builder =="
+    kde-builder --generate-config
+    DID_SOMETHING=true
+fi
+
+if [ "$DID_SOMETHING" = "true" ]; then
+    echo "== Done! =="
+    echo "* See https://community.kde.org/KDE_Linux#Use to learn what to do next."
+    echo "* See https://community.kde.org/Get_Involved/development to learn about KDE development in general"
+else
+    echo "== Nothing to do! =="
+    echo "Development environment already appears to be set up properly"
+fi
