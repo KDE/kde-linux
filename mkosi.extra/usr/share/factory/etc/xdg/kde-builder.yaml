@@ -1,0 +1,126 @@
+# This file controls options to apply when configuring/building projects, and controls which projects are built in the first place.
+# List of all options: https://kde-builder.kde.org/en/configuration/conf-options-table.html
+
+config-version: 2
+global:
+  branch-group: kf6-qt6
+
+  # All KDE dependencies are already included, so don't do
+  # unnecessary work
+  include-dependencies: false
+
+  source-dir: ~/kde/src  # Directory for downloaded source code
+  build-dir: ~/kde/build  # Directory to build KDE into before installing
+  # qt-install-dir: ~/kde/qt  # Directory to install Qt if kde-builder supplies it
+  log-dir: ~/kde/log  # Directory to write logs into
+
+  # Tell kde-builder to use /usr/ as the configure location, but later
+  # we'll actually install everything into ~/kde/ which is the source
+  # for our system extension, so all the files end up at /usr/ anyway.
+  # This somewhat roundabout process is done because we want the
+  # configure paths to be /usr/ to prevent issues from paths differing
+  # between system and source-built stuff.
+  install-dir: /usr/
+
+  # …Now tell kde-builder to actually install the files into ~/kde
+  set-env:
+    DESTDIR: "~/kde"
+
+  # Build RelWithDebInfo because that's our standard thing
+  # Use system Qt paths to prevent issues
+  # Don't build docs because we don't ship them in KDE Linux
+  # Don't build Python bindings because we don't yet include their
+  #   dependencies out of the box
+  # Merge libexec and lib, like the base OS does
+  # Use ccache for everything to further avoid unnecessary work
+  cmake-options: >
+    -DCMAKE_BUILD_TYPE=RelWithDebInfo -DKDE_INSTALL_USE_QT_SYS_PATHS=ON -DBUILD_HTML_DOCS=OFF -DBUILD_MAN_DOCS=OFF -DBUILD_TESTING=OFF -DBUILD_PYTHON_BINDINGS=OFF -DWITH_PYTHON_VENDORING=OFF -DBUILD_QCH=OFF -DCMAKE_INSTALL_LIBEXECDIR=lib -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache -DCMAKE_C_LINKER_LAUNCHER=ccache -DCMAKE_CXX_LINKER_LAUNCHER=ccache
+
+  # kde-builder sets 2 options which is used in options like make-options or set-env
+  # to help manage the number of compile jobs that happen during a build:
+  #
+  # 1. num-cores, which is just the number of detected CPU cores, and can be passed
+  #    to tools like make (needed for parallel build) or ninja (completely optional).
+  #
+  # 2. num-cores-low-mem, which is set to the largest value that appears safe for
+  #    particularly heavyweight projects based on total memory, intended for
+  #    projects like qtwebengine.
+  num-cores: "auto"
+  num-cores-low-mem: "auto"
+
+  # Don't install login session files since we're already building
+  # everything to the final location
+  install-login-session: false
+
+  # Stop the build process on the first failure. If set to false, when kde-builder
+  # encounters a build failure, it will attempt to continue building other projects,
+  # using libraries from the system in cases where they would otherwise be provided
+  # by a project that has failed to build.
+  # Unless your system has very up-to-date packages, this is probably not what you want.
+  stop-on-failure: true
+
+  # Use a flat folder layout under ~/kde/src and ~/kde/build
+  # rather than nested directories
+  directory-layout: flat
+
+  # Use Ninja as cmake generator
+  cmake-generator: Ninja
+
+  # Build with LSP support for everything that supports it
+  compile-commands-linking: true
+  compile-commands-export: true
+
+  # Generate .idea config files in project directories
+  # Enable this if you want to use CLion for development
+  generate-clion-project-config: false
+
+  # Generate .vscode config files in project directories
+  # Enable this if you want to use Visual Studio Code for development
+  generate-vscode-project-config: false
+
+  # Generate copy-pastable files for manual qtcreator config creation
+  # Enable this if you want to use Qt Creator for development
+  generate-qtcreator-project-config: false
+
+  # Show a message when kde-builder detects it is outdated.
+  check-self-updates: true
+
+  # Projects that are not supported or needed on KDE Linux
+  ignore-projects:
+  # X11-only and we only ship Wayland
+  - kgamma
+  - kwin-x11
+  - wacomtablet
+  - packagekit-qt
+  # Not supported on immutable distros like KDE Linux
+  - plymouth-kcm
+
+# With base options set, the remainder of the file is used to define projects to build, in the
+# desired order, and set any project-specific options.
+
+# This line includes build configs that are provided in build-configs dir in repo-metadata.
+# https://invent.kde.org/sysadmin/repo-metadata/-/tree/master/build-configs
+# KDE Builder automatically updates repo-metadata, so you are always using an up-to-date configs.
+include ${build-configs-dir}/kde6.yaml: ""
+
+# ===============================================================================================
+# Starting from here, you can add your custom projects and override options for defined projects.
+# ===============================================================================================
+
+#  To change options for projects that have already been defined, use an "override" node.
+#  Example:
+#
+#    override qt6-set:
+#      branch: dev
+#
+#  To define a project with some options, use "project" node.
+#  Example:
+#
+#    project some-app:
+#      repository: https://github.com/YourUser/YourProject.git
+
+override discover:
+    cmake-options: -DBUILD_SystemdSysupdateBackend=ON
+
+override plasma-desktop:
+    cmake-options: -DBUILD_KCM_TOUCHPAD_X11=OFF
