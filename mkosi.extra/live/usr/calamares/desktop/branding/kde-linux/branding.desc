@@ -15,7 +15,7 @@ strings:
 
 images:
     productLogo: "kde-symbolic.png"
-    productIcon: "kde-symbolic.png"
+    productIcon: "kde-linux-logo.png"
     productWelcome: "konqi-kde-hi.png"
 
 sidebar: qml,top
