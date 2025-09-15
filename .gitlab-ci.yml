@@ -27,10 +27,14 @@ imaging:
 
   allow_failure: false
   image: storage.kde.org/vm-images/kde-linux-builder
+  id_tokens:
+    MINIO_OIDC:
+      aud: https://tokens.kde.org
   variables: &variables
     RUNNER_AFTER_SCRIPT_TIMEOUT: 1h
   script:
-    - sudo ./build.sh --force --debug # bootstap.sh happens as part of CI image build
+    - sudo --preserve-env ./build.sh --force --debug # bootstap.sh happens as part of CI image build
+    - sudo --preserve-env ./upload-to-storage.sh # sudo so we can reuse desync from the build script
   after_script:
     # Upload all images to Harald. You can grab them at http://images.kde-linux.haraldsitter.eu/
     - ./upload-to-harald.sh || true
