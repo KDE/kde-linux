@@ -1,0 +1,17 @@
+# SPDX-License-Identifier: LGPL-2.1-or-later
+# SPDX-FileCopyrightText: 2025 Muhammad Usama Anjum <usama.anjum@collabora.com>
+# SPDX-FileCopyrightText: 2025 Thomas Duckworth <tduck@filotimoproject.org>
+
+[Unit]
+Description=Prepare Temporary Hibernation Swap
+DefaultDependencies=no
+RequiresMountsFor=/var/lib/systemd /home
+Before=systemd-hibernate.service
+Before=hibernate.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/_kde-linux-hibernate-swap-helper create
+
+[Install]
+WantedBy=hibernate.target
