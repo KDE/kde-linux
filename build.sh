@@ -150,6 +150,12 @@ cd .. # and back to root
 # Drop flatpak data from erofs. They are in the usr/share/factory and deployed from there.
 rm -rf "$OUTPUT/var/lib/flatpak"
 mkdir "$OUTPUT/var/lib/flatpak" # but keep a mountpoint around for the live session
+
+# Create /var/log/journal/ for persistent journal
+mkdir -p "$OUTPUT/var/log/journal"
+chmod 2755 "$OUTPUT/var/log/journal"
+chown root:systemd-journal "$OUTPUT/var/log/journal"
+
 time mkfs.erofs -d0 -zzstd -C 65536 --chunksize 65536 -Efragments,ztailpacking "$ROOTFS_EROFS" "$OUTPUT" > /dev/null 2>&1
 cp --reflink=auto "$ROOTFS_EROFS" kde-linux.cache/root.raw
 
