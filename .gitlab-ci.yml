@@ -7,7 +7,6 @@ include:
       - /gitlab-templates/reuse-lint.yml
       - /gitlab-templates/blocks/workflow.yml
 
-
 stages:
   - validate
   - start
@@ -33,7 +32,7 @@ imaging:
     - sudo ./build.sh --force --debug # bootstap.sh happens as part of CI image build
   after_script:
     # Upload all images to Harald. You can grab them at http://images.kde-linux.haraldsitter.eu/
-    - ./upload-to-harald.sh || true
+    # - ./upload-to-harald.sh || true
     # Cleanup our btrfs subvolumes so docker doesn't stumble over them.
     - cargo run --manifest-path btrfs-cleanup/Cargo.toml .
 
