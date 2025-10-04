@@ -8,24 +8,35 @@ import sys
 import subprocess
 import os
 import time
+import threading
 
 from pathlib import Path
 
 class Handler(http.server.BaseHTTPRequestHandler):
     def do_GET(self):
         if self.path == '/good':
-            sys.exit(0)
+            #sys.exit(0)
+            os._exit(0)
         if self.path == '/bad':
             print("==Received /bad callback==")
             content_len = int(self.headers.get('Content-Length'))
             body = self.rfile.read(content_len)
             print(body.decode('utf-8'))
-            sys.exit(1)
+            #sys.exit(1)
+            os._exit(1)
         self.send_response(200)
         self.end_headers()
 
 server = http.server.HTTPServer(server_address=('', 0), RequestHandlerClass=Handler)
-print("serving at port", server.server_port)
+print("Serving at port", server.server_port)
+
+# Start server in background thread so it's listening while we prepare the image
+def serve():
+    server.serve_forever()
+
+server_thread = threading.Thread(target=serve)
+server_thread.daemon = True
+server_thread.start()
 
 img = sys.argv[1]
 if not img:
@@ -59,10 +70,15 @@ qemu = subprocess.Popen([
 ])
 atexit.register(lambda: (qemu.kill()))
 
-server.timeout = 5 * 60 # 5 minutes
-server.handle_timeout = lambda: (qemu.kill(), sys.exit(1))
-while True: # kinda garbage but there seems to be no nice (non-private) poll-or-timeout api
-    server.handle_request()
-    time.sleep(8)
+# Wait for server thread to complete (which happens when callback calls sys.exit)
+server_thread.join(timeout=5 * 60)
+
+if server_thread.is_alive():
+    print("Timeout - no callback received within 5 minutes")
+    server.shutdown()
+    server_thread.join(timeout=5)
+    qemu.kill()
+    sys.exit(1)
+
+# If we get here, callback already called sys.exit
 qemu.kill()
-sys.exit(1) # if we get here we timed out = fail
