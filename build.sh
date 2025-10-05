@@ -17,6 +17,7 @@ make_debug_archive () {
   mkdir --parents /tmp/debugroot
 
   # Install all packages in the kde-linux-debug repository to /tmp/debugroot.
+  pacman --sync --refresh
   pacstrap -c /tmp/debugroot $(pacman --sync --list --quiet kde-linux-debug)
 
   # systemd-sysext uses the os-release in extension-release.d to verify the sysext matches the base OS,
