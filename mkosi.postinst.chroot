@@ -75,6 +75,7 @@ download_flatpaks() {
         ark
         gwenview
         kate
+        kcalc
         haruna
         okular
         qrca
