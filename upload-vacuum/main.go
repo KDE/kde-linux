@@ -1,121 +1,133 @@
 // SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL
-// SPDX-FileCopyrightText: 2024 Harald Sitter <sitter@kde.org>
+// SPDX-FileCopyrightText: 2024-2025 Harald Sitter <sitter@kde.org>
 
 package main
 
 import (
-	"bufio"
+	"context"
+	"crypto/sha256"
+	"encoding/hex"
 	"errors"
 	"io"
 	"log"
-	"net/http"
 	"os"
+	"os/exec"
+	"path/filepath"
 	"slices"
 	"sort"
 	"strconv"
 	"strings"
-	"time"
 
-	"github.com/pkg/sftp"
-	"golang.org/x/crypto/ssh"
 	"gopkg.in/yaml.v2"
+
+	"github.com/minio/minio-go/v7"
+	"github.com/minio/minio-go/v7/pkg/credentials"
 )
 
-func connectToHost(user, host, identity string) (*ssh.Client, *ssh.Session, error) {
-	key, err := os.ReadFile(identity)
+func connectToMinIO() *minio.Client {
+	endpoint := "storage.kde.org"
+	accessKeyID := "RFKVOIVSL4E307CSBN2W"
+	secretAccessKey := "QtK7u0pq+C4ERdLsr1+HDbBShaAkeT1iNq+ZJQq5"
+	useSSL := true
+
+	// Initialize minio client object.
+	minioClient, err := minio.New(endpoint, &minio.Options{
+		Creds:           credentials.NewStaticV4(accessKeyID, secretAccessKey, ""),
+		Secure:          useSSL,
+		TrailingHeaders: true,
+	})
 	if err != nil {
-		log.Fatalf("unable to read private key: %v", err)
+		log.Fatalln(err)
 	}
 
-	// Create the Signer for this private key.
-	signer, err := ssh.ParsePrivateKey(key)
+	buckets, err := minioClient.ListBuckets(context.Background())
 	if err != nil {
-		log.Fatalf("unable to parse private key: %v", err)
+		log.Fatalln(err)
+	}
+	for _, bucket := range buckets {
+		log.Println(bucket)
 	}
 
-	// You can use `ssh-keyscan origin.files.kde.org` to get the host key
-	_, _, hostKey, _, _, err := ssh.ParseKnownHosts([]byte("origin.files.kde.org ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILUjdH4S7otYIdLUkOZK+owIiByjNQPzGi7GQ5HOWjO6"))
-	if err != nil {
-		log.Fatalf("unable to parse host public key: %v", err)
-	}
-	sshConfig := &ssh.ClientConfig{
-		User:              user,
-		Auth:              []ssh.AuthMethod{ssh.PublicKeys(signer)},
-		HostKeyAlgorithms: []string{"ssh-ed25519"},
-		HostKeyCallback:   ssh.FixedHostKey(hostKey),
-	}
-
-	client, err := ssh.Dial("tcp", host, sshConfig)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	session, err := client.NewSession()
-	if err != nil {
-		client.Close()
-		return nil, nil, err
-	}
-
-	return client, session, nil
+	return minioClient
 }
 
-func readSHA256(url string) string {
-	url = strings.Replace(url, os.Getenv("SSH_ROOT_PATH"), "https://files.kde.org/kde-linux/", 1)
-
-	log.Println("Reading SHA256 from", url)
-	var err error
-	for i := 1; i <= 10; i++ {
-		if i > 1 {
-			time.Sleep(8 * time.Second)
-		}
-
-		var client http.Client
-		resp, err := client.Get(url)
-		if err != nil {
-			continue
-		}
-		defer resp.Body.Close()
-
-		if resp.StatusCode == http.StatusOK {
-			bodyBytes, err := io.ReadAll(resp.Body)
-			if err != nil {
-				continue
-			}
-			return string(bodyBytes)
-		}
-	}
-	log.Println("Failed to read SHA256. Last error was on url", url, err)
-	return ""
-}
-
-type release struct {
-	artifacts []string
-}
-
-func readSHA256SUMS(client *sftp.Client, path string) map[string]string {
-	sha256s := map[string]string{}
-	file, err := client.Open(path)
+func sha256File(path string) string {
+	file, err := os.Open(path)
 	if err != nil {
-		return sha256s // generate a new one if we failed to open the existing one. chances are it's missing
+		log.Fatalf("unable to open file %s: %v", path, err)
 	}
 	defer file.Close()
 
-	scanner := bufio.NewScanner(file)
-	for scanner.Scan() {
-		line := scanner.Text()
-		if err := scanner.Err(); err != nil {
-			log.Fatal("Error encountered:", err)
+	hasher := sha256.New()
+	if _, err := io.Copy(hasher, file); err != nil {
+		log.Fatalf("unable to hash file %s: %v", path, err)
+	}
+	return hex.EncodeToString(hasher.Sum(nil))
+}
+
+func loadReleasesMinIO(client *minio.Client, dir string, config *config) (releases map[string]release, err error) {
+	releases = make(map[string]release)
+	bucketName := "kde-linux"
+	ctx := context.Background()
+
+	log.Println("Loading releases from MinIO bucket", bucketName)
+
+	objects := client.ListObjects(ctx, bucketName, minio.ListObjectsOptions{
+		Prefix:       dir,
+		Recursive:    false,
+		WithMetadata: true,
+	})
+	for object := range objects {
+		if object.Err != nil {
+			log.Fatalln(object.Err)
 		}
-		if line == "" {
+
+		log.Println("HALLO", object.Key, object.UserMetadata, object.ChecksumSHA256, "--", object.UserMetadata["X-Amz-Meta-X-Kde-Sha256"])
+
+		err = appendRelease(&releases, S3Artifact{
+			client:    client,
+			bucket:    bucketName,
+			path:      object.Key,
+			sha256Sum: object.UserMetadata["X-Amz-Meta-X-Kde-Sha256"],
+		})
+		if err != nil {
+			return
+		}
+	}
+
+	log.Println(releases)
+	return
+}
+
+func downloadCaibxFiles(client *minio.Client) (caibxFiles []string, err error) {
+	bucketName := "kde-linux"
+	ctx := context.Background()
+
+	log.Println("Downloading caibx files from", bucketName)
+
+	os.RemoveAll("caibx-files")
+	objects := client.ListObjects(ctx, bucketName, minio.ListObjectsOptions{
+		Recursive: true,
+	})
+	for object := range objects {
+		if object.Err != nil {
+			log.Fatalln(object.Err)
+		}
+
+		if !strings.HasSuffix(object.Key, ".caibx") {
 			continue
 		}
-		split := strings.SplitN(line, " ", 2)
-		if len(split) != 2 {
-			log.Fatal("Invalid SHA256SUMS line:", line)
+
+		log.Println("Downloading caibx", object.Key)
+		path := filepath.Join("caibx-files", object.Key)
+		err := client.FGetObject(ctx, bucketName, object.Key, path, minio.GetObjectOptions{})
+		if err != nil {
+			log.Fatalln(errors.New("Failed to download caibx " + object.Key + ": " + err.Error()))
 		}
-		sha256s[split[1]] = split[0]
+		caibxFiles = append(caibxFiles, path)
 	}
-	return sha256s
+
+	return
 }
 
 func readSHA256s(toKeep []string, releases map[string]release, existingSums map[string]string) []string {
@@ -152,8 +164,8 @@ func readSHA256s(toKeep []string, releases map[string]release, existingSums map[
 	return sha256s
 }
 
-func writeSHA256s(sha256s []string) {
-	file, err := os.Create("SHA256SUMS")
+func writeSHA256s(path string, sha256s []string) {
+	file, err := os.Create(path)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -171,8 +183,8 @@ type config struct {
 	GoldenImages    []string `yaml:"golden_images"`
 }
 
-func readConfig(client *sftp.Client, path string) (*config, error) {
-	configFile, err := client.Open(path)
+func readConfig(client *minio.Client) (*config, error) {
+	configFile, err := client.GetObject(context.Background(), "kde-linux", "vacuum.yaml", minio.GetObjectOptions{})
 	if err != nil {
 		return nil, err
 	}
@@ -192,135 +204,129 @@ func readConfig(client *sftp.Client, path string) (*config, error) {
 	return &config, nil
 }
 
-func loadReleases(client *sftp.Client, path string, config *config) (map[string]release, error) {
-	releases := map[string]release{}
+func getReleaseFrom(name string) (string, error) {
+	name = strings.TrimPrefix(name, "kdeos_")
+	name = strings.TrimPrefix(name, "kde-linux_")
+	name = strings.SplitN(name, ".", 2)[0]
+	name = strings.SplitN(name, "_", 2)[0]
 
-	w := client.Walk(path + "/") // The terminal / is important otherwise we'll walk the symlink (kde-linux on-disk is a symlink to the real location)
-	for w.Step() {
-		if w.Err() != nil {
-			return releases, errors.New("Failed to walk path: " + w.Err().Error())
-		}
-
-		if w.Stat().IsDir() {
-			// Skip directories
-			continue
-		}
-
-		name := w.Stat().Name()
-		// NOTE: we want to keep the legacy kdeos_ prefix for as long as we have relevant tombstones around. Which is possibly forever.
-		if !strings.HasPrefix(name, "kdeos_") && !strings.HasPrefix(name, "kde-linux_") {
-			continue
-		}
-		name = strings.TrimPrefix(name, "kdeos_")
-		name = strings.TrimPrefix(name, "kde-linux_")
-		name = strings.SplitN(name, ".", 2)[0]
-		name = strings.SplitN(name, "_", 2)[0]
-
-		if _, ok := releases[name]; !ok {
-			releases[name] = release{}
-		}
-		_, err := strconv.Atoi(name)
-		if err != nil {
-			return releases, errors.New("Failed to parse release number: " + name)
-		}
-		release := releases[name]
-		release.artifacts = append(releases[name].artifacts, w.Path())
-		releases[name] = release
+	_, err := strconv.Atoi(name)
+	if err != nil {
+		return "", errors.New("Failed to parse release number: " + name)
 	}
-
-	return releases, nil
+	return name, nil
 }
 
-func main() {
-	identity := os.Getenv("SSH_IDENTITY")
-	host := os.Getenv("SSH_HOST")
-	user := os.Getenv("SSH_USER")
-	path := os.Getenv("SSH_PATH")
-	root_path := os.Getenv("SSH_ROOT_PATH")
-
-	var errs []error
-	if identity == "" {
-		errs = append(errs, errors.New("SSH_IDENTITY not set"))
-	}
-	if host == "" {
-		errs = append(errs, errors.New("SSH_HOST not set"))
-	}
-	if user == "" {
-		errs = append(errs, errors.New("SSH_USER not set"))
-	}
-	if path == "" {
-		errs = append(errs, errors.New("SSH_PATH not set"))
-	}
-	if root_path == "" {
-		errs = append(errs, errors.New("SSH_ROOT_PATH not set"))
-	}
-	for _, err := range errs {
-		log.Println(err)
-	}
-	if len(errs) > 0 {
-		os.Exit(1)
+func appendRelease(releases *map[string]release, artifact Artifact) error {
+	// NOTE: we want to keep the legacy kdeos_ prefix for as long as we have relevant tombstones around. Which is possibly forever.
+	basename := filepath.Base(artifact.Path())
+	if !strings.HasPrefix(basename, "kdeos_") && !strings.HasPrefix(basename, "kde-linux_") {
+		return nil
 	}
 
-	conn, _, err := connectToHost(user, host+":22", identity)
+	name, err := getReleaseFrom(basename)
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
-	defer conn.Close()
 
-	// open an SFTP session over an existing ssh connection.
-	client, err := sftp.NewClient(conn)
+	if _, ok := (*releases)[name]; !ok {
+		(*releases)[name] = release{}
+	}
+	release := (*releases)[name]
+	release.artifacts = append(release.artifacts, artifact)
+	(*releases)[name] = release
+	return nil
+}
+
+func removeV3(client *minio.Client) {
+	iter := client.ListObjectsIter(context.Background(), "kde-linux", minio.ListObjectsOptions{
+		Prefix:    "",
+		Recursive: true,
+	})
+	results, err := client.RemoveObjectsWithIter(context.Background(), "kde-linux", iter, minio.RemoveObjectsOptions{})
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalln(err)
 	}
-	defer client.Close()
+	for result := range results {
+		if result.Err != nil {
+			log.Fatalln("Failed to remove", result.ObjectName, result.Err)
+		}
+	}
+}
 
-	config, err := readConfig(client, root_path+"/vacuum.yaml")
+func uploadR(client *minio.Client) {
+	err := filepath.WalkDir("r", func(path string, d os.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+		objectName, err := filepath.Rel("r/", path)
+		if err != nil {
+			return err
+		}
+
+		if d.IsDir() {
+			return nil
+		}
+
+		log.Println("Uploading", objectName, "from", path)
+		info, err := client.FPutObject(context.Background(), "kde-linux", objectName, path, minio.PutObjectOptions{
+			UserMetadata: map[string]string{
+				"X-KDE-SHA256": sha256File(path),
+			},
+		})
+		if err != nil {
+			log.Fatalln(err)
+		}
+		log.Println("Uploaded", objectName, "of size", info.Size, "ETag", info.ETag, "VersionID", info.VersionID, "SHA256", info.ChecksumSHA256, "Metadata", info)
+
+		log.Println(path, d)
+		return nil
+	})
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalln(err)
 	}
+}
 
-	releases, err := loadReleases(client, root_path, config)
+func uploadVacuum(client *minio.Client) {
+	_, err := client.FPutObject(context.Background(), "kde-linux", "vacuum.yaml", "r/vacuum.yaml", minio.PutObjectOptions{})
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalln(err)
 	}
+}
 
+func buildDeletionSlice(releases map[string]release, toProtect []string) (toKeep, toDelete []string) {
 	if len(releases) == 0 {
 		log.Println("No releases found")
 		return
 	}
 
-	var toProtect []string
-	for _, release := range config.TombstoneImages {
-		toProtect = append(toProtect, release)
-	}
-	for _, release := range config.GoldenImages {
-		toProtect = append(toProtect, release)
-	}
-
 	// Sort releases by key
-	var toKeep []string
 	for key := range releases {
 		toKeep = append(toKeep, key)
 	}
 	sort.Sort(sort.Reverse(sort.StringSlice(toKeep)))
 
-	var toDelete []string
 	for len(toKeep) > 4 {
 		release := toKeep[len(toKeep)-1]
+		// Protect certain releases from deletion
 		if !slices.Contains(toProtect, release) {
 			log.Println("Marking for deletion (unless protected)", release)
 			toDelete = append(toDelete, release)
 		}
 		toKeep = toKeep[:len(toKeep)-1]
 	}
-	toKeep = append(toKeep, toProtect...) // always keep protected version
+	// always keep protected version, only appending here for logging reasons. The actual protection is above!
+	toKeep = append(toKeep, toProtect...)
+	return
+}
 
+func deleteReleases(releases map[string]release, toKeep, toDelete []string) {
 	for _, key := range toDelete {
 		log.Println("Deleting", key)
 		for _, artifact := range releases[key].artifacts {
-			log.Println("Deleting", artifact)
-			if os.Getenv("SSH_REALLY_DELETE") == "1" {
-				err := client.Remove(artifact)
+			log.Println("Deleting", artifact.Path())
+			if os.Getenv("VACUUM_REALLY_DELETE") == "1" {
+				err := artifact.Delete()
 				if err != nil {
 					log.Println("Failed to delete", artifact, err)
 				}
@@ -333,9 +339,96 @@ func main() {
 	for _, key := range toKeep {
 		log.Println("Keeping", key)
 	}
+}
 
-	existingSums := readSHA256SUMS(client, path+"/SHA256SUMS")
+func generateSHA256s(releases map[string]release, toKeep []string, dir string) {
+	sha256s := []string{}
+	for _, key := range toKeep {
+		for _, artifact := range releases[key].artifacts {
+			sha256 := artifact.SHA256()
+			if sha256 != "" {
+				sha256s = append(sha256s)
+			}
+		}
+	}
 
-	// Start the SHA256SUMS file. It will be completed by the upload script.
-	writeSHA256s(readSHA256s(toKeep, releases, existingSums))
+	sumsDir := filepath.Join("upload-tree", dir)
+	os.MkdirAll(sumsDir, 0o700)
+	writeSHA256s(filepath.Join(sumsDir, "SHA256SUMS"), sha256s)
+}
+
+func main() {
+	minioClient := connectToMinIO()
+	os.Chdir("../") // We get started inside the vacuum dir, move to the root.
+
+	/////////////////////////////////////////
+	removeV3(minioClient)
+	uploadR(minioClient)
+	/////////////////////////////////////////
+
+	os.RemoveAll("upload-tree")
+
+	config, err := readConfig(minioClient)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	var toProtect []string
+	for _, release := range config.TombstoneImages {
+		toProtect = append(toProtect, release)
+	}
+	for _, release := range config.GoldenImages {
+		toProtect = append(toProtect, release)
+	}
+
+	// Clean up the sysupdate directories
+	for _, dir := range []string{"testing/sysupdate/v2/", "testing/sysupdate/v3/"} {
+		releases, err := loadReleasesMinIO(minioClient, dir, config)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		toKeep, toDelete := buildDeletionSlice(releases, toProtect)
+		deleteReleases(releases, toKeep, toDelete)
+
+		generateSHA256s(releases, toKeep, dir)
+	}
+
+	// Clean up the images
+	{
+		dir := "testing/"
+
+		releases, err := loadReleasesMinIO(minioClient, dir, config)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		toKeep, toDelete := buildDeletionSlice(releases, toProtect)
+		deleteReleases(releases, toKeep, toDelete)
+	}
+
+	// Clean up the desync store
+	// TODO move this into its own thing, we only need to run this weekly or so, it is a bit expensive
+	{
+		caibxFiles, err := downloadCaibxFiles(minioClient)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		args := []string{"prune", "--yes", "--store", "s3+https://storage.kde.org/kde-linux/sysupdate/store"}
+		args = append(args, caibxFiles...)
+		cmd := exec.Command("desync", args...)
+		cmd.Stdout = os.Stdout
+		cmd.Stderr = os.Stderr
+
+		err = cmd.Run()
+		if err != nil {
+			log.Fatal("desync prune failed: ", err)
+		}
+
+		log.Println("Ran", cmd.Args)
+		if cmd.ProcessState.ExitCode() != 0 {
+			log.Fatal("desync prune failed. This is a critical problem. Get someone on this immediately!")
+		}
+	}
 }

@@ -7,7 +7,6 @@ include:
       - /gitlab-templates/reuse-lint.yml
       - /gitlab-templates/blocks/workflow.yml
 
-
 stages:
   - validate
   - start
@@ -24,13 +23,15 @@ imaging:
       when: manual
     - if: $CI_COMMIT_REF_PROTECTED != 'true' || $CI_DEFAULT_BRANCH != $CI_COMMIT_REF_NAME || $CI_PROJECT_PATH != 'kde-linux/kde-linux'
       when: always
-
   allow_failure: false
   image: storage.kde.org/vm-images/kde-linux-builder
+  id_tokens: &tokens
+    MINIO_OIDC:
+      aud: https://tokens.kde.org
   variables: &variables
     RUNNER_AFTER_SCRIPT_TIMEOUT: 1h
   script:
-    - sudo ./build.sh --force --debug # bootstap.sh happens as part of CI image build
+    - sudo --preserve-env ./build.sh --force --debug # bootstap.sh happens as part of CI image build
   after_script:
     # Upload all images to Harald. You can grab them at http://images.kde-linux.haraldsitter.eu/
     - ./upload-to-harald.sh || true
@@ -42,16 +43,17 @@ imaging+publish:
     - amd64
   rules:
     # NOTE: these are different from the regular imaging job!
-    - if: $CI_COMMIT_REF_PROTECTED == 'true' && $CI_DEFAULT_BRANCH == $CI_COMMIT_REF_NAME && $CI_PROJECT_PATH == 'kde-linux/kde-linux'
+    - if: $CI_COMMIT_REF_PROTECTED == 'true' && $CI_PROJECT_PATH == 'kde-linux/kde-linux'
       when: always
   allow_failure: false
   image: storage.kde.org/vm-images/kde-linux-builder
+  id_tokens: *tokens
   variables: *variables
   script:
     - sudo pacman --sync --refresh --noconfirm curl which git
     - curl -s https://gitlab.com/gitlab-org/incubation-engineering/mobile-devops/download-secure-files/-/raw/main/installer | bash
-    - sudo ./build.sh --force --debug # bootstap.sh happens as part of CI image build
-    - ./upload.sh
+    - sudo --preserve-env ./build.sh --force --debug # bootstap.sh happens as part of CI image build
+    - sudo --preserve-env ./upload.sh # sudo so we can reuse desync from the build script
   after_script:
     # Upload broken images to Harald for inspection
     - "[ $CI_JOB_STATUS == 'success' ] || ./upload-to-harald.sh || true"
