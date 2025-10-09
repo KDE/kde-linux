@@ -60,18 +60,18 @@ cat <<- EOF > mkosi.sandbox/etc/pacman.conf
 [kde-linux]
 # Signature checking is not needed because the packages are served over HTTPS and we have no mirrors
 SigLevel = Never
-Server = https://cdn.kde.org/kde-linux/packaging/packages/
+Server = https://storage.kde.org/kde-linux-packages/testing/repo/packages/
 
 [kde-linux-debug]
 SigLevel = Never
-Server = https://cdn.kde.org/kde-linux/packaging/packages-debug/
+Server = https://storage.kde.org/kde-linux-packages/testing/repo/packages-debug/
 EOF
 cat /etc/pacman.conf.nolinux >> mkosi.sandbox/etc/pacman.conf
 mkdir --parents mkosi.sandbox/etc/pacman.d
 # Ensure the packages repo and the base image do not go out of sync
 # by using the same snapshot date from build_date.txt for both
 # WARNING: code copy in bootstrap.sh
-BUILD_DATE=$(curl --fail --silent https://cdn.kde.org/kde-linux/packaging/build_date.txt)
+BUILD_DATE=$(curl --fail --silent https://storage.kde.org/kde-linux-packages/testing/repo/build_date.txt)
 if [ -z "$BUILD_DATE" ]; then
   echo "ERROR: Could not fetch build_date.txt — refusing to build out-of-sync image." >&2
   exit 1
