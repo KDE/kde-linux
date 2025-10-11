@@ -7,10 +7,40 @@ include:
       - /gitlab-templates/reuse-lint.yml
       - /gitlab-templates/blocks/workflow.yml
 
-
 stages:
   - validate
+  - test_isotovideo
   - start
+  #- test_isotovideo
+
+test-latest-build_isotovideo:
+  stage: test_isotovideo
+  tags:
+    - LinuxHighMemory
+  allow_failure: false
+  when: manual
+  image:
+    name: registry.opensuse.org/devel/openqa/containers/isotovideo:qemu-x86
+    entrypoint: ["/bin/bash", "-c"]
+
+  variables:
+    IMAGE_VERSION: latest
+
+  before_script:
+    - git clone https://invent.kde.org/anicaazhu/os-autoinst-distri-kdelinux.git
+    - cd os-autoinst-distri-kdelinux
+    - zypper --non-interactive install perl-Inline-Python python3-requests python3-beautifulsoup4 ffmpeg
+    - python3 utils/download_image.py --$IMAGE_VERSION
+
+  script:
+    - .gitlab/scripts/isotovideo/latest_build_test.sh
+
+  after_script:
+    - .gitlab/scripts/isotovideo/collect_results.sh
+  artifacts:
+    when: always
+    paths:
+      - reports/
 
 imaging:
   stage: start
