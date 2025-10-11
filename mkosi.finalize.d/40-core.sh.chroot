@@ -132,6 +132,11 @@ sed -i 's/org.kde.falkon.desktop/org.mozilla.firefox.desktop/' /usr/share/applic
 # Prevent tuned from messing with the vm.swappiness parameter we already set
 sed --in-place 's|^vm.swappiness.*||' /usr/lib/tuned/profiles/*/*
 
+# Make zsh a bit nicer to use by enabling autosuggestions, syntax highlighting, and a nice prompt.
+echo "source /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh
+source /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+source /usr/share/zsh/kde-linux-default-prompt.zsh" >> /etc/zsh/zshrc
+
 # Give KWin phenomenal cosmic power so it can do its job better; see
 # https://community.kde.org/Distributions/Packaging_Recommendations#KWin_package_configuration
 setcap 'cap_sys_nice=+ep' /usr/bin/kwin_wayland
