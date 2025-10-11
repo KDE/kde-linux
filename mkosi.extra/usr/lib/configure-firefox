@@ -1,0 +1,29 @@
+#!/usr/bin/bash
+# SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL
+# SPDX-FileCopyrightText: 2025 Thomas Duckworth <tduck@filotimoproject.org>
+
+set -eu
+
+if ! flatpak info org.mozilla.firefox >/dev/null 2>&1; then
+  echo "The Firefox flatpak is not installed. Exiting." >&2
+  exit 1
+fi
+
+# Install codecs-extra at runtime - this gets around distribution restrictions on codec licensing.
+# This is required for Firefox to decode certain video formats.
+
+# Make sure it installs the codecs-extra package for the correct runtime.
+RUNTIME_REF="$(flatpak info org.mozilla.firefox 2>/dev/null | grep -E 'Runtime:' | awk '{print $2}')"
+RUNTIME_ARCH="$(echo "$RUNTIME_REF" | cut -d'/' -f2)"
+RUNTIME_BRANCH="$(echo "$RUNTIME_REF" | cut -d'/' -f3)"
+CODEC_REF="org.freedesktop.Platform.codecs-extra/${RUNTIME_ARCH}/${RUNTIME_BRANCH}"
+
+if (! flatpak info "$CODEC_REF" &>/dev/null) && flatpak remote-info flathub "$CODEC_REF" &>/dev/null; then
+    flatpak install --system --runtime -y "$CODEC_REF"
+elif ! flatpak info org.freedesktop.Platform.codecs-extra &>/dev/null; then
+    flatpak install --system --runtime -y org.freedesktop.Platform.codecs-extra
+fi
+
+# Install the KDE Linux default Firefox config into the Firefox flatpak system config extension.
+mkdir -p "/var/lib/flatpak/extension/org.mozilla.firefox.systemconfig/${RUNTIME_ARCH}/stable/defaults/pref/"
+ln -sf "/usr/share/firefox-config/00-kde-linux-default.js" "/var/lib/flatpak/extension/org.mozilla.firefox.systemconfig/${RUNTIME_ARCH}/stable/defaults/pref/00-kde-linux-default.js"
