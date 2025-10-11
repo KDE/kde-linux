@@ -7,10 +7,29 @@ include:
       - /gitlab-templates/reuse-lint.yml
       - /gitlab-templates/blocks/workflow.yml
 
-
 stages:
   - validate
+  - test
   - start
+
+test:
+  stage: test
+  #image: registry.opensuse.org/devel/openqa/containers/isotovideo:qemu-x86
+  image: registry.opensuse.org/devel/openqa/containers/openqa-single-instance
+  #privileged: true
+
+  #image: storage.kde.org/vm-images/suse-qt610
+  #tags:
+  #  - VM
+  #  - amd64
+
+  script:
+    - git clone https://invent.kde.org/anicaazhu/os-autoinst-distri-kdelinux.git
+    - cd os-autoinst-distri-kdelinux
+    - echo "Done"
+
+    #- ./utils/mocks/job_live+fullsystem/mock.sh \
+    #  --CASEDIR=https://invent.kde.org/anicaazhu/os-autoinst-distri-kdelinux.git
 
 imaging:
   stage: start
