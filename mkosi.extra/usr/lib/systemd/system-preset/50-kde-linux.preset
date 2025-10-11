@@ -20,6 +20,7 @@ enable tuned.service
 enable tuned-ppd.service
 enable thermald.service
 enable pcscd.socket
+enable ufw.service
 
 # nvidia specific services (shouldn't affect non-nvidia hardware)
 enable nvidia-suspend.service
