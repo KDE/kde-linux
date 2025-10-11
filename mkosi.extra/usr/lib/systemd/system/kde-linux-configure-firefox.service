@@ -1,0 +1,16 @@
+# SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL
+# SPDX-FileCopyrightText: 2025 Thomas Duckworth <tduck@filotimoproject.org>
+
+[Unit]
+Description=Configure the Firefox flatpak
+ConditionPathExists=/var/lib/flatpak/app/org.mozilla.firefox
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/bin/_kde-linux-configure-firefox
+
+[Install]
+WantedBy=default.target

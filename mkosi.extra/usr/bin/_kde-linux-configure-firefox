@@ -1,0 +1,40 @@
+#!/usr/bin/bash
+# SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL
+# SPDX-FileCopyrightText: 2025 Thomas Duckworth <tduck@filotimoproject.org>
+
+set -eu
+
+# Check if existing Firefox config files are identical to the ones we're about to copy in.
+# If they are, exit early.
+if [ -f "/var/lib/flatpak/extension/org.mozilla.firefox.systemconfig/$(uname -m)/stable/defaults/pref/00-kde-linux-default.js" ] && \
+   [ -f "/var/lib/flatpak/extension/org.mozilla.firefox.systemconfig/$(uname -m)/stable/policies/policies.json" ] && \
+   cmp -s "/usr/share/firefox-config/00-kde-linux-default.js" "/var/lib/flatpak/extension/org.mozilla.firefox.systemconfig/$(uname -m)/stable/defaults/pref/00-kde-linux-default.js" && \
+   cmp -s "/usr/share/firefox-config/policies.json" "/var/lib/flatpak/extension/org.mozilla.firefox.systemconfig/$(uname -m)/stable/policies/policies.json"; then
+    exit 0
+fi
+
+# Install the KDE Linux default Firefox config into the Firefox flatpak system config extension.
+mkdir -p /var/lib/flatpak/extension/org.mozilla.firefox.systemconfig/$(uname -m)/stable/defaults/pref/
+cp -rf /usr/share/firefox-config/00-kde-linux-default.js /var/lib/flatpak/extension/org.mozilla.firefox.systemconfig/$(uname -m)/stable/defaults/pref/
+
+# Install the KDE Linux default Firefox policy into the Firefox flatpak system config extension.
+# This sets DuckDuckGo as the default search engine, and installs the Plasma Browser Integration extension.
+# This, however, has the unfortunate side effect of causing Firefox to show a "Your browser is being managed by your organization" message in the settings.
+mkdir -p /var/lib/flatpak/extension/org.mozilla.firefox.systemconfig/$(uname -m)/stable/policies/
+cp -rf /usr/share/firefox-config/policies.json /var/lib/flatpak/extension/org.mozilla.firefox.systemconfig/$(uname -m)/stable/policies/
+
+# Ensure some environment variables are set for the Firefox flatpak.
+# This enables hardware acceleration and VA-API video decoding on NVIDIA.
+if lsmod | grep -q nvidia; then
+    flatpak override --filesystem=host-os \
+    --env=LIBVA_DRIVER_NAME=nvidia \
+    --env=LIBVA_DRIVERS_PATH=/run/host/usr/lib64/dri \
+    --env=LIBVA_MESSAGING_LEVEL=1 \
+    --env=MOZ_DISABLE_RDD_SANDBOX=1 \
+    --env=NVD_BACKEND=direct org.mozilla.firefox
+else 
+    # Check if any NVIDIA-specific overrides are currently set before removing them.
+    if flatpak override --show org.mozilla.firefox | grep -q "LIBVA_DRIVER_NAME\|LIBVA_DRIVERS_PATH\|LIBVA_MESSAGING_LEVEL\|MOZ_DISABLE_RDD_SANDBOX\|NVD_BACKEND"; then
+       flatpak override --reset org.mozilla.firefox
+    fi
+fi
