@@ -1,0 +1,57 @@
+#!/usr/bin/bash
+# SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL
+# SPDX-FileCopyrightText: 2025 Thomas Duckworth <tduck@filotimoproject.org>
+
+set -eu
+
+# Wait for any ongoing flatpak installation to complete.
+# This avoids a race condition where we try to create shims while flatpak is still installing something,
+# which leads to a failure to create a shim for a newly installed flatpak.
+while pgrep -f "flatpak.*install" >/dev/null 2>&1; do
+    echo "Waiting for flatpak installation to complete..."
+    sleep 1
+done
+
+# Create shims for all installed flatpaks that have a command in their metadata.
+# Shims are created in ~/.local/bin.
+mkdir -p $HOME/.local/bin
+flatpak list --app --columns=application --system --user | sed '1d' | while read -r app; do
+    command_name=$(flatpak info --show-metadata "$app" | grep command | cut -d '=' -f2- || true)
+    if [ -z "$command_name" ]; then
+        # No command name found, skip this app.
+        continue
+    fi
+
+    shim_path="$HOME/.local/bin/$command_name"
+    if [ -f "$shim_path" ]; then
+        # Shim already exists, skip creating it.
+        # Don't overwrite a binary that could have been created by something else.
+        continue
+    fi
+
+    # Create or update the shim.
+    echo "Creating flatpak shim for $app at $shim_path"
+    cat > "$shim_path" <<EOF
+#!/usr/bin/bash
+flatpak run $app "\$@"
+EOF
+    chmod +x "$shim_path"
+done
+
+# Remove shims for flatpaks that are no longer installed.
+find ~/.local/bin -type f -readable | while read -r shim; do
+    shim_name=$(basename "$shim")
+
+    # Check if line 2 contains flatpak run, then it's a flatpak shim we've created.
+    if [ -s "$shim" ] && sed -n '2p' "$shim" 2>/dev/null | grep -q "^flatpak run "; then
+        shim_app_id=$(sed -n '2p' "$shim" 2>/dev/null | sed 's/^flatpak run[[:space:]]\+\([^[:space:]]\+\).*/\1/')
+
+        if [ -n "$shim_app_id" ]; then
+            # Remove if the referenced flatpak app doesn't exist
+            if ! flatpak info "$shim_app_id" >/dev/null 2>&1; then
+                echo "Removing orphaned flatpak shim $shim (references non-existent $shim_app_id)"
+                rm -f "$shim"
+            fi
+        fi
+    fi
+done
