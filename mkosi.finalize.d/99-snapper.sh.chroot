@@ -1,0 +1,20 @@
+#!/bin/sh
+# SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL
+# SPDX-FileCopyrightText: 2025 Hadi Chokr <hadichokr@icloud.com>
+
+set -euo pipefail
+
+CONFIG=home
+CONF_FILE="/etc/snapper/configs/${CONFIG}"
+
+# Create the config for /home if missing
+if ! snapper list-configs | grep -q "^${CONFIG}\b"; then
+    snapper -c "$CONFIG" create-config /home
+fi
+
+# Safely update only the desired options
+sed -ri \
+  -e 's/^[[:space:]]*ALLOW_GROUPS=.*/ALLOW_GROUPS="wheel"/' \
+  -e 's/^[[:space:]]*NUMBER_CLEANUP=.*/NUMBER_CLEANUP="yes"/' \
+  -e 's/^[[:space:]]*NUMBER_LIMIT=.*/NUMBER_LIMIT="10"/' \
+  "$CONF_FILE"

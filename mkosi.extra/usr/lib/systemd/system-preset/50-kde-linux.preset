@@ -36,6 +36,10 @@ enable var-lib-snapd-snap.mount
 # also one of ours but not prefixed with kde-linux- so others can use it too
 enable etc-factory.service
 
+# Snapper - BTRFS Snapshot Tool
+enable snapper-boot.timer
+enable snapper-cleanup.timer
+
 # networkd - we use networkmanager
 disable systemd-networkd-wait-online.service
 disable systemd-networkd.service
@@ -48,3 +52,4 @@ disable gpg-agent-ssh@etc-pacman.d-gnupg.socket
 disable gpg-agent@etc-pacman.d-gnupg.socket
 disable keyboxd@etc-pacman.d-gnupg.socket
 disable archlinux-keyring-wkd-sync.timer
+
