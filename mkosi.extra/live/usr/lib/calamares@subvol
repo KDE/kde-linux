@@ -1,9 +1,9 @@
 #!/bin/sh
 # SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL
 # SPDX-FileCopyrightText: 2023 Harald Sitter <sitter@kde.org>
-
+#
 # NOTE: this runs outside the chroot!
-# Mangle subvol setup from calamares to systemd conforming lineup.
+# Mangle subvol setup from Calamares to systemd-conforming layout.
 
 set -ex
 
@@ -22,21 +22,32 @@ cd "$ROOT"
 umount -R ./*
 rm -rfv ./*
 btrfs subvolume sync . || true
-umount -R --lazy "$ROOT" # unmount is important as otherwise we still hold a subvolume open and it can never sync deletion
+umount -R --lazy "$ROOT"   # unmount is important as otherwise we still hold a subvolume open and it can never sync deletion
 
+# Prepare the base filesystem for subvolume restructuring.
 mount -o ro /dev/gpt-auto-root /system
 mount -o rw "$device" "$tmpdir"
 cd "$tmpdir"
 rm -rfv ./*
 btrfs subvolume sync . || true
 
+# Enable Btrfs quotas
 btrfs quota enable --simple .
-btrfs subvolume create @system
-btrfs subvolume create @system/etc
+
+# -----------------------------------------------------------------------------
+# Create systemd-style Btrfs subvolume hierarchy
+# -----------------------------------------------------------------------------
+btrfs subvolume create @system       # Primary root filesystem
+btrfs subvolume create @system/etc   # Writable /etc
+btrfs subvolume create @home         # Dedicated home subvolume for persistent user data and snapshots
+
+# Create essential directory structure within @system.
 mkdir @system/boot @system/proc @system/sys @system/dev @system/run @system/usr
+
+# Preserve reference image copy for reproducibility/debugging.
 cp /dev/gpt-auto-root kde-linux_$IMAGE_VERSION.erofs
 
-# Overmount calamares' mount with the subvol mount
+# Overmount Calamares' root with our new @system subvolume.
 mount -o "subvol=@system" "$device" "$ROOT"
 mount -t proc proc "$ROOT/proc"
 mount -t sysfs sys "$ROOT/sys"
@@ -45,8 +56,17 @@ mount -t tmpfs tmpfs "$ROOT/run"
 mkdir "$ROOT/run/udev" # This is not part of @system but rather the $ROOT (do not move this to the mkdir list of @system!)
 mount -o bind /run/udev "$ROOT/run/udev"
 mount -t efivarfs efivarfs "$ROOT/sys/firmware/efi/efivars"
+
+# Mount the /usr EROFS image as read-only
 mount -o ro,X-mount.subdir=usr /dev/gpt-auto-root "$ROOT/usr"
 
+# Home sweet Home...
+mkdir -p "$ROOT/home"
+mount -o "subvol=@home" "$device" "$ROOT/home"
+
+# -----------------------------------------------------------------------------
+# Mount the EFI System Partition (ESP)
+# -----------------------------------------------------------------------------
 # ESP is a bit tricky. Find the block device of the root partition and then we'll ask systemd for an ESP on that device.
 # ... and luks devices are even more tricky because we need to get the real device first
 realdevice=$(realpath --relative-to /dev "$device")
@@ -57,21 +77,25 @@ if [ -r "/sys/block/$realdevice/dm/" ]; then
     done
 fi
 blockdev=/dev/$(basename "$(readlink --canonicalize "/sys/class/block/$realdevice/..")")
+# Locate the ESP partition on the same device.
 espdev=$(/usr/lib/find-esp "$blockdev")
 mount "$espdev" "$ROOT/boot"
 
+# -----------------------------------------------------------------------------
+# Initialize base system within the chroot environment
+# -----------------------------------------------------------------------------
 # Bit of a crutch to get systemd's base_filesystem_create() to run so the / gets populated with symlinks.
 # Exit code is not indicative of to the function having run - ignore it.
 systemd-nspawn -D "$ROOT" "true" || true
 
-# Apply the factory
+# Apply factory defaults (migrates /usr/etc → /etc overlays).
 /usr/lib/etc-factory --sysroot "$ROOT/" --replace --migrate
 
-# Initialize systemd stuff
+# Initialize system users and tmpfiles in the target root.
 systemd-sysusers --root="$ROOT"
 # exclude /usr because some tmpfiles are rubbish and assume /usr is writable...
 systemd-tmpfiles --root="$ROOT" --exclude-prefix=/usr --create
 
-# Make sure presets are applied
+# Apply systemd unit presets (enable default services).
 systemctl --root="$ROOT" preset-all
 systemctl --root="$ROOT" preset-all --global
