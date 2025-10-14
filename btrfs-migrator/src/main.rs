@@ -85,11 +85,22 @@ fn needs_rootfsv3_migration(root: &Path) -> bool {
     false
 }
 
+fn is_subvolume(path: &Path) -> bool {
+    // Check if this path is a btrfs subvolume by looking for the inode number
+    // Subvolumes typically have inode 256
+    if let Ok(metadata) = fs::metadata(path) {
+        metadata.ino() == 256
+    } else {
+        false
+    }
+}
+
 fn migrate_home_data(root: &Path) -> Result<(), Box<dyn Error>> {
     println!("Starting home data migration");
 
     let system_home = root.join("@system/home");
     let home_subvol = root.join("@home");
+    let old_home_backup = root.join("@oldhome");
 
     if !system_home.exists() {
         println!("No existing home data found in @system/home");
@@ -98,7 +109,11 @@ fn migrate_home_data(root: &Path) -> Result<(), Box<dyn Error>> {
 
     println!("Found existing home data in @system/home");
 
-    // First, let's see what's in @system/home
+    // First check if @system/home is a subvolume
+    let home_is_subvolume = is_subvolume(&system_home);
+    println!("@system/home is subvolume: {}", home_is_subvolume);
+
+    // List contents of @system/home
     println!("Contents of @system/home:");
     if let Ok(entries) = fs::read_dir(&system_home) {
         for entry in entries {
@@ -108,27 +123,63 @@ fn migrate_home_data(root: &Path) -> Result<(), Box<dyn Error>> {
         }
     }
 
-    // Check if @home is empty (excluding .snapshots if it exists)
-    let mut home_entries: Vec<_> = fs::read_dir(&home_subvol)
-    .map(|entries| entries.filter_map(Result::ok).collect())
-    .unwrap_or_else(|_| vec![]);
+    // Create backup of old home data first
+    if !old_home_backup.exists() {
+        println!("Creating backup of old home data at {:?}", old_home_backup);
 
-    // Filter out the .snapshots directory if it exists
-    home_entries.retain(|entry| entry.file_name() != ".snapshots");
+        if home_is_subvolume {
+            // If it's a subvolume, create a snapshot
+            println!("Creating snapshot of @system/home to @oldhome");
+            CreateSnapshotOptions::new()
+            .recursive(true)
+            .create(&system_home, &old_home_backup)
+            .map_err(|e| format!("Failed to create snapshot backup: {}", e))?;
+        } else {
+            // If it's a directory, create a subvolume and copy data
+            println!("Creating @oldhome subvolume and copying data");
+            CreateSubvolumeOptions::new()
+            .create(&old_home_backup)
+            .map_err(|e| format!("Failed to create @oldhome subvolume: {}", e))?;
 
-    if !home_entries.is_empty() {
-        println!("@home already contains data, skipping migration");
-        println!("Current @home contents:");
-        for entry in home_entries {
-            println!("  - {:?}", entry.file_name());
+            copy_dir_all(&system_home, &old_home_backup)?;
         }
-        return Ok(());
+    } else {
+        println!("Backup @oldhome already exists");
     }
 
-    println!("Migrating home data from @system/home to @home");
+    // Now remove the old home data
+    println!("Removing old home data from @system/home");
 
-    // Use simple file operations instead of rsync/cp which might not be available
-    if let Ok(entries) = fs::read_dir(&system_home) {
+    if home_is_subvolume {
+        // Delete the subvolume
+        println!("Deleting @system/home subvolume");
+        match DeleteSubvolumeOptions::new()
+        .recursive(true)
+        .delete(&system_home)
+        {
+            Ok(_) => println!("Successfully deleted @system/home subvolume"),
+            Err(e) => println!("Failed to delete @system/home subvolume: {}, will try directory removal", e),
+        }
+    } else {
+        // Remove as directory
+        println!("Removing @system/home directory contents");
+        if let Ok(entries) = fs::read_dir(&system_home) {
+            for entry in entries {
+                let entry = entry?;
+                let path = entry.path();
+                if path.is_dir() {
+                    fs::remove_dir_all(&path)?;
+                } else {
+                    fs::remove_file(&path)?;
+                }
+            }
+        }
+    }
+
+    // Now migrate data from backup to new @home
+    println!("Migrating home data from backup to @home");
+
+    if let Ok(entries) = fs::read_dir(&old_home_backup) {
         for entry in entries {
             let entry = entry?;
             let source_path = entry.path();
@@ -143,10 +194,8 @@ fn migrate_home_data(root: &Path) -> Result<(), Box<dyn Error>> {
             println!("Copying {:?} to {:?}", source_path, target_path);
 
             if source_path.is_dir() {
-                // For directories, use our custom copy function
                 copy_dir_all(&source_path, &target_path)?;
             } else {
-                // For files, simple copy
                 fs::copy(&source_path, &target_path)?;
             }
         }
@@ -208,7 +257,7 @@ fn migrate_rootfsv3(root: &Path) -> Result<(), Box<dyn Error>> {
         .status();
     }
 
-    // Now migrate the home data using our custom function
+    // Now migrate the home data using our safe approach
     migrate_home_data(root)?;
 
     println!("RootFSv3 migration completed successfully");
