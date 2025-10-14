@@ -40,6 +40,7 @@ btrfs quota enable --simple .
 btrfs subvolume create @system       # Primary root filesystem
 btrfs subvolume create @system/etc   # Writable /etc
 btrfs subvolume create @home         # Dedicated home subvolume for persistent user data and snapshots
+btrfs subvolume create /home/.snapshots  # Snapper home snapshots
 
 # Create essential directory structure within @system.
 mkdir @system/boot @system/proc @system/sys @system/dev @system/run @system/usr
@@ -99,3 +100,4 @@ systemd-tmpfiles --root="$ROOT" --exclude-prefix=/usr --create
 # Apply systemd unit presets (enable default services).
 systemctl --root="$ROOT" preset-all
 systemctl --root="$ROOT" preset-all --global
+
