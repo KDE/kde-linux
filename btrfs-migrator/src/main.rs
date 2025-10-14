@@ -1,418 +1,588 @@
 // SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL
-// SPDX-FileCopyrightText: 2025 Harald Sitter <sitter@kde.org>
+// SPDX-FileCopyrightText: 2025 Harald Sitter sitter@kde.org
 
 use std::{
     env,
     error::Error,
+    fmt,
     fs::{self},
     io::{self, Write},
     path::{Path, PathBuf},
     process::Command,
+    time::Instant,
 };
 #[macro_use(defer)]
 extern crate scopeguard;
-use dialoguer::{self, Confirm};
+use dialoguer::{self, Confirm, theme::ColorfulTheme};
 use fstab::FsTab;
 use libbtrfsutil::{CreateSnapshotOptions, CreateSubvolumeOptions, DeleteSubvolumeOptions};
 
-fn find_rootfs_v1(root: &Path) -> Option<PathBuf> {
-    let subvols = fs::read_dir(root).ok()?;
+// Custom error type for better error handling
+#[derive(Debug)]
+struct MigrationError {
+    message: String,
+    context: String,
+}
 
-    struct Candidate {
-        path: PathBuf,
-        version: u64,
+impl fmt::Display for MigrationError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}: {}", self.context, self.message)
     }
+}
 
-    let mut candidate: Option<Candidate> = None;
+impl Error for MigrationError {}
 
-    for entry in subvols {
-        let entry = entry.ok()?;
-        let path = entry.path();
-        let file_name = entry.file_name();
-        let name = file_name.to_string_lossy().to_string();
-        if !name.starts_with("@kde-linux_") {
-            continue;
-        }
-        if !path.join("etc").exists() {
-            // This is not a useful/valid rootfs v1 subvolume.
-            continue;
-        }
-        let mut parts = name.splitn(2, '_');
-        let _prefix = parts.next().unwrap();
-        let version = parts.next().unwrap();
-        match version.parse::<u64>() {
-            Ok(version) => {
-                if candidate.is_none() || candidate.as_ref().unwrap().version < version {
-                    candidate = Some(Candidate { path, version });
-                }
-            }
-            Err(_) => {
-                println!("Invalid version number in subvolume name: {name} -- {version}");
-            }
-        }
-    }
-
-    match candidate {
-        Some(c) => {
-            println!(
-                "Found legacy rootfs v1 at {:?} with version {}",
-                c.path, c.version
-            );
-            Some(c.path)
-        }
-        None => {
-            println!("No legacy rootfs v1 found.");
-            None
+impl MigrationError {
+    fn new(message: impl Into<String>, context: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+            context: context.into(),
         }
     }
 }
 
-fn needs_rootfsv3_migration(root: &Path) -> bool {
-    // Check if @home subvolume exists
-    let home_subvol = root.join("@home");
-    if !home_subvol.exists() {
-        println!("@home subvolume does not exist - RootFSv3 migration needed");
-        return true;
-    }
+// Result type alias for cleaner code
+type MigrationResult<T> = Result<T, Box<dyn Error>>;
 
-    // Check if @home/.snapshots subvolume exists
-    let home_snapshots = home_subvol.join(".snapshots");
-    if !home_snapshots.exists() {
-        println!("@home/.snapshots subvolume does not exist - RootFSv3 migration needed");
-        return true;
-    }
-
-    false
+// Configuration and state
+struct MigrationContext {
+    root_path: PathBuf,
+    start_time: Instant,
 }
 
-fn is_subvolume(path: &Path) -> bool {
-    // Check if this path is a btrfs subvolume by looking for the inode number
-    // Subvolumes typically have inode 256
-    if let Ok(metadata) = fs::metadata(path) {
-        metadata.ino() == 256
-    } else {
-        false
+impl MigrationContext {
+    fn new(root_path: &Path) -> Self {
+        Self {
+            root_path: root_path.to_path_buf(),
+            start_time: Instant::now(),
+        }
+    }
+
+    fn log_step(&self, step: &str) {
+        println!("🚀 [Step {}] {}", self.step_number(), step);
+    }
+
+    fn log_info(&self, message: &str) {
+        println!("   ℹ️  {}", message);
+    }
+
+    fn log_success(&self, message: &str) {
+        println!("   ✅ {}", message);
+    }
+
+    fn log_warning(&self, message: &str) {
+        println!("   ⚠️  {}", message);
+    }
+
+    fn log_error(&self, message: &str) {
+        println!("   ❌ {}", message);
+    }
+
+    fn step_number(&self) -> u32 {
+        // Simple step counter based on elapsed time (for demonstration)
+        (self.start_time.elapsed().as_secs() / 2 + 1) as u32
+    }
+
+    fn path(&self, relative: &str) -> PathBuf {
+        self.root_path.join(relative)
     }
 }
 
-fn migrate_home_data(root: &Path) -> Result<(), Box<dyn Error>> {
-    println!("Starting home data migration");
+struct LegacyRootFsV1Finder;
 
-    let system_home = root.join("@system/home");
-    let home_subvol = root.join("@home");
-    let old_home_backup = root.join("@oldhome");
+impl LegacyRootFsV1Finder {
+    fn find_latest(root: &Path) -> MigrationResult<Option<PathBuf>> {
+        let subvols = fs::read_dir(root)
+            .map_err(|e| MigrationError::new(format!("Failed to read root directory: {}", e), "V1 detection"))?;
 
-    if !system_home.exists() {
-        println!("No existing home data found in @system/home");
-        return Ok(());
-    }
+        #[derive(Debug)]
+        struct Candidate {
+            path: PathBuf,
+            version: u64,
+        }
 
-    println!("Found existing home data in @system/home");
+        let mut candidate: Option<Candidate> = None;
 
-    // First check if @system/home is a subvolume
-    let home_is_subvolume = is_subvolume(&system_home);
-    println!("@system/home is subvolume: {}", home_is_subvolume);
+        for entry in subvols {
+            let entry = entry.map_err(|e| MigrationError::new(format!("Failed to read directory entry: {}", e), "V1 detection"))?;
+            let path = entry.path();
+            let name = entry.file_name().to_string_lossy().to_string();
 
-    // List contents of @system/home
-    println!("Contents of @system/home:");
-    if let Ok(entries) = fs::read_dir(&system_home) {
-        for entry in entries {
-            if let Ok(entry) = entry {
-                println!("  - {:?}", entry.file_name());
+            if !name.starts_with("@kde-linux_") {
+                continue;
             }
-        }
-    }
 
-    // Step 1: Create backup of old home data
-    println!("Step 1: Creating backup of home data at {:?}", old_home_backup);
+            if !path.join("etc").exists() {
+                continue; // Not a valid rootfs v1 subvolume
+            }
 
-    if old_home_backup.exists() {
-        println!("Backup @oldhome already exists, removing it first");
-        match DeleteSubvolumeOptions::new()
-        .recursive(true)
-        .delete(&old_home_backup)
-        {
-            Ok(_) => println!("Removed existing @oldhome"),
-            Err(e) => return Err(format!("Failed to remove existing @oldhome: {}", e).into()),
-        }
-    }
-
-    if home_is_subvolume {
-        // If it's a subvolume, create a snapshot
-        println!("Creating snapshot of @system/home to @oldhome");
-        CreateSnapshotOptions::new()
-        .recursive(true)
-        .create(&system_home, &old_home_backup)
-        .map_err(|e| format!("Failed to create snapshot backup: {}", e))?;
-    } else {
-        // If it's a directory, create a subvolume and copy data
-        println!("Creating @oldhome subvolume and copying data");
-        CreateSubvolumeOptions::new()
-        .create(&old_home_backup)
-        .map_err(|e| format!("Failed to create @oldhome subvolume: {}", e))?;
-
-        copy_dir_all(&system_home, &old_home_backup)?;
-    }
-
-    // Step 2: Delete the old home subvolume/directory
-    println!("Step 2: Removing old home data from @system/home");
-
-    if home_is_subvolume {
-        // Delete the subvolume
-        println!("Deleting @system/home subvolume");
-        DeleteSubvolumeOptions::new()
-        .recursive(true)
-        .delete(&system_home)
-        .map_err(|e| format!("Failed to delete @system/home subvolume: {}", e))?;
-        println!("Successfully deleted @system/home subvolume");
-    } else {
-        // Remove as directory
-        println!("Removing @system/home directory contents");
-        if let Ok(entries) = fs::read_dir(&system_home) {
-            for entry in entries {
-                let entry = entry?;
-                let path = entry.path();
-                if path.is_dir() {
-                    fs::remove_dir_all(&path)?;
+            if let Some(version_str) = name.strip_prefix("@kde-linux_") {
+                if let Ok(version) = version_str.parse::<u64>() {
+                    if candidate.as_ref().map_or(true, |c| c.version < version) {
+                        candidate = Some(Candidate { path, version });
+                    }
                 } else {
-                    fs::remove_file(&path)?;
+                    println!("   ⚠️  Invalid version number in subvolume: {} (version: {})", name, version_str);
                 }
             }
         }
+
+        match candidate {
+            Some(c) => {
+                println!("   ✅ Found legacy rootfs v1 at {:?} (version {})", c.path, c.version);
+                Ok(Some(c.path))
+            }
+            None => {
+                println!("   ℹ️  No legacy rootfs v1 found");
+                Ok(None)
+            }
+        }
+    }
+}
+
+struct RootFsV3Checker;
+
+impl RootFsV3Checker {
+    fn needs_migration(root: &Path) -> MigrationResult<bool> {
+        let home_subvol = root.join("@home");
+        if !home_subvol.exists() {
+            println!("   ℹ️  @home subvolume missing - RootFSv3 migration required");
+            return Ok(true);
+        }
+
+        let home_snapshots = home_subvol.join(".snapshots");
+        if !home_snapshots.exists() {
+            println!("   ℹ️  @home/.snapshots subvolume missing - RootFSv3 migration required");
+            return Ok(true);
+        }
+
+        println!("   ✅ RootFSv3 structure already exists");
+        Ok(false)
+    }
+}
+
+struct SubvolumeHelper;
+
+impl SubvolumeHelper {
+    fn is_subvolume(path: &Path) -> bool {
+        fs::metadata(path)
+            .map(|metadata| metadata.ino() == 256)
+            .unwrap_or(false)
     }
 
-    // Step 3: Ensure @home subvolume exists (should already exist from migrate_rootfsv3)
-    if !home_subvol.exists() {
-        println!("Creating @home subvolume");
+    fn create_subvolume(path: &Path) -> MigrationResult<()> {
         CreateSubvolumeOptions::new()
-        .create(&home_subvol)
-        .map_err(|error| format!("Problem creating @home subvolume: {error:?}"))?;
+            .create(path)
+            .map_err(|e| MigrationError::new(format!("Failed to create subvolume: {}", e), "Subvolume creation").into())
     }
 
-    // Step 4: Move data from backup to new @home
-    println!("Step 4: Moving home data from backup to new @home");
+    fn create_snapshot(source: &Path, target: &Path) -> MigrationResult<()> {
+        CreateSnapshotOptions::new()
+            .recursive(true)
+            .create(source, target)
+            .map_err(|e| MigrationError::new(format!("Failed to create snapshot: {}", e), "Snapshot creation").into())
+    }
 
-    if let Ok(entries) = fs::read_dir(&old_home_backup) {
+    fn delete_subvolume(path: &Path) -> MigrationResult<()> {
+        DeleteSubvolumeOptions::new()
+            .recursive(true)
+            .delete(path)
+            .map_err(|e| MigrationError::new(format!("Failed to delete subvolume: {}", e), "Subvolume deletion").into())
+    }
+}
+
+struct HomeDataMigrator;
+
+impl HomeDataMigrator {
+    fn migrate(ctx: &MigrationContext) -> MigrationResult<()> {
+        ctx.log_step("Migrating home data to RootFSv3 structure");
+
+        let system_home = ctx.path("@system/home");
+        let home_subvol = ctx.path("@home");
+        let old_home_backup = ctx.path("@oldhome");
+
+        if !system_home.exists() {
+            ctx.log_info("No existing home data found in @system/home - nothing to migrate");
+            return Ok(());
+        }
+
+        ctx.log_info("Found existing home data in @system/home");
+
+        // Determine if home is a subvolume or regular directory
+        let home_is_subvolume = SubvolumeHelper::is_subvolume(&system_home);
+        ctx.log_info(&format!("@system/home is subvolume: {}", home_is_subvolume));
+
+        Self::display_home_contents(ctx, &system_home)?;
+        Self::create_home_backup(ctx, &system_home, &old_home_backup, home_is_subvolume)?;
+        Self::remove_old_home_data(ctx, &system_home, home_is_subvolume)?;
+        Self::ensure_home_subvolume(ctx, &home_subvol)?;
+        Self::transfer_home_data(ctx, &old_home_backup, &home_subvol)?;
+        Self::cleanup_backup(ctx, &old_home_backup)?;
+
+        ctx.log_success("Home data migration completed");
+        Ok(())
+    }
+
+    fn display_home_contents(ctx: &MigrationContext, system_home: &Path) -> MigrationResult<()> {
+        ctx.log_info("Contents of @system/home:");
+        match fs::read_dir(system_home) {
+            Ok(entries) => {
+                for entry in entries.flatten() {
+                    println!("     📁 {:?}", entry.file_name());
+                }
+            }
+            Err(e) => ctx.log_warning(&format!("Could not list home contents: {}", e)),
+        }
+        Ok(())
+    }
+
+    fn create_home_backup(
+        ctx: &MigrationContext,
+        system_home: &Path,
+        backup_path: &Path,
+        is_subvolume: bool,
+    ) -> MigrationResult<()> {
+        ctx.log_step("Creating backup of existing home data");
+
+        // Remove existing backup if present
+        if backup_path.exists() {
+            ctx.log_info("Removing existing backup @oldhome");
+            SubvolumeHelper::delete_subvolume(backup_path)
+                .map_err(|e| MigrationError::new(format!("Failed to remove existing backup: {}", e), "Backup preparation"))?;
+        }
+
+        if is_subvolume {
+            ctx.log_info("Creating snapshot backup of @system/home");
+            SubvolumeHelper::create_snapshot(system_home, backup_path)?;
+        } else {
+            ctx.log_info("Creating new subvolume and copying directory data");
+            SubvolumeHelper::create_subvolume(backup_path)?;
+            Self::copy_directory_contents(system_home, backup_path)?;
+        }
+
+        ctx.log_success("Backup created successfully");
+        Ok(())
+    }
+
+    fn remove_old_home_data(ctx: &MigrationContext, system_home: &Path, is_subvolume: bool) -> MigrationResult<()> {
+        ctx.log_step("Removing old home data from @system/home");
+
+        if is_subvolume {
+            ctx.log_info("Deleting @system/home subvolume");
+            SubvolumeHelper::delete_subvolume(system_home)?;
+        } else {
+            ctx.log_info("Removing @system/home directory contents");
+            Self::clear_directory(system_home)?;
+        }
+
+        ctx.log_success("Old home data removed");
+        Ok(())
+    }
+
+    fn ensure_home_subvolume(ctx: &MigrationContext, home_subvol: &Path) -> MigrationResult<()> {
+        if !home_subvol.exists() {
+            ctx.log_info("Creating @home subvolume");
+            SubvolumeHelper::create_subvolume(home_subvol)?;
+        }
+        Ok(())
+    }
+
+    fn transfer_home_data(ctx: &MigrationContext, backup_path: &Path, home_subvol: &Path) -> MigrationResult<()> {
+        ctx.log_step("Transferring home data to new @home subvolume");
+
+        let entries = fs::read_dir(backup_path)
+            .map_err(|e| MigrationError::new(format!("Failed to read backup: {}", e), "Data transfer"))?;
+
         for entry in entries {
             let entry = entry?;
             let source_path = entry.path();
             let file_name = entry.file_name();
             let target_path = home_subvol.join(&file_name);
 
-            // Skip .snapshots if it exists in source (we'll create our own)
+            // Skip .snapshots directory - we'll manage that separately
             if file_name == ".snapshots" {
                 continue;
             }
 
-            println!("Moving {:?} to {:?}", source_path, target_path);
+            ctx.log_info(&format!("Moving {:?}", file_name));
 
             if source_path.is_dir() {
-                copy_dir_all(&source_path, &target_path)?;
+                Self::copy_directory_contents(&source_path, &target_path)?;
             } else {
-                fs::copy(&source_path, &target_path)?;
+                fs::copy(&source_path, &target_path)
+                    .map_err(|e| MigrationError::new(format!("Failed to copy file: {}", e), "Data transfer"))?;
             }
         }
+
+        ctx.log_success("Home data transferred");
+        Ok(())
     }
 
-    // Step 5: Clean up the backup
-    println!("Step 5: Cleaning up backup @oldhome");
-    DeleteSubvolumeOptions::new()
-    .recursive(true)
-    .delete(&old_home_backup)
-    .map_err(|e| format!("Failed to remove backup @oldhome: {}", e))?;
-    println!("Successfully removed backup @oldhome");
+    fn cleanup_backup(ctx: &MigrationContext, backup_path: &Path) -> MigrationResult<()> {
+        ctx.log_step("Cleaning up temporary backup");
+        SubvolumeHelper::delete_subvolume(backup_path)?;
+        ctx.log_success("Backup cleaned up");
+        Ok(())
+    }
 
-    println!("Home data migration completed successfully");
-    Ok(())
-}
+    fn copy_directory_contents(src: &Path, dst: &Path) -> MigrationResult<()> {
+        fs::create_dir_all(dst)
+            .map_err(|e| MigrationError::new(format!("Failed to create directory: {}", e), "Directory copy"))?;
 
-fn copy_dir_all(src: &Path, dst: &Path) -> Result<(), Box<dyn Error>> {
-    fs::create_dir_all(dst)?;
+        for entry in fs::read_dir(src)
+            .map_err(|e| MigrationError::new(format!("Failed to read source directory: {}", e), "Directory copy"))?
+        {
+            let entry = entry?;
+            let source_path = entry.path();
+            let target_path = dst.join(entry.file_name());
 
-    for entry in fs::read_dir(src)? {
-        let entry = entry?;
-        let ty = entry.file_type()?;
-        let source_path = entry.path();
-        let target_path = dst.join(entry.file_name());
-
-        if ty.is_dir() {
-            copy_dir_all(&source_path, &target_path)?;
-        } else {
-            fs::copy(&source_path, &target_path)?;
+            if source_path.is_dir() {
+                Self::copy_directory_contents(&source_path, &target_path)?;
+            } else {
+                fs::copy(&source_path, &target_path)
+                    .map_err(|e| MigrationError::new(format!("Failed to copy file: {}", e), "Directory copy"))?;
+            }
         }
+        Ok(())
     }
 
-    Ok(())
+    fn clear_directory(path: &Path) -> MigrationResult<()> {
+        for entry in fs::read_dir(path)
+            .map_err(|e| MigrationError::new(format!("Failed to read directory: {}", e), "Directory clearance"))?
+        {
+            let entry = entry?;
+            let path = entry.path();
+
+            if path.is_dir() {
+                fs::remove_dir_all(&path)
+                    .map_err(|e| MigrationError::new(format!("Failed to remove directory: {}", e), "Directory clearance"))?;
+            } else {
+                fs::remove_file(&path)
+                    .map_err(|e| MigrationError::new(format!("Failed to remove file: {}", e), "Directory clearance"))?;
+            }
+        }
+        Ok(())
+    }
 }
 
-fn migrate_rootfsv3(root: &Path) -> Result<(), Box<dyn Error>> {
-    println!("Starting RootFSv3 migration");
+struct RootFsV3Migrator;
 
-    let _ = Command::new("plymouth")
-    .arg("display-message")
-    .arg("--text=Migrating to v3 rootfs. Setting up @home structure.")
-    .status();
+impl RootFsV3Migrator {
+    fn migrate(ctx: &MigrationContext) -> MigrationResult<()> {
+        ctx.log_step("Setting up RootFSv3 structure");
 
-    let home_subvol = root.join("@home");
-    let home_snapshots = home_subvol.join(".snapshots");
+        Self::show_plymouth_message("Migrating to v3 rootfs. Setting up @home structure.")?;
 
-    // Step 1: Create @home subvolume if it doesn't exist
-    // But don't populate it yet - that happens in migrate_home_data
-    if !home_subvol.exists() {
-        println!("Creating @home subvolume");
-        CreateSubvolumeOptions::new()
-        .create(&home_subvol)
-        .map_err(|error| format!("Problem creating @home subvolume: {error:?}"))?;
+        let home_subvol = ctx.path("@home");
+        let home_snapshots = home_subvol.join(".snapshots");
+
+        // Create @home subvolume if needed
+        if !home_subvol.exists() {
+            ctx.log_info("Creating @home subvolume");
+            SubvolumeHelper::create_subvolume(&home_subvol)?;
+        }
+
+        // Create @home/.snapshots subvolume
+        if !home_snapshots.exists() {
+            ctx.log_info("Creating @home/.snapshots subvolume");
+            SubvolumeHelper::create_subvolume(&home_snapshots)?;
+
+            // Set proper permissions for snapper
+            ctx.log_info("Setting permissions for .snapshots directory");
+            Command::new("chmod")
+                .arg("755")
+                .arg(&home_snapshots)
+                .status()
+                .map_err(|e| MigrationError::new(format!("Failed to set permissions: {}", e), "Permissions setup"))?;
+        }
+
+        // Migrate home data
+        HomeDataMigrator::migrate(ctx)?;
+
+        ctx.log_success("RootFSv3 migration completed");
+        Ok(())
     }
 
-    // Step 2: Create @home/.snapshots subvolume
-    if !home_snapshots.exists() {
-        println!("Creating @home/.snapshots subvolume");
-        CreateSubvolumeOptions::new()
-        .create(&home_snapshots)
-        .map_err(|error| format!("Problem creating @home/.snapshots subvolume: {error:?}"))?;
-
-        // Set proper permissions for snapper
-        let _ = Command::new("chmod")
-        .arg("755")
-        .arg(&home_snapshots)
-        .status();
+    fn show_plymouth_message(message: &str) -> MigrationResult<()> {
+        Command::new("plymouth")
+            .arg("display-message")
+            .arg(format!("--text={}", message))
+            .status()
+            .map(|_| ())
+            .map_err(|e| MigrationError::new(format!("Failed to show plymouth message: {}", e), "UI").into())
     }
-
-    // Step 3: Now migrate the home data using our safe approach
-    migrate_home_data(root)?;
-
-    println!("RootFSv3 migration completed successfully");
-    Ok(())
 }
 
-fn run(root: &Path) -> Result<(), Box<dyn Error>> {
-    env::set_current_dir(root)?;
+struct RootFsV2Migrator;
 
-    let system_path = root.join("@system");
+impl RootFsV2Migrator {
+    fn migrate(ctx: &MigrationContext) -> MigrationResult<bool> {
+        let system_path = ctx.path("@system");
+        
+        if system_path.exists() {
+            ctx.log_info("@system exists, skipping RootFSv2 migration");
+            return Ok(false);
+        }
 
-    // Check if we need RootFSv2 migration
-    if !system_path.exists() {
-        println!("@system does not exist, performing RootFSv2 migration");
+        ctx.log_step("Starting RootFSv2 migration");
 
-        // Wait for devices to settle down a bit, otherwise we risk breaking plymouth and printing into the void, leaving
-        // the user without any indication what is going on.
-        // We do this relatively late in the transition progress so it doesn't unnecessarily delay regular boots.
-        let _ = Command::new("udevadm")
-        .arg("settle")
-        .arg("--timeout=8")
-        .status();
+        // Wait for devices to settle
+        ctx.log_info("Waiting for devices to settle...");
+        Command::new("udevadm")
+            .arg("settle")
+            .arg("--timeout=8")
+            .status()
+            .map_err(|e| MigrationError::new(format!("Failed to settle devices: {}", e), "V2 migration"))?;
 
-        let _ = Command::new("plymouth")
-        .arg("display-message")
-        .arg("--text=Migrating to v2 rootfs. Can take a while.")
-        .status();
+        Self::show_plymouth_message("Migrating to v2 rootfs. This may take a while.")?;
 
-        let import_path = root.join("@system.import");
+        let import_path = ctx.path("@system.import");
+        Self::prepare_import_directory(ctx, &import_path)?;
+        Self::handle_fstab_warnings(ctx)?;
+
+        let rootfs_v1 = LegacyRootFsV1Finder::find_latest(&ctx.root_path)?
+            .ok_or_else(|| MigrationError::new("No legacy rootfs v1 found", "V2 migration"))?;
+
+        Self::migrate_system_directories(ctx, &rootfs_v1, &import_path)?;
+        Self::migrate_subvolumes(ctx, &import_path)?;
+        Self::finalize_migration(ctx, &import_path, &system_path)?;
+
+        ctx.log_success("RootFSv2 migration completed");
+        Ok(true)
+    }
+
+    fn prepare_import_directory(ctx: &MigrationContext, import_path: &Path) -> MigrationResult<()> {
+        // Clean up existing import directory
         if import_path.exists() {
-            println!("@system.import exists. Deleting it.");
-            match DeleteSubvolumeOptions::new()
-            .recursive(true)
-            .delete(&import_path)
-            {
-                Ok(_) => println!("Deleted subvolume: {import_path:?}"),
-                Err(error) => println!("Problem deleting subvolume {import_path:?}: {error:?}"),
-            }
+            ctx.log_info("Cleaning up existing @system.import");
+            SubvolumeHelper::delete_subvolume(import_path)
+                .map_err(|e| MigrationError::new(format!("Failed to remove existing import: {}", e), "V2 preparation"))?;
         }
-        CreateSubvolumeOptions::new()
-        .create(&import_path)
-        .map_err(|error| format!("Problem creating subvolume {import_path:?}: {error:?}"))?;
 
-        env::set_current_dir(&import_path)?;
-        println!("Current directory: {:?}", env::current_dir()?);
+        ctx.log_info("Creating @system.import subvolume");
+        SubvolumeHelper::create_subvolume(import_path)?;
 
-        // May or may not exist. Don't trip over it!
-        let fstab = FsTab::new(&root.join("@etc-overlay/upper/fstab"));
-        let mut concerning_fstab_entries = 0;
-        for entry in fstab.get_entries().unwrap_or_default() {
-            if entry.vfs_type != "swap" {
-                concerning_fstab_entries += 1;
-            }
+        Ok(())
+    }
+
+    fn handle_fstab_warnings(ctx: &MigrationContext) -> MigrationResult<()> {
+        let fstab_path = ctx.path("@etc-overlay/upper/fstab");
+        let fstab = FsTab::new(&fstab_path);
+
+        let concerning_entries = fstab.get_entries().unwrap_or_default()
+            .iter()
+            .filter(|entry| entry.vfs_type != "swap")
+            .count();
+
+        if concerning_entries > 0 {
+            ctx.log_warning(&format!("Found {} non-swap fstab entries", concerning_entries));
+            Self::show_fstab_warning(ctx, concerning_entries)?;
         }
-        if concerning_fstab_entries > 0 {
-            let _ = Command::new("plymouth").arg("hide-splash").status();
 
-            let _ = qr2term::print_qr("https://community.kde.org/KDE_Linux/RootFSv2");
+        Ok(())
+    }
 
-            println!(
-                "Found {concerning_fstab_entries} concerning fstab entries. This suggests you have a more complicated fstab setup that we cannot auto-migrate. \
-If nothing critically important is managed by fstab you can let the auto-migration run. If you have entries that are required for the system to boot you should manually migrate to @system."
-            );
-            io::stdout().flush().unwrap();
+    fn show_fstab_warning(ctx: &MigrationContext, count: usize) -> MigrationResult<()> {
+        Command::new("plymouth").arg("hide-splash").status().ok();
 
-            let migrate = Confirm::new()
-            .with_prompt("Do you want to continue with auto-migration?")
+        ctx.log_info("Displaying QR code for migration instructions");
+        qr2term::print_qr("https://community.kde.org/KDE_Linux/RootFSv2").ok();
+
+        println!(
+            "\n⚠️  Found {} concerning fstab entries. This suggests you have a custom fstab setup.",
+            count
+        );
+        println!("   If you have entries required for boot, you should manually migrate to @system.");
+        println!("   Otherwise, you can proceed with auto-migration.\n");
+
+        io::stdout().flush().unwrap();
+
+        let migrate = Confirm::with_theme(&ColorfulTheme::default())
+            .with_prompt("Continue with auto-migration?")
             .interact()
             .unwrap();
 
-            if !migrate {
-                Command::new("systemctl")
+        if !migrate {
+            ctx.log_info("User chose to abort migration - rebooting");
+            Command::new("systemctl")
                 .arg("reboot")
                 .status()
-                .expect("failed to execute systemctl reboot");
-                return Err("Concerning fstab entries found".into());
-            }
+                .map_err(|e| MigrationError::new(format!("Failed to reboot: {}", e), "User abort"))?;
+            return Err("Migration aborted by user".into());
         }
 
-        let rootfs_v1 = match find_rootfs_v1(root) {
-            Some(path) => path,
-            None => return Err("No legacy rootfs v1 found. Migration impossible.".into()),
-        };
+        Ok(())
+    }
+
+    fn migrate_system_directories(ctx: &MigrationContext, rootfs_v1: &Path, import_path: &Path) -> MigrationResult<()> {
+        ctx.log_info("Migrating system directories");
 
         for dir in ["etc", "var"] {
             let compose_dir = rootfs_v1.join(dir);
+            let overlay_mount = Self::mount_overlay(ctx, &compose_dir, dir)?;
 
-            let mount_result = Command::new("mount")
+            ctx.log_info(&format!("Copying {} directory", dir));
+            Self::copy_directory_with_reflink(&compose_dir, &import_path.join(dir))?;
+
+            drop(overlay_mount); // Explicitly unmount
+        }
+
+        Ok(())
+    }
+
+    fn mount_overlay(ctx: &MigrationContext, compose_dir: &Path, dir: &str) -> MigrationResult<impl Drop> {
+        ctx.log_info(&format!("Mounting overlay for {}", dir));
+
+        let lower_dir = compose_dir.to_string_lossy();
+        let upper_dir = ctx.path(&format!("@{}-overlay/upper", dir)).to_string_lossy();
+        let work_dir = ctx.path(&format!("@{}-overlay/work", dir)).to_string_lossy();
+
+        let options = format!(
+            "ro,lowerdir={},upperdir={},workdir={},index=off,metacopy=off",
+            lower_dir, upper_dir, work_dir
+        );
+
+        let status = Command::new("mount")
             .arg("--verbose")
             .arg("--types")
             .arg("overlay")
             .arg("--options")
-            .arg(format!(
-                "ro,lowerdir={},upperdir={},workdir={},index=off,metacopy=off",
-                compose_dir.to_string_lossy(),
-                         root.join(format!("@{dir}-overlay/upper")).to_string_lossy(),
-                         root.join(format!("@{dir}-overlay/work")).to_string_lossy()
-            ))
+            .arg(&options)
             .arg("overlay")
-            .arg(&compose_dir)
+            .arg(compose_dir)
             .status()
-            .expect("Failed to mount overlay for etc/var");
-            if !mount_result.success() {
-                println!("Failed to mount {}", compose_dir.display());
-                return Err("Failed to mount compose dir".into());
-            }
-            defer! {
-                println!("Unmounting overlay for {}", dir);
-                Command::new("umount")
-                .arg(&compose_dir)
-                .status()
-                .expect("Failed to unmount overlay for etc/var");
-            }
+            .map_err(|e| MigrationError::new(format!("Failed to mount overlay: {}", e), "Overlay mount"))?;
 
-            println!(
-                "Copying {} to {}",
-                compose_dir.display(),
-                     import_path.join(dir).display()
-            );
-            let cp_result = Command::new("cp")
+        if !status.success() {
+            return Err(MigrationError::new("Overlay mount failed", "V2 migration").into());
+        }
+
+        Ok(scopeguard::guard((), |_| {
+            ctx.log_info(&format!("Unmounting overlay for {}", dir));
+            Command::new("umount").arg(compose_dir).status().ok();
+        }))
+    }
+
+    fn copy_directory_with_reflink(src: &Path, dst: &Path) -> MigrationResult<()> {
+        let status = Command::new("cp")
             .arg("--recursive")
             .arg("--archive")
             .arg("--reflink=auto")
             .arg("--no-target-directory")
-            .arg(&compose_dir)
-            .arg(dir)
+            .arg(src)
+            .arg(dst)
             .status()
-            .expect("Failed to copy upper dir");
-            if !cp_result.success() {
-                println!("Failed to copy upper dir {compose_dir:?} to {dir:?}");
-                return Err("Failed to copy upper dir".into());
-            }
+            .map_err(|e| MigrationError::new(format!("Failed to copy directory: {}", e), "Directory copy"))?;
+
+        if !status.success() {
+            return Err(MigrationError::new("Directory copy failed", "V2 migration").into());
         }
+
+        Ok(())
+    }
+
+    fn migrate_subvolumes(ctx: &MigrationContext, import_path: &Path) -> MigrationResult<()> {
+        ctx.log_info("Migrating subvolumes");
 
         let subvol_targets = [
             ("@home", "home"),
@@ -422,75 +592,91 @@ If nothing critically important is managed by fstab you can let the auto-migrati
             ("@docker", "var/lib/docker"),
         ];
 
-        for (subvol, target) in subvol_targets {
-            println!("Snapshotting {} to {}", root.join(subvol).display(), target);
-            let target_path = Path::new(target);
-
-            // Inside var the target_path may already exist if they predate the subvolumes. Originally contianers and docker were not subvolumes.
-            // Make sure to throw the data away before trying to snapshot, otherwise the snapshot will fail.
-            if target_path.exists() {
-                println!("Removing pre-existing directory {target_path:?}");
-                fs::remove_dir_all(target_path)?;
-            }
-
-            match target_path.parent() {
-                Some(dir) => {
-                    if dir != Path::new("") && !dir.exists() {
-                        // bit crap but parent of a relative path is the empty path.
-                        println!("create_dir {dir:?}");
-                        fs::create_dir(dir)?;
-                    }
-                }
-                None => {
-                    println!("No parent directory for {target_path:?}");
-                }
-            }
-
-            CreateSnapshotOptions::new()
-            .recursive(true)
-            .create(root.join(subvol), Path::new(target))?;
+        for (subvol, target) in &subvol_targets {
+            ctx.log_info(&format!("Snapshotting {} to {}", subvol, target));
+            Self::create_subvolume_snapshot(ctx, subvol, &import_path.join(target))?;
         }
 
-        println!("Renaming {import_path:?} to {system_path:?}");
-        fs::rename(import_path, system_path)?; // fatal problem
-    } else {
-        println!("@system exists, skipping RootFSv2 migration");
+        Ok(())
     }
 
-    // Check if we need RootFSv3 migration
-    if needs_rootfsv3_migration(root) {
-        migrate_rootfsv3(root)?;
-    } else {
-        println!("RootFSv3 structure already exists, skipping v3 migration");
+    fn create_subvolume_snapshot(ctx: &MigrationContext, subvol: &str, target: &Path) -> MigrationResult<()> {
+        let source_path = ctx.path(subvol);
+
+        // Clean up existing target
+        if target.exists() {
+            ctx.log_info(&format!("Removing existing target: {:?}", target));
+            fs::remove_dir_all(target)
+                .map_err(|e| MigrationError::new(format!("Failed to remove target: {}", e), "Subvolume migration"))?;
+        }
+
+        // Create parent directory if needed
+        if let Some(parent) = target.parent() {
+            if parent != Path::new("") && !parent.exists() {
+                fs::create_dir_all(parent)
+                    .map_err(|e| MigrationError::new(format!("Failed to create parent directory: {}", e), "Subvolume migration"))?;
+            }
+        }
+
+        SubvolumeHelper::create_snapshot(&source_path, target)?;
+        Ok(())
+    }
+
+    fn finalize_migration(ctx: &MigrationContext, import_path: &Path, system_path: &Path) -> MigrationResult<()> {
+        ctx.log_info("Finalizing migration");
+        fs::rename(import_path, system_path)
+            .map_err(|e| MigrationError::new(format!("Failed to rename import to system: {}", e), "V2 finalization"))?;
+        Ok(())
+    }
+
+    fn show_plymouth_message(message: &str) -> MigrationResult<()> {
+        Command::new("plymouth")
+            .arg("display-message")
+            .arg(format!("--text={}", message))
+            .status()
+            .map(|_| ())
+            .map_err(|e| MigrationError::new(format!("Failed to show plymouth message: {}", e), "UI").into())
+    }
+}
+
+fn run_migrations(root: &Path) -> MigrationResult<()> {
+    let ctx = MigrationContext::new(root);
+    
+    println!("🔍 Checking for rootfs migrations...");
+
+    // Run V2 migration if needed
+    let v2_migrated = RootFsV2Migrator::migrate(&ctx)?;
+
+    // Run V3 migration if needed
+    if RootFsV3Checker::needs_migration(root)? {
+        RootFsV3Migrator::migrate(&ctx)?;
+    } else if !v2_migrated {
+        ctx.log_info("System is already at RootFSv3 - no migrations needed");
     }
 
     Ok(())
 }
 
-fn main() -> Result<(), Box<dyn Error>> {
+fn main() -> MigrationResult<()> {
     let args: Vec<String> = env::args().collect();
     if args.len() < 2 {
-        println!("Usage: {} system_mount", args[0]);
-        println!("Migrates legacy subvols (pre-October-2025) to v3 rootfs");
-        return Err("Not enough arguments".into());
+        println!("Usage: {} <system_mount_point>", args[0]);
+        println!("Migrates legacy subvolumes (pre-October-2025) to RootFSv3");
+        return Err("Insufficient arguments".into());
     }
 
-    println!("Checking for rootfs migrations. This may take a while.");
-
     let root = Path::new(&args[1]);
+    println!("🎯 Starting migration process for: {:?}", root);
 
-    match run(root) {
-        Ok(_) => {
-            // Reactivate in case we deactivated it earlier
-            let _ = Command::new("plymouth").arg("show-splash").status();
+    match run_migrations(root) {
+        Ok(()) => {
+            println!("✅ All migrations completed successfully!");
+            Command::new("plymouth").arg("show-splash").status().ok();
             Ok(())
         }
         Err(e) => {
-            // Quit plymouth if there was a fatal problem so the user can see the output
-            Command::new("plymouth")
-            .arg("quit")
-            .status()
-            .expect("failed to execute plymouth show-splash");
+            println!("💥 Migration failed: {}", e);
+            Command::new("plymouth").arg("quit").status().ok();
             Err(e)
         }
     }
