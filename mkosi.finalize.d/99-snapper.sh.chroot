@@ -8,7 +8,8 @@ CONFIG=home
 CONF_FILE="/etc/snapper/configs/${CONFIG}"
 
 # Create the config for /home
-snapper -c "$CONFIG" create-config /home --no-dbus
+export SNAPPER_NO_DBUS=1
+SNAPPER_NO_DBUS=1 snapper --no-dbus create-config /home
 
 # Safely update only the desired options
 sed -ri \
