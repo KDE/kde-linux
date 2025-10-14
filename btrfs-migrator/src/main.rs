@@ -95,6 +95,7 @@ fn migrate_rootfsv3(root: &Path) -> Result<(), Box<dyn Error>> {
 
     let home_subvol = root.join("@home");
     let home_snapshots = home_subvol.join(".snapshots");
+    let system_home = root.join("@system/home");
 
     // Create @home subvolume if it doesn't exist
     if !home_subvol.exists() {
@@ -119,16 +120,20 @@ fn migrate_rootfsv3(root: &Path) -> Result<(), Box<dyn Error>> {
     }
 
     // Check if there's existing home data that needs to be migrated
-    let system_home = root.join("@system/home");
     if system_home.exists() {
         println!("Found existing home data in @system/home, checking if migration is needed");
 
-        // Check if @home is empty (excluding .snapshots which we just created)
-        let home_is_empty = fs::read_dir(&home_subvol)
-        .map(|mut entries| entries.next().is_none())
-        .unwrap_or(true);
+        // Check if @home contains only the .snapshots directory (which we just created)
+        let mut home_entries: Vec<_> = fs::read_dir(&home_subvol)
+        .map(|entries| entries.filter_map(Result::ok).collect())
+        .unwrap_or_else(|_| vec![]);
 
-        if home_is_empty {
+        // Filter out the .snapshots directory we just created
+        home_entries.retain(|entry| entry.file_name() != ".snapshots");
+
+        let home_has_only_snapshots = home_entries.is_empty();
+
+        if home_has_only_snapshots {
             println!("Migrating existing home data from @system/home to @home");
 
             let _ = Command::new("plymouth")
@@ -140,6 +145,7 @@ fn migrate_rootfsv3(root: &Path) -> Result<(), Box<dyn Error>> {
             let rsync_result = Command::new("rsync")
             .arg("-aAX")
             .arg("--progress")
+            .arg("--exclude=.snapshots") // Don't copy the snapshots dir
             .arg(format!("{}/", system_home.to_string_lossy()))
             .arg(format!("{}/", home_subvol.to_string_lossy()))
             .status()?;
@@ -147,7 +153,7 @@ fn migrate_rootfsv3(root: &Path) -> Result<(), Box<dyn Error>> {
             if !rsync_result.success() {
                 println!("Warning: Failed to migrate home data with rsync, trying cp as fallback");
 
-                // Fallback to cp
+                // Fallback to cp - copy contents individually, not the directory itself
                 let cp_result = Command::new("cp")
                 .arg("--recursive")
                 .arg("--archive")
@@ -159,11 +165,35 @@ fn migrate_rootfsv3(root: &Path) -> Result<(), Box<dyn Error>> {
 
                 if !cp_result.success() {
                     println!("Warning: Failed to migrate home data with cp as well");
+                    // Last resort: try a simple copy
+                    let _ = Command::new("cp")
+                    .arg("-r")
+                    .arg("-p")
+                    .arg(&system_home)
+                    .arg("/")
+                    .arg(&home_subvol)
+                    .status();
                 }
             }
+
+            // Verify the migration worked
+            let home_after_migration: Vec<_> = fs::read_dir(&home_subvol)
+            .map(|entries| entries.filter_map(Result::ok).collect())
+            .unwrap_or_else(|_| vec![]);
+            println!("Home directory now contains {} items", home_after_migration.len());
+            for entry in home_after_migration {
+                println!("  - {:?}", entry.file_name());
+            }
         } else {
-            println!("@home already contains data, skipping home data migration");
+            println!("@home already contains data other than .snapshots, skipping home data migration");
+            println!("Current @home contents:");
+            for entry in fs::read_dir(&home_subvol)? {
+                let entry = entry?;
+                println!("  - {:?}", entry.file_name());
+            }
         }
+    } else {
+        println!("No existing home data found in @system/home");
     }
 
     println!("RootFSv3 migration completed successfully");
