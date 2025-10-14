@@ -123,43 +123,48 @@ fn migrate_home_data(root: &Path) -> Result<(), Box<dyn Error>> {
         }
     }
 
-    // Create backup of old home data first
-    if !old_home_backup.exists() {
-        println!("Creating backup of old home data at {:?}", old_home_backup);
+    // Step 1: Create backup of old home data
+    println!("Step 1: Creating backup of home data at {:?}", old_home_backup);
 
-        if home_is_subvolume {
-            // If it's a subvolume, create a snapshot
-            println!("Creating snapshot of @system/home to @oldhome");
-            CreateSnapshotOptions::new()
-            .recursive(true)
-            .create(&system_home, &old_home_backup)
-            .map_err(|e| format!("Failed to create snapshot backup: {}", e))?;
-        } else {
-            // If it's a directory, create a subvolume and copy data
-            println!("Creating @oldhome subvolume and copying data");
-            CreateSubvolumeOptions::new()
-            .create(&old_home_backup)
-            .map_err(|e| format!("Failed to create @oldhome subvolume: {}", e))?;
-
-            copy_dir_all(&system_home, &old_home_backup)?;
+    if old_home_backup.exists() {
+        println!("Backup @oldhome already exists, removing it first");
+        match DeleteSubvolumeOptions::new()
+        .recursive(true)
+        .delete(&old_home_backup)
+        {
+            Ok(_) => println!("Removed existing @oldhome"),
+            Err(e) => return Err(format!("Failed to remove existing @oldhome: {}", e).into()),
         }
-    } else {
-        println!("Backup @oldhome already exists");
     }
 
-    // Now remove the old home data
-    println!("Removing old home data from @system/home");
+    if home_is_subvolume {
+        // If it's a subvolume, create a snapshot
+        println!("Creating snapshot of @system/home to @oldhome");
+        CreateSnapshotOptions::new()
+        .recursive(true)
+        .create(&system_home, &old_home_backup)
+        .map_err(|e| format!("Failed to create snapshot backup: {}", e))?;
+    } else {
+        // If it's a directory, create a subvolume and copy data
+        println!("Creating @oldhome subvolume and copying data");
+        CreateSubvolumeOptions::new()
+        .create(&old_home_backup)
+        .map_err(|e| format!("Failed to create @oldhome subvolume: {}", e))?;
+
+        copy_dir_all(&system_home, &old_home_backup)?;
+    }
+
+    // Step 2: Delete the old home subvolume/directory
+    println!("Step 2: Removing old home data from @system/home");
 
     if home_is_subvolume {
         // Delete the subvolume
         println!("Deleting @system/home subvolume");
-        match DeleteSubvolumeOptions::new()
+        DeleteSubvolumeOptions::new()
         .recursive(true)
         .delete(&system_home)
-        {
-            Ok(_) => println!("Successfully deleted @system/home subvolume"),
-            Err(e) => println!("Failed to delete @system/home subvolume: {}, will try directory removal", e),
-        }
+        .map_err(|e| format!("Failed to delete @system/home subvolume: {}", e))?;
+        println!("Successfully deleted @system/home subvolume");
     } else {
         // Remove as directory
         println!("Removing @system/home directory contents");
@@ -176,8 +181,16 @@ fn migrate_home_data(root: &Path) -> Result<(), Box<dyn Error>> {
         }
     }
 
-    // Now migrate data from backup to new @home
-    println!("Migrating home data from backup to @home");
+    // Step 3: Ensure @home subvolume exists (should already exist from migrate_rootfsv3)
+    if !home_subvol.exists() {
+        println!("Creating @home subvolume");
+        CreateSubvolumeOptions::new()
+        .create(&home_subvol)
+        .map_err(|error| format!("Problem creating @home subvolume: {error:?}"))?;
+    }
+
+    // Step 4: Move data from backup to new @home
+    println!("Step 4: Moving home data from backup to new @home");
 
     if let Ok(entries) = fs::read_dir(&old_home_backup) {
         for entry in entries {
@@ -186,12 +199,12 @@ fn migrate_home_data(root: &Path) -> Result<(), Box<dyn Error>> {
             let file_name = entry.file_name();
             let target_path = home_subvol.join(&file_name);
 
-            // Skip .snapshots if it exists in source
+            // Skip .snapshots if it exists in source (we'll create our own)
             if file_name == ".snapshots" {
                 continue;
             }
 
-            println!("Copying {:?} to {:?}", source_path, target_path);
+            println!("Moving {:?} to {:?}", source_path, target_path);
 
             if source_path.is_dir() {
                 copy_dir_all(&source_path, &target_path)?;
@@ -200,6 +213,14 @@ fn migrate_home_data(root: &Path) -> Result<(), Box<dyn Error>> {
             }
         }
     }
+
+    // Step 5: Clean up the backup
+    println!("Step 5: Cleaning up backup @oldhome");
+    DeleteSubvolumeOptions::new()
+    .recursive(true)
+    .delete(&old_home_backup)
+    .map_err(|e| format!("Failed to remove backup @oldhome: {}", e))?;
+    println!("Successfully removed backup @oldhome");
 
     println!("Home data migration completed successfully");
     Ok(())
@@ -235,7 +256,8 @@ fn migrate_rootfsv3(root: &Path) -> Result<(), Box<dyn Error>> {
     let home_subvol = root.join("@home");
     let home_snapshots = home_subvol.join(".snapshots");
 
-    // Create @home subvolume if it doesn't exist
+    // Step 1: Create @home subvolume if it doesn't exist
+    // But don't populate it yet - that happens in migrate_home_data
     if !home_subvol.exists() {
         println!("Creating @home subvolume");
         CreateSubvolumeOptions::new()
@@ -243,7 +265,7 @@ fn migrate_rootfsv3(root: &Path) -> Result<(), Box<dyn Error>> {
         .map_err(|error| format!("Problem creating @home subvolume: {error:?}"))?;
     }
 
-    // Create @home/.snapshots subvolume if it doesn't exist
+    // Step 2: Create @home/.snapshots subvolume
     if !home_snapshots.exists() {
         println!("Creating @home/.snapshots subvolume");
         CreateSubvolumeOptions::new()
@@ -257,7 +279,7 @@ fn migrate_rootfsv3(root: &Path) -> Result<(), Box<dyn Error>> {
         .status();
     }
 
-    // Now migrate the home data using our safe approach
+    // Step 3: Now migrate the home data using our safe approach
     migrate_home_data(root)?;
 
     println!("RootFSv3 migration completed successfully");
