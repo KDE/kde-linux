@@ -7,13 +7,13 @@ use std::{
     fmt,
     fs::{self},
     io::{self, Write},
+    os::unix::fs::MetadataExt,
     path::{Path, PathBuf},
     process::Command,
     time::Instant,
 };
-#[macro_use(defer)]
-extern crate scopeguard;
-use dialoguer::{self, Confirm, theme::ColorfulTheme};
+use scopeguard;
+use dialoguer::{Confirm, theme::ColorfulTheme};
 use fstab::FsTab;
 use libbtrfsutil::{CreateSnapshotOptions, CreateSubvolumeOptions, DeleteSubvolumeOptions};
 
@@ -530,12 +530,17 @@ impl RootFsV2Migrator {
         Ok(())
     }
 
-    fn mount_overlay(ctx: &MigrationContext, compose_dir: &Path, dir: &str) -> MigrationResult<impl Drop> {
+    fn mount_overlay<'a>(ctx: &MigrationContext, compose_dir: &'a Path, dir: &'a str) -> MigrationResult<impl Drop + 'a> {
         ctx.log_info(&format!("Mounting overlay for {}", dir));
 
         let lower_dir = compose_dir.to_string_lossy();
-        let upper_dir = ctx.path(&format!("@{}-overlay/upper", dir)).to_string_lossy();
-        let work_dir = ctx.path(&format!("@{}-overlay/work", dir)).to_string_lossy();
+        
+        // Fix for temporary value lifetime issues
+        let upper_path = ctx.path(&format!("@{}-overlay/upper", dir));
+        let work_path = ctx.path(&format!("@{}-overlay/work", dir));
+        
+        let upper_dir = upper_path.to_string_lossy();
+        let work_dir = work_path.to_string_lossy();
 
         let options = format!(
             "ro,lowerdir={},upperdir={},workdir={},index=off,metacopy=off",
@@ -557,9 +562,12 @@ impl RootFsV2Migrator {
             return Err(MigrationError::new("Overlay mount failed", "V2 migration").into());
         }
 
-        Ok(scopeguard::guard((), |_| {
-            ctx.log_info(&format!("Unmounting overlay for {}", dir));
-            Command::new("umount").arg(compose_dir).status().ok();
+        // Use move to capture variables by value
+        let compose_dir = compose_dir.to_path_buf();
+        let dir = dir.to_string();
+        Ok(scopeguard::guard((), move |_| {
+            println!("   ℹ️  Unmounting overlay for {}", dir);
+            Command::new("umount").arg(&compose_dir).status().ok();
         }))
     }
 
