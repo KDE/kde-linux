@@ -6,3 +6,4 @@
 ## Default:     ""
 # List of snapper configurations.
 SNAPPER_CONFIGS="home"
+
