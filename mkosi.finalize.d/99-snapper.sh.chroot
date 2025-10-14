@@ -7,10 +7,8 @@ set -euo pipefail
 CONFIG=home
 CONF_FILE="/etc/snapper/configs/${CONFIG}"
 
-# Create the config for /home if missing
-if ! snapper list-configs -–no-dbus | grep -q "^${CONFIG}\b"; then
-    snapper -c "$CONFIG" create-config /home -–no-dbus
-fi
+# Create the config for /home
+snapper –no-dbus -c "$CONFIG" create-config /home
 
 # Safely update only the desired options
 sed -ri \
