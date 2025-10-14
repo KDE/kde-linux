@@ -18,22 +18,23 @@ fi
 mkdir /run/kde-linux-rootfs-transition
 mount -o rw,subvol=/ /dev/gpt-auto-root /run/kde-linux-rootfs-transition
 
-# Check if we need RootFSv2 migration
-if [ ! -e /run/kde-linux-rootfs-transition/@system ]; then
-    # RootFSv2 migration needed
-    if [ ! -e "/run/kde-linux-rootfs-transition/kde-linux_$IMAGE_VERSION.erofs" ]; then
-        echo "kde-linux_$IMAGE_VERSION.erofs does not exist on root partition. Aborting transition."
-        systemctl reboot
-        exit 1
-    fi
-    _kde-linux-btrfs-migrator /run/kde-linux-rootfs-transition
+# NOTE: this is required to be here!
+# It's a bit awkward but the system drive is not mounted yet, so we can only peek into it through our mount.
+# This is effectively the no-op condition that should be in the unit but can't be because we need the mount.
+# In a way we could think about moving the mounts into a generator TBH. Then we can do proper condition management on
+# the systemd side. Question is if they get correctly unmounted automatically.
+if [ -e /run/kde-linux-rootfs-transition/@system ] && \
+   [ -e /run/kde-linux-rootfs-transition/@home ] && \
+   [ -e /run/kde-linux-rootfs-transition/@home/.snapshots ]; then
+    cd /
+    umount --recursive --lazy /run/kde-linux-rootfs-transition
+    exit 0
 fi
 
-# Check if we need RootFSv3 migration (missing @home or @home/.snapshots)
-if [ ! -e /run/kde-linux-rootfs-transition/@home ] || \
-   [ ! -e /run/kde-linux-rootfs-transition/@home/.snapshots ]; then
-    echo "RootFSv3 migration needed - creating missing @home structure"
-    _kde-linux-btrfs-migrator-v3 /run/kde-linux-rootfs-transition
+if [ ! -e "/run/kde-linux-rootfs-transition/kde-linux_$IMAGE_VERSION.erofs" ]; then
+    echo "kde-linux_$IMAGE_VERSION.erofs does not exist on root partition. Aborting transition."
+    systemctl reboot
+    exit 1
 fi
 
 /usr/lib/btrfs-migrator /run/kde-linux-rootfs-transition
