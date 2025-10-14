@@ -38,6 +38,7 @@ enable etc-factory.service
 
 # Snapper - BTRFS Snapshot Tool
 enable snapper-boot.timer
+enable snapper-timeline.timer
 enable snapper-cleanup.timer
 
 # networkd - we use networkmanager
