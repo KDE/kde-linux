@@ -36,7 +36,11 @@ enable var-lib-snapd-snap.mount
 # also one of ours but not prefixed with kde-linux- so others can use it too
 enable etc-factory.service
 
-# Snapper - BTRFS Snapshot Tool
+# BTRFS
+enable btrfs-balance.timer
+enable btrfs-balance.service
+enable btrfs-scrub.timer
+enable btrfs-scrub.service
 enable snapper-boot.timer
 enable snapper-timeline.timer
 enable snapper-cleanup.timer
