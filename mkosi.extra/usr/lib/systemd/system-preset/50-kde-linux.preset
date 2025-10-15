@@ -37,10 +37,6 @@ enable var-lib-snapd-snap.mount
 enable etc-factory.service
 
 # BTRFS
-enable btrfs-balance.timer
-enable btrfs-balance.service
-enable btrfs-scrub.timer
-enable btrfs-scrub.service
 enable snapper-boot.timer
 enable snapper-timeline.timer
 enable snapper-cleanup.timer
