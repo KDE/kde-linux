@@ -40,6 +40,9 @@ enable etc-factory.service
 enable snapper-boot.timer
 enable snapper-timeline.timer
 enable snapper-cleanup.timer
+enable snapper-boot.service
+enable snapper-timeline.service
+enable snapper-cleanup.service
 
 # networkd - we use networkmanager
 disable systemd-networkd-wait-online.service
