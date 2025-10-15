@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL
 // SPDX-FileCopyrightText: 2025 Harald Sitter <sitter@kde.org>
+// SPDX-FileCopyrightText: 2025 Hadi Chokr <hadichokr@icloud.com>
 
 use std::{
     env,
@@ -7,7 +8,7 @@ use std::{
     fmt,
     fs::{self},
     io::{self, Write},
-    os::unix::fs::MetadataExt,
+    os::unix::fs::{MetadataExt, PermissionsExt},
     path::{Path, PathBuf},
     process::Command,
     time::Instant,
@@ -59,27 +60,26 @@ impl MigrationContext {
     }
 
     fn log_step(&self, step: &str) {
-        println!("🚀 [Step {}] {}", self.step_number(), step);
+        println!("[STEP {}] {}", self.step_number(), step);
     }
 
     fn log_info(&self, message: &str) {
-        println!("   ℹ️  {}", message);
+        println!("  INFO: {}", message);
     }
 
     fn log_success(&self, message: &str) {
-        println!("   ✅ {}", message);
+        println!("  SUCCESS: {}", message);
     }
 
     fn log_warning(&self, message: &str) {
-        println!("   ⚠️  {}", message);
+        println!("  WARNING: {}", message);
     }
 
     fn log_error(&self, message: &str) {
-        println!("   ❌ {}", message);
+        println!("  ERROR: {}", message);
     }
 
     fn step_number(&self) -> u32 {
-        // Simple step counter based on elapsed time (for demonstration)
         (self.start_time.elapsed().as_secs() / 2 + 1) as u32
     }
 
@@ -93,7 +93,7 @@ struct LegacyRootFsV1Finder;
 impl LegacyRootFsV1Finder {
     fn find_latest(root: &Path) -> MigrationResult<Option<PathBuf>> {
         let subvols = fs::read_dir(root)
-            .map_err(|e| MigrationError::new(format!("Failed to read root directory: {}", e), "V1 detection"))?;
+        .map_err(|e| MigrationError::new(format!("Failed to read root directory: {}", e), "V1 detection"))?;
 
         #[derive(Debug)]
         struct Candidate {
@@ -122,18 +122,18 @@ impl LegacyRootFsV1Finder {
                         candidate = Some(Candidate { path, version });
                     }
                 } else {
-                    println!("   ⚠️  Invalid version number in subvolume: {} (version: {})", name, version_str);
+                    println!("  WARNING: Invalid version number in subvolume: {} (version: {})", name, version_str);
                 }
             }
         }
 
         match candidate {
             Some(c) => {
-                println!("   ✅ Found legacy rootfs v1 at {:?} (version {})", c.path, c.version);
+                println!("  SUCCESS: Found legacy rootfs v1 at {:?} (version {})", c.path, c.version);
                 Ok(Some(c.path))
             }
             None => {
-                println!("   ℹ️  No legacy rootfs v1 found");
+                println!("  INFO: No legacy rootfs v1 found");
                 Ok(None)
             }
         }
@@ -146,17 +146,17 @@ impl RootFsV3Checker {
     fn needs_migration(root: &Path) -> MigrationResult<bool> {
         let home_subvol = root.join("@home");
         if !home_subvol.exists() {
-            println!("   ℹ️  @home subvolume missing - RootFSv3 migration required");
+            println!("  INFO: @home subvolume missing - RootFSv3 migration required");
             return Ok(true);
         }
 
         let home_snapshots = home_subvol.join(".snapshots");
         if !home_snapshots.exists() {
-            println!("   ℹ️  @home/.snapshots subvolume missing - RootFSv3 migration required");
+            println!("  INFO: @home/.snapshots subvolume missing - RootFSv3 migration required");
             return Ok(true);
         }
 
-        println!("   ✅ RootFSv3 structure already exists");
+        println!("  INFO: RootFSv3 structure already exists");
         Ok(false)
     }
 }
@@ -166,28 +166,28 @@ struct SubvolumeHelper;
 impl SubvolumeHelper {
     fn is_subvolume(path: &Path) -> bool {
         fs::metadata(path)
-            .map(|metadata| metadata.ino() == 256)
-            .unwrap_or(false)
+        .map(|metadata| metadata.ino() == 256)
+        .unwrap_or(false)
     }
 
     fn create_subvolume(path: &Path) -> MigrationResult<()> {
         CreateSubvolumeOptions::new()
-            .create(path)
-            .map_err(|e| MigrationError::new(format!("Failed to create subvolume: {}", e), "Subvolume creation").into())
+        .create(path)
+        .map_err(|e| MigrationError::new(format!("Failed to create subvolume: {}", e), "Subvolume creation").into())
     }
 
     fn create_snapshot(source: &Path, target: &Path) -> MigrationResult<()> {
         CreateSnapshotOptions::new()
-            .recursive(true)
-            .create(source, target)
-            .map_err(|e| MigrationError::new(format!("Failed to create snapshot: {}", e), "Snapshot creation").into())
+        .recursive(true)
+        .create(source, target)
+        .map_err(|e| MigrationError::new(format!("Failed to create snapshot: {}", e), "Snapshot creation").into())
     }
 
     fn delete_subvolume(path: &Path) -> MigrationResult<()> {
         DeleteSubvolumeOptions::new()
-            .recursive(true)
-            .delete(path)
-            .map_err(|e| MigrationError::new(format!("Failed to delete subvolume: {}", e), "Subvolume deletion").into())
+        .recursive(true)
+        .delete(path)
+        .map_err(|e| MigrationError::new(format!("Failed to delete subvolume: {}", e), "Subvolume deletion").into())
     }
 }
 
@@ -228,7 +228,7 @@ impl HomeDataMigrator {
         match fs::read_dir(system_home) {
             Ok(entries) => {
                 for entry in entries.flatten() {
-                    println!("     📁 {:?}", entry.file_name());
+                    println!("    - {:?}", entry.file_name());
                 }
             }
             Err(e) => ctx.log_warning(&format!("Could not list home contents: {}", e)),
@@ -248,7 +248,7 @@ impl HomeDataMigrator {
         if backup_path.exists() {
             ctx.log_info("Removing existing backup @oldhome");
             SubvolumeHelper::delete_subvolume(backup_path)
-                .map_err(|e| MigrationError::new(format!("Failed to remove existing backup: {}", e), "Backup preparation"))?;
+            .map_err(|e| MigrationError::new(format!("Failed to remove existing backup: {}", e), "Backup preparation"))?;
         }
 
         if is_subvolume {
@@ -257,7 +257,7 @@ impl HomeDataMigrator {
         } else {
             ctx.log_info("Creating new subvolume and copying directory data");
             SubvolumeHelper::create_subvolume(backup_path)?;
-            Self::copy_directory_contents(system_home, backup_path)?;
+            Self::copy_directory_preserving_metadata(system_home, backup_path)?;
         }
 
         ctx.log_success("Backup created successfully");
@@ -291,7 +291,7 @@ impl HomeDataMigrator {
         ctx.log_step("Transferring home data to new @home subvolume");
 
         let entries = fs::read_dir(backup_path)
-            .map_err(|e| MigrationError::new(format!("Failed to read backup: {}", e), "Data transfer"))?;
+        .map_err(|e| MigrationError::new(format!("Failed to read backup: {}", e), "Data transfer"))?;
 
         for entry in entries {
             let entry = entry?;
@@ -307,10 +307,9 @@ impl HomeDataMigrator {
             ctx.log_info(&format!("Moving {:?}", file_name));
 
             if source_path.is_dir() {
-                Self::copy_directory_contents(&source_path, &target_path)?;
+                Self::copy_directory_preserving_metadata(&source_path, &target_path)?;
             } else {
-                fs::copy(&source_path, &target_path)
-                    .map_err(|e| MigrationError::new(format!("Failed to copy file: {}", e), "Data transfer"))?;
+                Self::copy_file_preserving_metadata(&source_path, &target_path)?;
             }
         }
 
@@ -325,43 +324,126 @@ impl HomeDataMigrator {
         Ok(())
     }
 
-    fn copy_directory_contents(src: &Path, dst: &Path) -> MigrationResult<()> {
+    fn copy_directory_preserving_metadata(src: &Path, dst: &Path) -> MigrationResult<()> {
+        // Create destination directory first
         fs::create_dir_all(dst)
-            .map_err(|e| MigrationError::new(format!("Failed to create directory: {}", e), "Directory copy"))?;
+        .map_err(|e| MigrationError::new(format!("Failed to create directory: {}", e), "Directory copy"))?;
 
+        // Copy directory metadata (permissions, ownership, timestamps)
+        Self::copy_metadata(src, dst)?;
+
+        // Copy contents
         for entry in fs::read_dir(src)
             .map_err(|e| MigrationError::new(format!("Failed to read source directory: {}", e), "Directory copy"))?
-        {
-            let entry = entry?;
-            let source_path = entry.path();
-            let target_path = dst.join(entry.file_name());
+            {
+                let entry = entry?;
+                let source_path = entry.path();
+                let target_path = dst.join(entry.file_name());
 
-            if source_path.is_dir() {
-                Self::copy_directory_contents(&source_path, &target_path)?;
-            } else {
-                fs::copy(&source_path, &target_path)
-                    .map_err(|e| MigrationError::new(format!("Failed to copy file: {}", e), "Directory copy"))?;
+                if source_path.is_dir() {
+                    Self::copy_directory_preserving_metadata(&source_path, &target_path)?;
+                } else {
+                    Self::copy_file_preserving_metadata(&source_path, &target_path)?;
+                }
+            }
+            Ok(())
+    }
+
+    fn copy_file_preserving_metadata(src: &Path, dst: &Path) -> MigrationResult<()> {
+        // Copy file content
+        fs::copy(&src, &dst)
+        .map_err(|e| MigrationError::new(format!("Failed to copy file: {}", e), "File copy"))?;
+
+        // Copy file metadata (permissions, ownership, timestamps)
+        Self::copy_metadata(src, dst)?;
+
+        Ok(())
+    }
+
+    fn copy_metadata(src: &Path, dst: &Path) -> MigrationResult<()> {
+        let metadata = fs::metadata(src)
+        .map_err(|e| MigrationError::new(format!("Failed to get metadata for {:?}: {}", src, e), "Metadata copy"))?;
+
+        // Copy permissions
+        fs::set_permissions(dst, metadata.permissions())
+        .map_err(|e| MigrationError::new(format!("Failed to set permissions for {:?}: {}", dst, e), "Metadata copy"))?;
+
+        // Copy ownership (uid/gid) - requires root privileges
+        let uid = metadata.uid();
+        let gid = metadata.gid();
+
+        // Use chown command to set ownership
+        let status = Command::new("chown")
+        .arg(format!("{}:{}", uid, gid))
+        .arg(dst)
+        .status()
+        .map_err(|e| MigrationError::new(format!("Failed to set ownership for {:?}: {}", dst, e), "Metadata copy"))?;
+
+        if !status.success() {
+            return Err(MigrationError::new(
+                format!("chown command failed for {:?} (uid: {}, gid: {})", dst, uid, gid),
+                    "Metadata copy"
+            ).into());
+        }
+
+        // Copy timestamps using system tools for reliability
+        Self::copy_timestamps(src, dst)?;
+
+        Ok(())
+    }
+
+    fn copy_timestamps(src: &Path, dst: &Path) -> MigrationResult<()> {
+        // Use stat to get timestamps and touch to set them
+        let output = Command::new("stat")
+        .arg("-c")
+        .arg("%Y %y %Y")
+        .arg(src)
+        .output()
+        .map_err(|e| MigrationError::new(format!("Failed to get timestamps for {:?}: {}", src, e), "Timestamp copy"))?;
+
+        if !output.status.success() {
+            return Err(MigrationError::new("Failed to get file timestamps", "Timestamp copy").into());
+        }
+
+        let timestamps = String::from_utf8_lossy(&output.stdout);
+        let parts: Vec<&str> = timestamps.trim().split_whitespace().collect();
+
+        if parts.len() >= 2 {
+            let mtime = parts[1]; // Modification time in readable format
+
+            // Set modification time
+            let status = Command::new("touch")
+            .arg("-m")
+            .arg("-d")
+            .arg(mtime)
+            .arg(dst)
+            .status()
+            .map_err(|e| MigrationError::new(format!("Failed to set modification time for {:?}: {}", dst, e), "Timestamp copy"))?;
+
+            if !status.success() {
+                return Err(MigrationError::new("Failed to set modification time", "Timestamp copy").into());
             }
         }
+
         Ok(())
     }
 
     fn clear_directory(path: &Path) -> MigrationResult<()> {
         for entry in fs::read_dir(path)
             .map_err(|e| MigrationError::new(format!("Failed to read directory: {}", e), "Directory clearance"))?
-        {
-            let entry = entry?;
-            let path = entry.path();
+            {
+                let entry = entry?;
+                let path = entry.path();
 
-            if path.is_dir() {
-                fs::remove_dir_all(&path)
+                if path.is_dir() {
+                    fs::remove_dir_all(&path)
                     .map_err(|e| MigrationError::new(format!("Failed to remove directory: {}", e), "Directory clearance"))?;
-            } else {
-                fs::remove_file(&path)
+                } else {
+                    fs::remove_file(&path)
                     .map_err(|e| MigrationError::new(format!("Failed to remove file: {}", e), "Directory clearance"))?;
+                }
             }
-        }
-        Ok(())
+            Ok(())
     }
 }
 
@@ -390,10 +472,10 @@ impl RootFsV3Migrator {
             // Set proper permissions for snapper
             ctx.log_info("Setting permissions for .snapshots directory");
             Command::new("chmod")
-                .arg("755")
-                .arg(&home_snapshots)
-                .status()
-                .map_err(|e| MigrationError::new(format!("Failed to set permissions: {}", e), "Permissions setup"))?;
+            .arg("755")
+            .arg(&home_snapshots)
+            .status()
+            .map_err(|e| MigrationError::new(format!("Failed to set permissions: {}", e), "Permissions setup"))?;
         }
 
         // Migrate home data
@@ -405,11 +487,11 @@ impl RootFsV3Migrator {
 
     fn show_plymouth_message(message: &str) -> MigrationResult<()> {
         Command::new("plymouth")
-            .arg("display-message")
-            .arg(format!("--text={}", message))
-            .status()
-            .map(|_| ())
-            .map_err(|e| MigrationError::new(format!("Failed to show plymouth message: {}", e), "UI").into())
+        .arg("display-message")
+        .arg(format!("--text={}", message))
+        .status()
+        .map(|_| ())
+        .map_err(|e| MigrationError::new(format!("Failed to show plymouth message: {}", e), "UI").into())
     }
 }
 
@@ -418,7 +500,7 @@ struct RootFsV2Migrator;
 impl RootFsV2Migrator {
     fn migrate(ctx: &MigrationContext) -> MigrationResult<bool> {
         let system_path = ctx.path("@system");
-        
+
         if system_path.exists() {
             ctx.log_info("@system exists, skipping RootFSv2 migration");
             return Ok(false);
@@ -429,10 +511,10 @@ impl RootFsV2Migrator {
         // Wait for devices to settle
         ctx.log_info("Waiting for devices to settle...");
         Command::new("udevadm")
-            .arg("settle")
-            .arg("--timeout=8")
-            .status()
-            .map_err(|e| MigrationError::new(format!("Failed to settle devices: {}", e), "V2 migration"))?;
+        .arg("settle")
+        .arg("--timeout=8")
+        .status()
+        .map_err(|e| MigrationError::new(format!("Failed to settle devices: {}", e), "V2 migration"))?;
 
         Self::show_plymouth_message("Migrating to v2 rootfs. This may take a while.")?;
 
@@ -441,7 +523,7 @@ impl RootFsV2Migrator {
         Self::handle_fstab_warnings(ctx)?;
 
         let rootfs_v1 = LegacyRootFsV1Finder::find_latest(&ctx.root_path)?
-            .ok_or_else(|| MigrationError::new("No legacy rootfs v1 found", "V2 migration"))?;
+        .ok_or_else(|| MigrationError::new("No legacy rootfs v1 found", "V2 migration"))?;
 
         Self::migrate_system_directories(ctx, &rootfs_v1, &import_path)?;
         Self::migrate_subvolumes(ctx, &import_path)?;
@@ -456,7 +538,7 @@ impl RootFsV2Migrator {
         if import_path.exists() {
             ctx.log_info("Cleaning up existing @system.import");
             SubvolumeHelper::delete_subvolume(import_path)
-                .map_err(|e| MigrationError::new(format!("Failed to remove existing import: {}", e), "V2 preparation"))?;
+            .map_err(|e| MigrationError::new(format!("Failed to remove existing import: {}", e), "V2 preparation"))?;
         }
 
         ctx.log_info("Creating @system.import subvolume");
@@ -470,9 +552,9 @@ impl RootFsV2Migrator {
         let fstab = FsTab::new(&fstab_path);
 
         let concerning_entries = fstab.get_entries().unwrap_or_default()
-            .iter()
-            .filter(|entry| entry.vfs_type != "swap")
-            .count();
+        .iter()
+        .filter(|entry| entry.vfs_type != "swap")
+        .count();
 
         if concerning_entries > 0 {
             ctx.log_warning(&format!("Found {} non-swap fstab entries", concerning_entries));
@@ -489,25 +571,25 @@ impl RootFsV2Migrator {
         qr2term::print_qr("https://community.kde.org/KDE_Linux/RootFSv2").ok();
 
         println!(
-            "\n⚠️  Found {} concerning fstab entries. This suggests you have a custom fstab setup.",
+            "\nWARNING: Found {} concerning fstab entries. This suggests you have a custom fstab setup.",
             count
         );
-        println!("   If you have entries required for boot, you should manually migrate to @system.");
-        println!("   Otherwise, you can proceed with auto-migration.\n");
+        println!("         If you have entries required for boot, you should manually migrate to @system.");
+        println!("         Otherwise, you can proceed with auto-migration.\n");
 
         io::stdout().flush().unwrap();
 
         let migrate = Confirm::with_theme(&ColorfulTheme::default())
-            .with_prompt("Continue with auto-migration?")
-            .interact()
-            .unwrap();
+        .with_prompt("Continue with auto-migration?")
+        .interact()
+        .unwrap();
 
         if !migrate {
             ctx.log_info("User chose to abort migration - rebooting");
             Command::new("systemctl")
-                .arg("reboot")
-                .status()
-                .map_err(|e| MigrationError::new(format!("Failed to reboot: {}", e), "User abort"))?;
+            .arg("reboot")
+            .status()
+            .map_err(|e| MigrationError::new(format!("Failed to reboot: {}", e), "User abort"))?;
             return Err("Migration aborted by user".into());
         }
 
@@ -534,11 +616,11 @@ impl RootFsV2Migrator {
         ctx.log_info(&format!("Mounting overlay for {}", dir));
 
         let lower_dir = compose_dir.to_string_lossy();
-        
+
         // Fix for temporary value lifetime issues
         let upper_path = ctx.path(&format!("@{}-overlay/upper", dir));
         let work_path = ctx.path(&format!("@{}-overlay/work", dir));
-        
+
         let upper_dir = upper_path.to_string_lossy();
         let work_dir = work_path.to_string_lossy();
 
@@ -548,15 +630,15 @@ impl RootFsV2Migrator {
         );
 
         let status = Command::new("mount")
-            .arg("--verbose")
-            .arg("--types")
-            .arg("overlay")
-            .arg("--options")
-            .arg(&options)
-            .arg("overlay")
-            .arg(compose_dir)
-            .status()
-            .map_err(|e| MigrationError::new(format!("Failed to mount overlay: {}", e), "Overlay mount"))?;
+        .arg("--verbose")
+        .arg("--types")
+        .arg("overlay")
+        .arg("--options")
+        .arg(&options)
+        .arg("overlay")
+        .arg(compose_dir)
+        .status()
+        .map_err(|e| MigrationError::new(format!("Failed to mount overlay: {}", e), "Overlay mount"))?;
 
         if !status.success() {
             return Err(MigrationError::new("Overlay mount failed", "V2 migration").into());
@@ -566,21 +648,21 @@ impl RootFsV2Migrator {
         let compose_dir = compose_dir.to_path_buf();
         let dir = dir.to_string();
         Ok(scopeguard::guard((), move |_| {
-            println!("   ℹ️  Unmounting overlay for {}", dir);
+            println!("  INFO: Unmounting overlay for {}", dir);
             Command::new("umount").arg(&compose_dir).status().ok();
         }))
     }
 
     fn copy_directory_with_reflink(src: &Path, dst: &Path) -> MigrationResult<()> {
         let status = Command::new("cp")
-            .arg("--recursive")
-            .arg("--archive")
-            .arg("--reflink=auto")
-            .arg("--no-target-directory")
-            .arg(src)
-            .arg(dst)
-            .status()
-            .map_err(|e| MigrationError::new(format!("Failed to copy directory: {}", e), "Directory copy"))?;
+        .arg("--recursive")
+        .arg("--archive")  // This preserves permissions, ownership, and timestamps
+        .arg("--reflink=auto")
+        .arg("--no-target-directory")
+        .arg(src)
+        .arg(dst)
+        .status()
+        .map_err(|e| MigrationError::new(format!("Failed to copy directory: {}", e), "Directory copy"))?;
 
         if !status.success() {
             return Err(MigrationError::new("Directory copy failed", "V2 migration").into());
@@ -615,14 +697,14 @@ impl RootFsV2Migrator {
         if target.exists() {
             ctx.log_info(&format!("Removing existing target: {:?}", target));
             fs::remove_dir_all(target)
-                .map_err(|e| MigrationError::new(format!("Failed to remove target: {}", e), "Subvolume migration"))?;
+            .map_err(|e| MigrationError::new(format!("Failed to remove target: {}", e), "Subvolume migration"))?;
         }
 
         // Create parent directory if needed
         if let Some(parent) = target.parent() {
             if parent != Path::new("") && !parent.exists() {
                 fs::create_dir_all(parent)
-                    .map_err(|e| MigrationError::new(format!("Failed to create parent directory: {}", e), "Subvolume migration"))?;
+                .map_err(|e| MigrationError::new(format!("Failed to create parent directory: {}", e), "Subvolume migration"))?;
             }
         }
 
@@ -633,24 +715,24 @@ impl RootFsV2Migrator {
     fn finalize_migration(ctx: &MigrationContext, import_path: &Path, system_path: &Path) -> MigrationResult<()> {
         ctx.log_info("Finalizing migration");
         fs::rename(import_path, system_path)
-            .map_err(|e| MigrationError::new(format!("Failed to rename import to system: {}", e), "V2 finalization"))?;
+        .map_err(|e| MigrationError::new(format!("Failed to rename import to system: {}", e), "V2 finalization"))?;
         Ok(())
     }
 
     fn show_plymouth_message(message: &str) -> MigrationResult<()> {
         Command::new("plymouth")
-            .arg("display-message")
-            .arg(format!("--text={}", message))
-            .status()
-            .map(|_| ())
-            .map_err(|e| MigrationError::new(format!("Failed to show plymouth message: {}", e), "UI").into())
+        .arg("display-message")
+        .arg(format!("--text={}", message))
+        .status()
+        .map(|_| ())
+        .map_err(|e| MigrationError::new(format!("Failed to show plymouth message: {}", e), "UI").into())
     }
 }
 
 fn run_migrations(root: &Path) -> MigrationResult<()> {
     let ctx = MigrationContext::new(root);
-    
-    println!("🔍 Checking for rootfs migrations...");
+
+    println!("Checking for rootfs migrations...");
 
     // Run V2 migration if needed
     let v2_migrated = RootFsV2Migrator::migrate(&ctx)?;
@@ -674,16 +756,16 @@ fn main() -> MigrationResult<()> {
     }
 
     let root = Path::new(&args[1]);
-    println!("🎯 Starting migration process for: {:?}", root);
+    println!("Starting migration process for: {:?}", root);
 
     match run_migrations(root) {
         Ok(()) => {
-            println!("✅ All migrations completed successfully!");
+            println!("All migrations completed successfully!");
             Command::new("plymouth").arg("show-splash").status().ok();
             Ok(())
         }
         Err(e) => {
-            println!("💥 Migration failed: {}", e);
+            println!("Migration failed: {}", e);
             Command::new("plymouth").arg("quit").status().ok();
             Err(e)
         }
