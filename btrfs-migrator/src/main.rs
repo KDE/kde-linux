@@ -8,7 +8,7 @@ use std::{
     fmt,
     fs::{self},
     io::{self, Write},
-    os::unix::fs::{MetadataExt, PermissionsExt},
+    os::unix::fs::MetadataExt,
     path::{Path, PathBuf},
     process::Command,
     time::Instant,
@@ -64,22 +64,23 @@ impl MigrationContext {
     }
 
     fn log_info(&self, message: &str) {
-        println!("  INFO: {}", message);
+        println!("    INFO: {}", message);
     }
 
     fn log_success(&self, message: &str) {
-        println!("  SUCCESS: {}", message);
+        println!("    SUCCESS: {}", message);
     }
 
     fn log_warning(&self, message: &str) {
-        println!("  WARNING: {}", message);
+        println!("    WARNING: {}", message);
     }
 
     fn log_error(&self, message: &str) {
-        println!("  ERROR: {}", message);
+        eprintln!("    ERROR: {}", message);
     }
 
     fn step_number(&self) -> u32 {
+        // Simple step counter based on elapsed time (for demonstration)
         (self.start_time.elapsed().as_secs() / 2 + 1) as u32
     }
 
@@ -122,18 +123,18 @@ impl LegacyRootFsV1Finder {
                         candidate = Some(Candidate { path, version });
                     }
                 } else {
-                    println!("  WARNING: Invalid version number in subvolume: {} (version: {})", name, version_str);
+                    println!("    WARNING: Invalid version number in subvolume: {} (version: {})", name, version_str);
                 }
             }
         }
 
         match candidate {
             Some(c) => {
-                println!("  SUCCESS: Found legacy rootfs v1 at {:?} (version {})", c.path, c.version);
+                println!("    FOUND legacy rootfs v1 at {:?} (version {})", c.path, c.version);
                 Ok(Some(c.path))
             }
             None => {
-                println!("  INFO: No legacy rootfs v1 found");
+                println!("    INFO: No legacy rootfs v1 found");
                 Ok(None)
             }
         }
@@ -146,17 +147,17 @@ impl RootFsV3Checker {
     fn needs_migration(root: &Path) -> MigrationResult<bool> {
         let home_subvol = root.join("@home");
         if !home_subvol.exists() {
-            println!("  INFO: @home subvolume missing - RootFSv3 migration required");
+            println!("    INFO: @home subvolume missing - RootFSv3 migration required");
             return Ok(true);
         }
 
         let home_snapshots = home_subvol.join(".snapshots");
         if !home_snapshots.exists() {
-            println!("  INFO: @home/.snapshots subvolume missing - RootFSv3 migration required");
+            println!("    INFO: @home/.snapshots subvolume missing - RootFSv3 migration required");
             return Ok(true);
         }
 
-        println!("  INFO: RootFSv3 structure already exists");
+        println!("    INFO: RootFSv3 structure already exists");
         Ok(false)
     }
 }
@@ -228,7 +229,7 @@ impl HomeDataMigrator {
         match fs::read_dir(system_home) {
             Ok(entries) => {
                 for entry in entries.flatten() {
-                    println!("    - {:?}", entry.file_name());
+                    println!("        {:?}", entry.file_name());
                 }
             }
             Err(e) => ctx.log_warning(&format!("Could not list home contents: {}", e)),
@@ -257,7 +258,7 @@ impl HomeDataMigrator {
         } else {
             ctx.log_info("Creating new subvolume and copying directory data");
             SubvolumeHelper::create_subvolume(backup_path)?;
-            Self::copy_directory_preserving_metadata(system_home, backup_path)?;
+            Self::copy_directory_contents(system_home, backup_path)?;
         }
 
         ctx.log_success("Backup created successfully");
@@ -307,9 +308,19 @@ impl HomeDataMigrator {
             ctx.log_info(&format!("Moving {:?}", file_name));
 
             if source_path.is_dir() {
-                Self::copy_directory_preserving_metadata(&source_path, &target_path)?;
+                Self::copy_directory_contents(&source_path, &target_path)?;
             } else {
-                Self::copy_file_preserving_metadata(&source_path, &target_path)?;
+                // Use external cp to preserve ownership, permissions, xattrs and timestamps.
+                let status = Command::new("cp")
+                .arg("--archive")
+                .arg(&source_path)
+                .arg(&target_path)
+                .status()
+                .map_err(|e| MigrationError::new(format!("Failed to copy file: {}", e), "Data transfer"))?;
+
+                if !status.success() {
+                    return Err(MigrationError::new("File copy failed", "Data transfer").into());
+                }
             }
         }
 
@@ -324,84 +335,27 @@ impl HomeDataMigrator {
         Ok(())
     }
 
-    fn copy_directory_preserving_metadata(src: &Path, dst: &Path) -> MigrationResult<()> {
-        // Create destination directory first
-        fs::create_dir_all(dst)
-        .map_err(|e| MigrationError::new(format!("Failed to create directory: {}", e), "Directory copy"))?;
-
-        // Copy directory metadata (permissions, ownership, timestamps)
-        Self::copy_metadata(src, dst)?;
-
-        // Copy contents
-        for entry in fs::read_dir(src)
-            .map_err(|e| MigrationError::new(format!("Failed to read source directory: {}", e), "Directory copy"))?
-            {
-                let entry = entry?;
-                let source_path = entry.path();
-                let target_path = dst.join(entry.file_name());
-
-                if source_path.is_dir() {
-                    Self::copy_directory_preserving_metadata(&source_path, &target_path)?;
-                } else {
-                    Self::copy_file_preserving_metadata(&source_path, &target_path)?;
-                }
-            }
-            Ok(())
-    }
-
-    fn copy_file_preserving_metadata(src: &Path, dst: &Path) -> MigrationResult<()> {
-        // Copy file content
-        fs::copy(&src, &dst)
-        .map_err(|e| MigrationError::new(format!("Failed to copy file: {}", e), "File copy"))?;
-
-        // Copy file metadata (permissions, ownership, timestamps)
-        Self::copy_metadata(src, dst)?;
-
-        Ok(())
-    }
-
-    fn copy_metadata(src: &Path, dst: &Path) -> MigrationResult<()> {
-        let metadata = fs::metadata(src)
-        .map_err(|e| MigrationError::new(format!("Failed to get metadata for {:?}: {}", src, e), "Metadata copy"))?;
-
-        // Copy permissions
-        fs::set_permissions(dst, metadata.permissions())
-        .map_err(|e| MigrationError::new(format!("Failed to set permissions for {:?}: {}", dst, e), "Metadata copy"))?;
-
-        // Copy ownership (uid/gid) - requires root privileges
-        let uid = metadata.uid();
-        let gid = metadata.gid();
-
-        // Use chown command to set ownership
-        let status = Command::new("chown")
-        .arg(format!("{}:{}", uid, gid))
-        .arg(dst)
-        .status()
-        .map_err(|e| MigrationError::new(format!("Failed to set ownership for {:?}: {}", dst, e), "Metadata copy"))?;
-
-        if !status.success() {
-            ctx.log_warning(&format!("Failed to set ownership for {:?} (uid: {}, gid: {}), continuing anyway", dst, uid, gid));
-            // Don't fail the entire migration over ownership issues
+    fn copy_directory_contents(src: &Path, dst: &Path) -> MigrationResult<()> {
+        // Ensure destination exists
+        if !dst.exists() {
+            fs::create_dir_all(dst)
+            .map_err(|e| MigrationError::new(format!("Failed to create directory: {}", e), "Directory copy"))?;
         }
 
-        // Copy timestamps - use reference file approach
-        Self::copy_timestamps_simple(src, dst)?;
+        // Use cp -a to preserve owner, permissions, timestamps and xattrs. Using external tool
+        // is acceptable for this system-level migration and avoids reimplementing ownership logic.
+        let src_dot = src.join(".");
 
-        Ok(())
-    }
-
-    fn copy_timestamps_simple(src: &Path, dst: &Path) -> MigrationResult<()> {
-        // Use touch with reference file - this is the most reliable approach
-        let status = Command::new("touch")
-        .arg("-r")  // Use reference file
-        .arg(src)   // Source file as reference
-        .arg(dst)   // Destination file to update
+        let status = Command::new("cp")
+        .arg("-a")
+        .arg("--reflink=auto")
+        .arg(src_dot)
+        .arg(dst)
         .status()
-        .map_err(|e| MigrationError::new(format!("Failed to set timestamps for {:?}: {}", dst, e), "Timestamp copy"))?;
+        .map_err(|e| MigrationError::new(format!("Failed to copy directory: {}", e), "Directory copy"))?;
 
         if !status.success() {
-            ctx.log_warning(&format!("Failed to set timestamps for {:?}, continuing anyway", dst));
-            // Don't fail the entire migration over timestamp issues
+            return Err(MigrationError::new("Directory copy failed", "Directory copy").into());
         }
 
         Ok(())
@@ -553,8 +507,8 @@ impl RootFsV2Migrator {
             "\nWARNING: Found {} concerning fstab entries. This suggests you have a custom fstab setup.",
             count
         );
-        println!("         If you have entries required for boot, you should manually migrate to @system.");
-        println!("         Otherwise, you can proceed with auto-migration.\n");
+        println!("    If you have entries required for boot, you should manually migrate to @system.");
+        println!("    Otherwise, you can proceed with auto-migration.\n");
 
         io::stdout().flush().unwrap();
 
@@ -627,7 +581,7 @@ impl RootFsV2Migrator {
         let compose_dir = compose_dir.to_path_buf();
         let dir = dir.to_string();
         Ok(scopeguard::guard((), move |_| {
-            println!("  INFO: Unmounting overlay for {}", dir);
+            println!("    INFO: Unmounting overlay for {}", dir);
             Command::new("umount").arg(&compose_dir).status().ok();
         }))
     }
@@ -635,7 +589,7 @@ impl RootFsV2Migrator {
     fn copy_directory_with_reflink(src: &Path, dst: &Path) -> MigrationResult<()> {
         let status = Command::new("cp")
         .arg("--recursive")
-        .arg("--archive")  // This preserves permissions, ownership, and timestamps
+        .arg("--archive")
         .arg("--reflink=auto")
         .arg("--no-target-directory")
         .arg(src)
@@ -739,12 +693,12 @@ fn main() -> MigrationResult<()> {
 
     match run_migrations(root) {
         Ok(()) => {
-            println!("All migrations completed successfully!");
+            println!("All migrations completed successfully.");
             Command::new("plymouth").arg("show-splash").status().ok();
             Ok(())
         }
         Err(e) => {
-            println!("Migration failed: {}", e);
+            eprintln!("Migration failed: {}", e);
             Command::new("plymouth").arg("quit").status().ok();
             Err(e)
         }
