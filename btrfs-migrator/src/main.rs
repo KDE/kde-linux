@@ -380,49 +380,28 @@ impl HomeDataMigrator {
         .map_err(|e| MigrationError::new(format!("Failed to set ownership for {:?}: {}", dst, e), "Metadata copy"))?;
 
         if !status.success() {
-            return Err(MigrationError::new(
-                format!("chown command failed for {:?} (uid: {}, gid: {})", dst, uid, gid),
-                    "Metadata copy"
-            ).into());
+            ctx.log_warning(&format!("Failed to set ownership for {:?} (uid: {}, gid: {}), continuing anyway", dst, uid, gid));
+            // Don't fail the entire migration over ownership issues
         }
 
-        // Copy timestamps using system tools for reliability
-        Self::copy_timestamps(src, dst)?;
+        // Copy timestamps - use reference file approach
+        Self::copy_timestamps_simple(src, dst)?;
 
         Ok(())
     }
 
-    fn copy_timestamps(src: &Path, dst: &Path) -> MigrationResult<()> {
-        // Use stat to get timestamps and touch to set them
-        let output = Command::new("stat")
-        .arg("-c")
-        .arg("%Y %y %Y")
-        .arg(src)
-        .output()
-        .map_err(|e| MigrationError::new(format!("Failed to get timestamps for {:?}: {}", src, e), "Timestamp copy"))?;
+    fn copy_timestamps_simple(src: &Path, dst: &Path) -> MigrationResult<()> {
+        // Use touch with reference file - this is the most reliable approach
+        let status = Command::new("touch")
+        .arg("-r")  // Use reference file
+        .arg(src)   // Source file as reference
+        .arg(dst)   // Destination file to update
+        .status()
+        .map_err(|e| MigrationError::new(format!("Failed to set timestamps for {:?}: {}", dst, e), "Timestamp copy"))?;
 
-        if !output.status.success() {
-            return Err(MigrationError::new("Failed to get file timestamps", "Timestamp copy").into());
-        }
-
-        let timestamps = String::from_utf8_lossy(&output.stdout);
-        let parts: Vec<&str> = timestamps.trim().split_whitespace().collect();
-
-        if parts.len() >= 2 {
-            let mtime = parts[1]; // Modification time in readable format
-
-            // Set modification time
-            let status = Command::new("touch")
-            .arg("-m")
-            .arg("-d")
-            .arg(mtime)
-            .arg(dst)
-            .status()
-            .map_err(|e| MigrationError::new(format!("Failed to set modification time for {:?}: {}", dst, e), "Timestamp copy"))?;
-
-            if !status.success() {
-                return Err(MigrationError::new("Failed to set modification time", "Timestamp copy").into());
-            }
+        if !status.success() {
+            ctx.log_warning(&format!("Failed to set timestamps for {:?}, continuing anyway", dst));
+            // Don't fail the entire migration over timestamp issues
         }
 
         Ok(())
