@@ -11,7 +11,7 @@ CONFIG_FILE_SOURCE=/usr/share/factory/etc/xdg/kde-builder.yaml
 CONFIG_FILE_DESTINATION=~/.config/kde-builder.yaml
 DID_SOMETHING=false
 
-SYSEXT_OUTPUT="$(_kde-linux-set-up-systemd-extension)"
+SYSEXT_OUTPUT="$(set-up-systemd-extension)"
 echo "${SYSEXT_OUTPUT}"
 if [[ "${SYSEXT_OUTPUT}" =~ "Finished setting up extension" ]]; then
     DID_SOMETHING=true

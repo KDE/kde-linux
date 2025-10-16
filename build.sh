@@ -84,7 +84,7 @@ pacman --sync --refresh --refresh --noconfirm
 ./permission-fix.sh
 
 cargo build --release --manifest-path btrfs-migrator/Cargo.toml
-cp -v btrfs-migrator/target/release/_kde-linux-btrfs-migrator mkosi.extra/usr/bin/
+cp -v btrfs-migrator/target/release/btrfs-migrator mkosi.extra/usr/lib/
 
 rm --recursive --force kde-linux-sysupdated
 git clone https://invent.kde.org/kde-linux/kde-linux-sysupdated

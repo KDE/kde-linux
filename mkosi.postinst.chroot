@@ -135,5 +135,5 @@ for theme in $(plymouth-set-default-theme --list); do
 done
 
 cd /tmp
-/usr/bin/_kde-linux-rebuild-efi
+/usr/lib/rebuild-efi
 mv -v ./*.efi /

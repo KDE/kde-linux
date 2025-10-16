@@ -10,7 +10,7 @@ Wants=kde-linux-bless-boot.path
 
 [Service]
 Type=oneshot
-ExecStart=/bin/_kde-linux-bless-userspace
+ExecStart=/usr/lib/bless-userspace
 
 [Install]
 RequiredBy=systemd-bless-boot.service

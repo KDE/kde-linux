@@ -5,8 +5,8 @@
 build() {
     map add_binary \
         /usr/lib/systemd/systemd-volatile-root \
-        /usr/bin/_kde-linux-rootfs-transition \
-        /usr/bin/_kde-linux-btrfs-migrator \
+        /usr/lib/rootfs-transition \
+        /usr/lib/btrfs-migrator \
         /usr/lib/systemd/system-generators/kde-linux-live-generator \
         /usr/lib/systemd/system-generators/kde-linux-mount-generator \
         /usr/lib/systemd/systemd-bootchart \

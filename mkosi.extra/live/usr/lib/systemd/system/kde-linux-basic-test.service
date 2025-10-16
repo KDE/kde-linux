@@ -7,4 +7,4 @@ ConditionKernelCommandLine=kde-linux.basic-test=1
 
 [Service]
 Type=simple
-ExecStart=_kde-linux-basic-test
+ExecStart=/usr/lib/basic-test

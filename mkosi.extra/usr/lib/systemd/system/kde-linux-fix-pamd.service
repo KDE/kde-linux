@@ -11,4 +11,4 @@ After=etc.mount
 
 [Service]
 Type=simple
-ExecStart=_kde-linux-fix-pamd
+ExecStart=/usr/lib/fix-pamd

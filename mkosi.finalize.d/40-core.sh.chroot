@@ -142,7 +142,7 @@ setcap 'cap_sys_nice=+ep' /usr/bin/kwin_wayland
 cat <<- EOF >> /etc/bash.bashrc
 
 command_not_found_handle () {
-    python3 _kde-linux-command-not-found-handler.py "\$1"
+    python3 /usr/lib/command-not-found-handler.py "\$1"
 }
 EOF
 

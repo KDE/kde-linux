@@ -3,7 +3,7 @@
 # SPDX-FileCopyrightText: 2024 Harald Sitter <sitter@kde.org>
 
 # Bless Session.
-# Also see _kde-linux-bless-userspace
+# Also see bless-userspace
 
 set -ex
 

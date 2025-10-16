@@ -1,1 +1,1 @@
-ACTION=="add", KERNEL=="sd[a-z]", SUBSYSTEM=="block", ENV{ID_USB_TYPE}=="disk", RUN+="/usr/bin/usb-dirty-pages-udev %k"
+ACTION=="add", KERNEL=="sd[a-z]", SUBSYSTEM=="block", ENV{ID_USB_TYPE}=="disk", RUN+="/usr/lib/usb-dirty-pages-udev %k"

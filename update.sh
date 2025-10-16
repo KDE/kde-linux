@@ -24,7 +24,7 @@ if [ -d /efi ]; then
         rootdisk=/dev/disk/by-partlabel/KDEOS # Fallback for older images
     fi
 
-    espdev=$(_kde-linux-find-esp "$rootdisk")
+    espdev=$(/usr/lib/find-esp "$rootdisk")
     mount "$espdev" "$ROOT/efi"
   fi
 fi

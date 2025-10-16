@@ -57,7 +57,7 @@ if [ -r "/sys/block/$realdevice/dm/" ]; then
     done
 fi
 blockdev=/dev/$(basename "$(readlink --canonicalize "/sys/class/block/$realdevice/..")")
-espdev=$(_kde-linux-find-esp "$blockdev")
+espdev=$(/usr/lib/find-esp "$blockdev")
 mount "$espdev" "$ROOT/boot"
 
 # Bit of a crutch to get systemd's base_filesystem_create() to run so the / gets populated with symlinks.

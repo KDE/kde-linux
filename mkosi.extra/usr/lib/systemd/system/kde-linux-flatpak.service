@@ -5,7 +5,7 @@
 Description=Initial Flatpaks Seeding
 
 [Service]
-ExecStart=/usr/bin/_kde-linux-install-flatpaks
+ExecStart=/usr/lib/install-flatpaks
 
 [Install]
 WantedBy=multi-user.target

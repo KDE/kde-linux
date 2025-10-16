@@ -8,7 +8,7 @@ After=var.mount
 ConditionKernelCommandLine=kde-linux.live=1
 
 [Service]
-ExecStart=/usr/bin/_kde-linux-volatile-flatpak
+ExecStart=/usr/lib/volatile-flatpak
 
 [Install]
 WantedBy=multi-user.target

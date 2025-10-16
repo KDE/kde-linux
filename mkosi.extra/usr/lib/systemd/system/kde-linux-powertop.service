@@ -7,7 +7,7 @@ Description=Power tunings
 [Service]
 Type=oneshot
 ExecStart=/usr/bin/powertop --auto-tune
-ExecStartPost=/usr/bin/_kde-linux-disable-usb-autosuspend-for-input-devices
+ExecStartPost=/usr/lib/disable-usb-autosuspend-for-input-devices
 
 [Install]
 WantedBy=multi-user.target sleep.target

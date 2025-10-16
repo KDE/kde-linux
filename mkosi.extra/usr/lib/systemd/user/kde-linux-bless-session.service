@@ -8,7 +8,7 @@ Requires=graphical-session.target
 
 [Service]
 Type=oneshot
-ExecStart=/bin/_kde-linux-bless-session
+ExecStart=/usr/lib/bless-session
 
 [Install]
 WantedBy=graphical-session.target

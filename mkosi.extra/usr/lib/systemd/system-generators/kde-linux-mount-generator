@@ -37,7 +37,7 @@ After=blockdev@dev-gpt\x2dauto\x2droot.target
 After=systemd-vconsole-setup.service
 
 [Service]
-ExecStart=/usr/bin/_kde-linux-rootfs-transition
+ExecStart=/usr/lib/rootfs-transition
 Type=oneshot
 StandardOutput=tty
 StandardInput=tty

@@ -35,5 +35,5 @@ if [ ! -e "/run/kde-linux-rootfs-transition/kde-linux_$IMAGE_VERSION.erofs" ]; t
     exit 1
 fi
 
-_kde-linux-btrfs-migrator /run/kde-linux-rootfs-transition
+/usr/lib/btrfs-migrator /run/kde-linux-rootfs-transition
 umount --recursive --lazy /run/kde-linux-rootfs-transition
