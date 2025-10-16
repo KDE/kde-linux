@@ -9,6 +9,9 @@ Before=local-fs.target
 After=systemd-remount-fs.service
 After=blockdev@dev-gpt\x2dauto\x2droot.target
 
+# Skip mounting when booted as a live image
+ConditionKernelCommandLine=!kde-linux.live=1
+
 [Mount]
 What=/dev/gpt-auto-root
 Where=/home
