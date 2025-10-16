@@ -1,0 +1,7 @@
+#!/bin/sh
+# SPDX-License-Identifier: MIT
+# SPDX-FileCopyrightText: Hadi Chokr <hadichokr@icloud.com>
+# vim-vi-wrapper — launch Vim as close to classic vi as possible
+
+exec vim -u NONE -C -- "$@"
+
