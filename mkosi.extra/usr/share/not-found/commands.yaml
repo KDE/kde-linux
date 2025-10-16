@@ -21,7 +21,7 @@ known_alternatives:
   route: ip route
   service: systemctl
   traceroute: tracepath
-  vi: "vim -v"
+  vi: "vim -u NONE -C"
 
 unsupported_package_managers:
   - apt
