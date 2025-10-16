@@ -33,6 +33,7 @@ enable kde-linux-volatile-var-lib-flatpak.service
 enable kde-linux-auto-hide-bootloader.service
 enable plasma-setup-live-system.service
 enable var-lib-snapd-snap.mount
+enable home.mount
 # also one of ours but not prefixed with kde-linux- so others can use it too
 enable etc-factory.service
 

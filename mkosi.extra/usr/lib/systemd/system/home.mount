@@ -1,0 +1,19 @@
+# SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL
+# SPDX-FileCopyrightText: 2025 Hadi Chokr <hadichokr@icloud.com>
+
+# /etc/systemd/system/home.mount
+# Static mount unit for /home Btrfs subvolume
+[Unit]
+Description=Home Volume
+Before=local-fs.target
+After=systemd-remount-fs.service
+After=blockdev@dev-gpt\x2dauto\x2droot.target
+
+[Mount]
+What=/dev/gpt-auto-root
+Where=/home
+Type=btrfs
+Options=subvol=@home,compress=zstd:1
+
+[Install]
+WantedBy=local-fs.target
