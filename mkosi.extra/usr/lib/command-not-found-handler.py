@@ -23,7 +23,7 @@ known_alternatives = {
     "route" : "ip route",
     "service" :"systemctl",
     "traceroute" : "tracepath",
-    "vi" : "vim"
+    "vi" : "vim -u NONE -C"
 }
 
 unsupported_package_managers = [
@@ -31,7 +31,6 @@ unsupported_package_managers = [
     "apt-get",
     "dnf",
     "dpkg",
-    "nix",
     "pacman",
     "pamac",
     "portage",
