@@ -34,7 +34,19 @@ global:
   # Merge libexec and lib, like the base OS does
   # Use ccache for everything to further avoid unnecessary work
   cmake-options: >
-    -DCMAKE_BUILD_TYPE=RelWithDebInfo -DKDE_INSTALL_USE_QT_SYS_PATHS=ON -DBUILD_HTML_DOCS=OFF -DBUILD_MAN_DOCS=OFF -DBUILD_TESTING=OFF -DBUILD_PYTHON_BINDINGS=OFF -DWITH_PYTHON_VENDORING=OFF -DBUILD_QCH=OFF -DCMAKE_INSTALL_LIBEXECDIR=lib -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache -DCMAKE_C_LINKER_LAUNCHER=ccache -DCMAKE_CXX_LINKER_LAUNCHER=ccache
+    -DCMAKE_BUILD_TYPE=RelWithDebInfo
+    -DKDE_INSTALL_USE_QT_SYS_PATHS=ON
+    -DBUILD_HTML_DOCS=OFF
+    -DBUILD_MAN_DOCS=OFF
+    -DBUILD_TESTING=OFF
+    -DBUILD_PYTHON_BINDINGS=OFF
+    -DWITH_PYTHON_VENDORING=OFF
+    -DBUILD_QCH=OFF
+    -DCMAKE_INSTALL_LIBEXECDIR=lib
+    -DCMAKE_C_COMPILER_LAUNCHER=ccache
+    -DCMAKE_C_LINKER_LAUNCHER=ccache
+    -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
+    -DCMAKE_CXX_LINKER_LAUNCHER=ccache
 
   # kde-builder sets 2 options which is used in options like make-options or set-env
   # to help manage the number of compile jobs that happen during a build:
