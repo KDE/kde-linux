@@ -17,6 +17,7 @@ known_alternatives = {
     "ifdown" : "ip link set [interface] down",
     "ifup" : "ip link set [interface] up",
     "iptunnel" : "ip tunnel",
+    "iwconfig" : "iw",
     "nameif" : "ip link",
     "netstat" : "ss",
     "nslookup" : "resolvectl query",
