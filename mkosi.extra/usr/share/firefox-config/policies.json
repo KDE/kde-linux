@@ -1,0 +1,10 @@
+{
+  "policies": {
+    "SearchEngines": {
+      "Default": "DuckDuckGo"
+    },
+    "Extensions": {
+      "Install": ["https://addons.mozilla.org/firefox/downloads/latest/plasma-integration/"]
+    }
+  }
+}

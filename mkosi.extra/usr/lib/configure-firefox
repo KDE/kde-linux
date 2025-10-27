@@ -11,3 +11,10 @@ flatpak install --runtime -y org.freedesktop.Platform.codecs-extra
 # Install the KDE Linux default Firefox config into the Firefox flatpak system config extension.
 mkdir -p /var/lib/flatpak/extension/org.mozilla.firefox.systemconfig/$(uname -m)/stable/defaults/pref/
 cp -rf /usr/share/firefox-config/00-kde-linux-default.js /var/lib/flatpak/extension/org.mozilla.firefox.systemconfig/$(uname -m)/stable/defaults/pref/
+
+# Install the KDE Linux default Firefox policy into the Firefox flatpak system config extension.
+# This sets DuckDuckGo as the default search engine, and installs the Plasma Browser Integration extension.
+# This, however, has the unfortunate side effect of causing Firefox to show a "Your browser is being managed by your organization" message in the settings.
+# See https://support.mozilla.org/en-US/kb/customizing-firefox-using-policiesjson
+mkdir -p /var/lib/flatpak/extension/org.mozilla.firefox.systemconfig/$(uname -m)/stable/policies/
+cp -rf /usr/share/firefox-config/policies.json /var/lib/flatpak/extension/org.mozilla.firefox.systemconfig/$(uname -m)/stable/policies/
