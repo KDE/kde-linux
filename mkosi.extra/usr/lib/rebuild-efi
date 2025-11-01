@@ -55,7 +55,7 @@ ukify build \
 # reducing wake-ups and therefore power usage. rcu_nocbs=all is actually turned on
 # automatically by nohz_full=all, but we manually specify it here anyway because
 # rcutree.enable_rcu_lazy=1 needs it and we don't want that to break.
-echo "rw rootflags=subvol=@system,compress=zstd:1 \
+echo "rw rootflags=subvol=@system,compress=zstd:1,lazytime \
   lsm=landlock,lockdown,yama,integrity,apparmor,bpf \
   zswap.enabled=0 \
   preempt=full threadirqs \
