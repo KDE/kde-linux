@@ -68,9 +68,6 @@ download_flatpaks() {
     # Do this separately, when used as part of remote-add it complains about GPG for unknown reasons
     flatpak remote-modify --collection-id=org.flathub.Stable flathub
 
-    # Only check out en. We don't really support other languages on the live image at this time.
-    flatpak config --set languages en
-
     kde_nightly=(
         ark
         gwenview
@@ -97,9 +94,6 @@ download_flatpaks() {
         org.gtk.Gtk3theme.Breeze \
         org.kde.kwrite \
         org.mozilla.firefox
-
-    # And restore default
-    flatpak config --unset languages
 }
 download_flatpaks
 
