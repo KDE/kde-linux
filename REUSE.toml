@@ -29,3 +29,18 @@ SPDX-License-Identifier = "CC0-1.0"
 path="mkosi.extra/usr/lib/udev/rules.d/60-usb-dirty-pages-udev.rules"
 SPDX-FileCopyrightText = "2023 Bruno Gonçalves <www.biglinux.com.br>"
 SPDX-License-Identifier = "GPL-3.0-or-later"
+
+[[annotations]]
+path="mkosi.extra/usr/lib/udev/rules.d/65-sane.rules"
+SPDX-FileCopyrightText = "none"
+SPDX-License-Identifier = "GPL-2.0-only"
+
+[[annotations]]
+path="mkosi.extra/usr/lib/udev/rules.d/66-saned.rules"
+SPDX-FileCopyrightText = "none"
+SPDX-License-Identifier = "GPL-2.0-only"
+
+[[annotations]]
+path="mkosi.extra/usr/lib/udev/hwdb.d/20-sane.hwdb"
+SPDX-FileCopyrightText = "none"
+SPDX-License-Identifier = "GPL-2.0-only"
