@@ -1,0 +1,20 @@
+#!/bin/sh
+# SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL
+# SPDX-FileCopyrightText: 2025 Hadi Chokr <hadichokr@icloud.com>
+
+set -eux
+
+REPO_URL="https://git.stormux.org/storm/fenrir.git"
+SERVICE_FILE_URL="https://git.stormux.org/storm/fenrir/-/raw/master/fenrirscreenreader.service"
+INSTALL_DIR="/usr/local"
+SYSTEMD_DIR="/usr/lib/systemd/system"
+
+# Clone Repo
+git clone "$REPO_URL" fenrir
+cd fenrir
+
+# Install itself
+python setup.py install --root="/" --optimize=1 --force-settings
+
+# Install its systemd service
+curl -L "$SERVICE_FILE_URL" -o "$SYSTEMD_DIR/fenrirscreenreader.service"
