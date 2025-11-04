@@ -49,3 +49,8 @@ SPDX-License-Identifier = "GPL-2.0-only"
 path="mkosi.extra/usr/lib/udev/hwdb.d/20-sane.hwdb"
 SPDX-FileCopyrightText = "none"
 SPDX-License-Identifier = "GPL-2.0-only"
+
+[[annotations]]
+path = "mkosi.extra/usr/share/firefox-config/policies.json"
+SPDX-FileCopyrightText = "2025 Thomas Duckworth <tduck@filotimoproject.org>"
+SPDX-License-Identifier = "GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL"

@@ -36,3 +36,10 @@ if nvidia-smi > /dev/null 2>&1; then
 else
   rm -rf "/var/lib/flatpak/extension/org.mozilla.firefox.systemconfig/${RUNTIME_ARCH}/stable/defaults/pref/00-kde-linux-default.js"
 fi
+
+# Install the KDE Linux default Firefox policy into the Firefox flatpak system config extension.
+# This installs the Plasma Browser Integration extension.
+# This, however, has the unfortunate side effect of causing Firefox to show a "Your browser is being managed by your organization" message in the settings.
+# See https://support.mozilla.org/en-US/kb/customizing-firefox-using-policiesjson
+mkdir -p "/var/lib/flatpak/extension/org.mozilla.firefox.systemconfig/${RUNTIME_ARCH}/stable/policies/"
+cp -rf "/usr/share/firefox-config/policies.json" "/var/lib/flatpak/extension/org.mozilla.firefox.systemconfig/${RUNTIME_ARCH}/stable/policies/policies.json"
