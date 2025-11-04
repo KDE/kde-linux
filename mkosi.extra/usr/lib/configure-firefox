@@ -16,7 +16,7 @@ fi
 RUNTIME_REF="$(flatpak info org.mozilla.firefox 2>/dev/null | grep -E 'Runtime:' | awk '{print $2}')"
 RUNTIME_ARCH="$(echo "$RUNTIME_REF" | cut -d'/' -f2)"
 RUNTIME_BRANCH="$(echo "$RUNTIME_REF" | cut -d'/' -f3)"
-CODEC_REF="org.freedesktop.Platform.codecs-extra/${RUNTIME_ARCH}/${RUNTIME_BRANCH}"
+CODEC_REF="org.freedesktop.Platform.codecs-extra/${RUNTIME_ARCH}/${RUNTIME_BRANCH}-extra"
 
 if (! flatpak info "$CODEC_REF" &>/dev/null) && flatpak remote-info flathub "$CODEC_REF" &>/dev/null; then
     flatpak install --system --runtime -y "$CODEC_REF"
