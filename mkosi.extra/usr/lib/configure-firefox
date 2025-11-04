@@ -9,6 +9,9 @@ if ! flatpak info org.mozilla.firefox >/dev/null 2>&1; then
   exit 1
 fi
 
+# Ensure accent colors are correctly applied to Firefox.
+flatpak override --system org.mozilla.firefox --filesystem=xdg-config/gtk-3.0:ro
+
 # Install codecs-extra at runtime - this gets around distribution restrictions on codec licensing.
 # This is required for Firefox to decode certain video formats.
 
