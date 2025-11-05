@@ -29,4 +29,4 @@ fi
 
 # Install the KDE Linux default Firefox config into the Firefox flatpak system config extension.
 mkdir -p "/var/lib/flatpak/extension/org.mozilla.firefox.systemconfig/${RUNTIME_ARCH}/stable/defaults/pref/"
-ln -sf "/usr/share/firefox-config/00-kde-linux-default.js" "/var/lib/flatpak/extension/org.mozilla.firefox.systemconfig/${RUNTIME_ARCH}/stable/defaults/pref/00-kde-linux-default.js"
+cp -rf "/usr/share/firefox-config/00-kde-linux-default.js" "/var/lib/flatpak/extension/org.mozilla.firefox.systemconfig/${RUNTIME_ARCH}/stable/defaults/pref/00-kde-linux-default.js"
