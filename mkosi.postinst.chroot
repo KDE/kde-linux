@@ -77,6 +77,7 @@ download_flatpaks() {
         kate
         haruna
         okular
+        qrca
     )
 
     # Add Nightly repos
