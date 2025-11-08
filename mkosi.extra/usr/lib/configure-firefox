@@ -28,5 +28,11 @@ elif ! flatpak info org.freedesktop.Platform.codecs-extra &>/dev/null; then
 fi
 
 # Install the KDE Linux default Firefox config into the Firefox flatpak system config extension.
-mkdir -p "/var/lib/flatpak/extension/org.mozilla.firefox.systemconfig/${RUNTIME_ARCH}/stable/defaults/pref/"
-cp -rf "/usr/share/firefox-config/00-kde-linux-default.js" "/var/lib/flatpak/extension/org.mozilla.firefox.systemconfig/${RUNTIME_ARCH}/stable/defaults/pref/00-kde-linux-default.js"
+# This enables hardware acceleration on NVIDIA but can break it on other cards,
+# so this should only be done conditionally.
+if nvidia-smi > /dev/null 2>&1; then
+  mkdir -p "/var/lib/flatpak/extension/org.mozilla.firefox.systemconfig/${RUNTIME_ARCH}/stable/defaults/pref/"
+  cp -rf "/usr/share/firefox-config/00-kde-linux-default.js" "/var/lib/flatpak/extension/org.mozilla.firefox.systemconfig/${RUNTIME_ARCH}/stable/defaults/pref/00-kde-linux-default.js"
+else
+  rm -rf "/var/lib/flatpak/extension/org.mozilla.firefox.systemconfig/${RUNTIME_ARCH}/stable/defaults/pref/00-kde-linux-default.js"
+fi
