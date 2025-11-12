@@ -126,6 +126,12 @@ rm -rf /boot/*
 ## Don't expose any X11 sessions; we're all-in on Wayland.
 rm -rf /usr/share/xsessions/
 
+## Get rid of the beefy Kernel Headers as DKMS happens at build time and after that is useless
+rm -rf \
+  /usr/lib/modules/*/build \
+  /usr/lib/modules/*/vdso \
+  /usr/src/*
+
 ## Replace Falkon with Firefox as the default browser, since that's what we pre-install.
 sed -i 's/org.kde.falkon.desktop/org.mozilla.firefox.desktop/' /usr/share/applications/kde-mimeapps.list
 

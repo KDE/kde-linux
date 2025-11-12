@@ -18,6 +18,13 @@ if [ -z "$kernel_version" ]; then
   exit 1
 fi
 
+# Ensure all DKMS modules are built for this kernel before we generate the initramfs
+if ! dkms autoinstall -k "$kernel_version"; then
+        echo "Error: DKMS autoinstall failed" >&2
+        exit 1
+fi
+
+
 # NOTE: plymouth MUST be after systemd as per the wiki!
 cat <<- EOF > mkinitcpio.conf
 MODULES=(overlay)
