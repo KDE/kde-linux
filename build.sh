@@ -89,9 +89,9 @@ if [ -z "$BUILD_DATE" ]; then
 fi
 echo "Server = https://archive.archlinux.org/repos/${BUILD_DATE}/\$repo/os/\$arch" > mkosi.sandbox/etc/pacman.d/mirrorlist
 
-# Fetch Chaotic Mirrorlist and Keyring
-pacman -U --noconfirm 'https://cdn-mirror.chaotic.cx/chaotic-aur/chaotic-keyring.pkg.tar.zst'
-pacman -U --noconfirm 'https://cdn-mirror.chaotic.cx/chaotic-aur/chaotic-mirrorlist.pkg.tar.zst'
+# Install Chaotic Mirrorlist and Keyring into the mkosi build
+pacman --root mkosi.sandbox -U --noconfirm 'https://cdn-mirror.chaotic.cx/chaotic-aur/chaotic-keyring.pkg.tar.zst'
+pacman --root mkosi.sandbox -U --noconfirm 'https://cdn-mirror.chaotic.cx/chaotic-aur/chaotic-mirrorlist.pkg.tar.zst'
 
 # ... and make sure our cache is up to date. Second --refresh forces a refresh.
 pacman --sync --refresh --refresh --noconfirm
