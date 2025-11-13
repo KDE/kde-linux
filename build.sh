@@ -90,6 +90,8 @@ fi
 echo "Server = https://archive.archlinux.org/repos/${BUILD_DATE}/\$repo/os/\$arch" > mkosi.sandbox/etc/pacman.d/mirrorlist
 
 # Install Chaotic Mirrorlist and Keyring into the mkosi build
+mkdir -p mkosi.sandbox/var/lib/pacman/
+pacman --root mkosi.sandbox -Sy --noconfirm
 pacman --root mkosi.sandbox -U --noconfirm 'https://cdn-mirror.chaotic.cx/chaotic-aur/chaotic-keyring.pkg.tar.zst'
 pacman --root mkosi.sandbox -U --noconfirm 'https://cdn-mirror.chaotic.cx/chaotic-aur/chaotic-mirrorlist.pkg.tar.zst'
 
