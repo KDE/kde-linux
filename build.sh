@@ -76,6 +76,16 @@ cat >> mkosi.sandbox/etc/pacman.conf <<'EOF'
 SigLevel = Optional TrustAll
 Server = https://cdn-mirror.chaotic.cx/$repo/$arch
 EOF
+
+# Prevent duplicate kernels during build
+if grep -q '^IgnorePkg' /etc/pacman.conf; then
+  # Append to existing IgnorePkg line if it's there
+  sed -i 's/^IgnorePkg.*/& linux linux-headers/' /etc/pacman.conf
+else
+# Otherwise, create it
+  echo 'IgnorePkg = linux linux-headers' >> /etc/pacman.conf
+fi
+
 mkdir --parents mkosi.sandbox/etc/pacman.d
 # Ensure the packages repo and the base image do not go out of sync
 # by using the same snapshot date from build_date.txt for both
