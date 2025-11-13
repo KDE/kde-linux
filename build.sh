@@ -80,11 +80,16 @@ EOF
 # Path to the pacman.conf inside mkosi sandbox
 PACMAN_CONF="mkosi.sandbox/etc/pacman.conf"
 
-# Prevent duplicate kernels during build (place before any [repo] section)
+# Ensure IgnorePkg is defined inside the [options] section
 if grep -q '^IgnorePkg' "$PACMAN_CONF"; then
+  # Append linux + headers to any existing IgnorePkg line
   sed -i 's/^IgnorePkg.*/& linux linux-headers/' "$PACMAN_CONF"
+elif grep -q '^\[options\]' "$PACMAN_CONF"; then
+  # Insert right after the [options] header
+  sed -i '/^\[options\]/a IgnorePkg = linux linux-headers' "$PACMAN_CONF"
 else
-  sed -i '/^\[.*\]/i IgnorePkg = linux linux-headers' "$PACMAN_CONF"
+  # If somehow [options] is missing, create it at the top
+  sed -i '1i [options]\nIgnorePkg = linux linux-headers\n' "$PACMAN_CONF"
 fi
 
 mkdir --parents mkosi.sandbox/etc/pacman.d
