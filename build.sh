@@ -87,6 +87,7 @@ echo "Server = https://archive.archlinux.org/repos/${BUILD_DATE}/\$repo/os/\$arc
 
 # Install Chaotic Mirrorlist and Keyring into the mkosi build
 # Install Chaotic AUR packages manually by extracting and copying files
+BUILD_DIR="$PWD"  # Store the current build directory
 mkdir -p /tmp/chaotic-extract
 cd /tmp/chaotic-extract
 
@@ -102,7 +103,7 @@ tar -xf chaotic-mirrorlist.pkg.tar.zst
 # Create file list and use tar for reliable copying
 find . -type f \( -path "./etc/*" -o -path "./usr/*" \) > filelist.txt
 if [ -s filelist.txt ]; then
-    tar -cf - -T filelist.txt | tar -xf - -C "$PWD/../../mkosi.sandbox"
+    tar -cf - -T filelist.txt | tar -xf - -C "$BUILD_DIR/mkosi.sandbox"
 else
     echo "WARNING: No files found to copy from chaotic packages"
     exit 1
