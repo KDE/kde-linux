@@ -78,12 +78,12 @@ Server = https://cdn-mirror.chaotic.cx/$repo/$arch
 EOF
 
 # Prevent duplicate kernels during build
-if grep -q '^IgnorePkg' /etc/pacman.conf; then
+if grep -q '^IgnorePkg' mkosi.sandbox/etc/pacman.conf; then
   # Append to existing IgnorePkg line if it's there
-  sed -i 's/^IgnorePkg.*/& linux linux-headers/' /etc/pacman.conf
+  sed -i 's/^IgnorePkg.*/& linux linux-headers/' mkosi.sandbox/etc/pacman.conf
 else
 # Otherwise, create it
-  echo 'IgnorePkg = linux linux-headers' >> /etc/pacman.conf
+  echo 'IgnorePkg = linux linux-headers' >> mkosi.sandbox/etc/pacman.conf
 fi
 
 mkdir --parents mkosi.sandbox/etc/pacman.d
