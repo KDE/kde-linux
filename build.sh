@@ -55,10 +55,6 @@ EFI=${EFI_BASE}+3.efi # Name of primary UKI in the image's ESP
 # Clean up old build artifacts.
 rm --recursive --force kde-linux.cache/*.raw kde-linux.cache/*.mnt
 
-# Fetch Chaotic Keys and sign them
-pacman-key --recv-key 3056513887B78AEB --keyserver keyserver.ubuntu.com
-pacman-key --lsign-key 3056513887B78AEB
-
 # FIXME: temporary hack to work around repo priorities being off in the CI image
 cat <<- EOF > mkosi.sandbox/etc/pacman.conf
 [kde-linux]
@@ -90,10 +86,23 @@ fi
 echo "Server = https://archive.archlinux.org/repos/${BUILD_DATE}/\$repo/os/\$arch" > mkosi.sandbox/etc/pacman.d/mirrorlist
 
 # Install Chaotic Mirrorlist and Keyring into the mkosi build
-mkdir -p mkosi.sandbox/var/lib/pacman/
-pacman --root mkosi.sandbox -Sy --noconfirm
-pacman --root mkosi.sandbox -U --noconfirm 'https://cdn-mirror.chaotic.cx/chaotic-aur/chaotic-keyring.pkg.tar.zst'
-pacman --root mkosi.sandbox -U --noconfirm 'https://cdn-mirror.chaotic.cx/chaotic-aur/chaotic-mirrorlist.pkg.tar.zst'
+# Install Chaotic AUR packages manually by extracting and copying files
+mkdir -p /tmp/chaotic-extract
+cd /tmp/chaotic-extract
+
+# Download and extract chaotic-keyring
+wget -q 'https://cdn-mirror.chaotic.cx/chaotic-aur/chaotic-keyring.pkg.tar.zst'
+tar -xf chaotic-keyring.pkg.tar.zst
+
+# Download and extract chaotic-mirrorlist  
+wget -q 'https://cdn-mirror.chaotic.cx/chaotic-aur/chaotic-mirrorlist.pkg.tar.zst'
+tar -xf chaotic-mirrorlist.pkg.tar.zst
+
+# Copy all files to mkosi.sandbox, preserving directory structure
+find . -type f -path "./etc/*" -exec cp --parents {} "$PWD/../../mkosi.sandbox/" \;
+find . -type f -path "./usr/*" -exec cp --parents {} "$PWD/../../mkosi.sandbox/" \;
+
+cd -
 
 # ... and make sure our cache is up to date. Second --refresh forces a refresh.
 pacman --sync --refresh --refresh --noconfirm
