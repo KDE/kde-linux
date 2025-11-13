@@ -66,14 +66,16 @@ Server = https://storage.kde.org/kde-linux-packages/testing/repo/packages/
 SigLevel = Never
 Server = https://storage.kde.org/kde-linux-packages/testing/repo/packages-debug/
 EOF
-# Append the Chaotic Repo
+# Append official repos FIRST (higher priority)
+cat /etc/pacman.conf.nolinux >> mkosi.sandbox/etc/pacman.conf
+# Append Chaotic AUR LAST (lower priority)
 cat >> mkosi.sandbox/etc/pacman.conf <<'EOF'
-# From Garuda Linux
+
+# From Garuda Linux - lower priority for CachyOS kernel only
 [chaotic-aur]
 SigLevel = Optional TrustAll
 Server = https://cdn-mirror.chaotic.cx/$repo/$arch
 EOF
-cat /etc/pacman.conf.nolinux >> mkosi.sandbox/etc/pacman.conf
 mkdir --parents mkosi.sandbox/etc/pacman.d
 # Ensure the packages repo and the base image do not go out of sync
 # by using the same snapshot date from build_date.txt for both
