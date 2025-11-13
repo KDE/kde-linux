@@ -46,6 +46,13 @@ Server = https://storage.kde.org/kde-linux-packages/testing/repo/packages/
 SigLevel = Never
 Server = https://storage.kde.org/kde-linux-packages/testing/repo/packages-debug/
 EOF
+# Append the Chaotic Repo
+cat >> /etc/pacman.conf <<'EOF'
+
+[chaotic-aur]
+SigLevel = Optional TrustAll
+Server = https://cdn-mirror.chaotic.cx/$repo/$arch
+EOF
 cat /etc/pacman.conf.nolinux >> /etc/pacman.conf
 
 # Ensure the packages repo and the base image do not go out of sync
@@ -61,9 +68,6 @@ echo "Server = https://archive.archlinux.org/repos/${BUILD_DATE}/\$repo/os/\$arc
 # Fetch Chaotic Mirrorlist and Keyring
 pacman -U --noconfirm 'https://cdn-mirror.chaotic.cx/chaotic-aur/chaotic-keyring.pkg.tar.zst'
 pacman -U --noconfirm 'https://cdn-mirror.chaotic.cx/chaotic-aur/chaotic-mirrorlist.pkg.tar.zst'
-
-# Enable the Chaotic Repo
-echo -e '\n[chaotic-aur]\nInclude = /etc/pacman.d/chaotic-mirrorlist' >> /etc/pacman.conf
 
 # ParallelDownloads is enabled by default since pacman 7.0.0.r6.gc685ae6-2,
 # so no need to uncomment or manually set it unless we want to change the value.
