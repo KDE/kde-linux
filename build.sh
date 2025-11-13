@@ -67,7 +67,7 @@ SigLevel = Never
 Server = https://storage.kde.org/kde-linux-packages/testing/repo/packages-debug/
 EOF
 # Append the Chaotic Repo
-cat >> /etc/pacman.conf <<'EOF'
+cat >> mkosi.sandbox/etc/pacman.conf <<'EOF'
 # From Garuda Linux
 [chaotic-aur]
 SigLevel = Optional TrustAll
