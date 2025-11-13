@@ -78,7 +78,7 @@ Server = https://cdn-mirror.chaotic.cx/$repo/$arch
 EOF
 
 # Path to the pacman.conf inside mkosi sandbox
-PACMAN_CONF="/mkosi.sandbox/etc/pacman.conf"
+PACMAN_CONF="mkosi.sandbox/etc/pacman.conf"
 
 # Prevent duplicate kernels during build (place before any [repo] section)
 if grep -q '^IgnorePkg' "$PACMAN_CONF"; then
