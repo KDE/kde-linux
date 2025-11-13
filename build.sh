@@ -99,8 +99,14 @@ wget -q 'https://cdn-mirror.chaotic.cx/chaotic-aur/chaotic-mirrorlist.pkg.tar.zs
 tar -xf chaotic-mirrorlist.pkg.tar.zst
 
 # Copy all files to mkosi.sandbox, preserving directory structure
-find . -type f -path "./etc/*" -exec cp --parents {} "$PWD/../../mkosi.sandbox/" \;
-find . -type f -path "./usr/*" -exec cp --parents {} "$PWD/../../mkosi.sandbox/" \;
+# Create file list and use tar for reliable copying
+find . -type f \( -path "./etc/*" -o -path "./usr/*" \) > filelist.txt
+if [ -s filelist.txt ]; then
+    tar -cf - -T filelist.txt | tar -xf - -C "$PWD/../../mkosi.sandbox"
+else
+    echo "WARNING: No files found to copy from chaotic packages"
+    exit 1
+fi
 
 cd -
 
