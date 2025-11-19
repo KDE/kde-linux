@@ -121,6 +121,9 @@ EOF
 # Set default shell as zsh for new users
 sed -i 's%^SHELL=/usr/bin/bash%SHELL=/usr/bin/zsh%' /etc/default/useradd
 
+# Put new users in sambashare group
+sed -i 's%^GROUP=users%GROUP=users\nGROUPS=sambashare%' /etc/default/useradd
+
 # Our Plymouth Theme
 KEEP_THEME="breeze-bgrt"
 
