@@ -21,6 +21,7 @@ enable tuned-ppd.service
 enable thermald.service
 enable pcscd.socket
 enable kde-linux-configure-firefox.path
+enable kde-linux-sddm-themes.mount
 
 # nvidia specific services (shouldn't affect non-nvidia hardware)
 enable nvidia-suspend.service

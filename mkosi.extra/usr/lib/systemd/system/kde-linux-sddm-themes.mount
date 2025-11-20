@@ -1,0 +1,22 @@
+# SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL
+# SPDX-FileCopyrightText: 2025 Thomas Duckworth <tduck@filotimoproject.org>
+
+# Allows changing the SDDM wallpaper and the installation of new themes.
+# Temporary until plasma-login-manager is adopted.
+# Also see https://github.com/sddm/sddm/issues/1561
+
+[Unit]
+Description=Set up a writable SDDM themes overlay
+RequiresMountsFor=/usr /var
+ConditionPathExists=/usr/share/sddm
+ConditionPathExists=/var/sddm_themes/themes
+ConditionPathExists=/var/sddm_themes/themes.work
+
+[Mount]
+Type=overlay
+What=overlay
+Where=/usr/share/sddm/themes
+Options=lowerdir=/usr/share/sddm/themes,upperdir=/var/sddm_themes/themes,workdir=/var/sddm_themes/themes.work
+
+[Install]
+WantedBy=multi-user.target
