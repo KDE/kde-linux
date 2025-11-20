@@ -1,0 +1,18 @@
+# SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL
+# SPDX-FileCopyrightText: 2025 Hadi Chokr <hadichokr@icloud.com>
+
+[Unit]
+Description=Overlay for a writable /usr/local
+RequiresMountsFor=/usr /var
+ConditionPathExists=/usr/local
+ConditionPathExists=/var/local
+ConditionPathExists=/var/local.work
+
+[Mount]
+Type=overlay
+What=overlay
+Where=/usr/local
+Options=lowerdir=/usr/local,upperdir=/var/local,workdir=/var/local.work
+
+[Install]
+WantedBy=multi-user.target
