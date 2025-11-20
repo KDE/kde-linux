@@ -1,0 +1,30 @@
+#!/bin/sh
+# SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL
+# SPDX-FileCopyrightText: 2025 Thomas Duckworth <tduck@filotimoproject.org>
+
+set -eu
+
+case "${1:-}" in
+    show)
+        /usr/bin/bootctl set-timeout ""
+        ;;
+    hide)
+        OTHER_OS_COUNT="$(bootctl list | grep "^\s*id:" | grep -vE "kde-linux_.*\.efi|auto-efi-shell|auto-reboot-to-firmware-setup" | wc -l)"
+        if [ "$OTHER_OS_COUNT" -gt 0 ]; then
+            echo "Multiple operating systems detected, not hiding bootloader."
+            exit 0
+        fi
+        UPTIME_SECONDS="$(cut -d. -f1 /proc/uptime)"
+        if [ "$UPTIME_SECONDS" -lt 300 ]; then
+            echo "System uptime was less than 5 minutes, not hiding bootloader."
+            exit 0
+        fi
+        if [ "$(systemctl show -p Result --value kde-linux-bless-boot.service 2>/dev/null || echo "failed")" = "success" ]; then
+            /usr/bin/bootctl set-timeout 0
+        fi
+        ;;
+    *)
+        echo "Usage: $0 {show|hide}"
+        exit 1
+        ;;
+esac
