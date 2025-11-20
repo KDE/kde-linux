@@ -10,7 +10,10 @@ if ! flatpak info org.mozilla.firefox >/dev/null 2>&1; then
 fi
 
 # Ensure accent colors are correctly applied to Firefox.
-flatpak override --system org.mozilla.firefox --filesystem=xdg-config/gtk-3.0:ro
+# Also ensure Firefox has access to the speech-dispatcher socket.
+flatpak override --system org.mozilla.firefox \
+  --filesystem=xdg-config/gtk-3.0:ro \
+  --filesystem=xdg-run/speech-dispatcher:ro
 
 # Install codecs-extra at runtime - this gets around distribution restrictions on codec licensing.
 # This is required for Firefox to decode certain video formats.
@@ -32,10 +35,13 @@ fi
 # so this should only be done conditionally.
 if nvidia-smi > /dev/null 2>&1; then
   mkdir -p "/var/lib/flatpak/extension/org.mozilla.firefox.systemconfig/${RUNTIME_ARCH}/stable/defaults/pref/"
-  cp -rf "/usr/share/firefox-config/00-kde-linux-default.js" "/var/lib/flatpak/extension/org.mozilla.firefox.systemconfig/${RUNTIME_ARCH}/stable/defaults/pref/00-kde-linux-default.js"
+  cp -rf "/usr/share/firefox-config/01-kde-linux-nvidia-hw-decode.js" "/var/lib/flatpak/extension/org.mozilla.firefox.systemconfig/${RUNTIME_ARCH}/stable/defaults/pref/01-kde-linux-nvidia-hw-decode.js"
 else
-  rm -rf "/var/lib/flatpak/extension/org.mozilla.firefox.systemconfig/${RUNTIME_ARCH}/stable/defaults/pref/00-kde-linux-default.js"
+  rm -rf "/var/lib/flatpak/extension/org.mozilla.firefox.systemconfig/${RUNTIME_ARCH}/stable/defaults/pref/01-kde-linux-nvidia-hw-decode.js"
 fi
+# This, currently, gets speech-dispatcher to work in Firefox.
+mkdir -p "/var/lib/flatpak/extension/org.mozilla.firefox.systemconfig/${RUNTIME_ARCH}/stable/defaults/pref/"
+cp -rf "/usr/share/firefox-config/00-kde-linux-default.js" "/var/lib/flatpak/extension/org.mozilla.firefox.systemconfig/${RUNTIME_ARCH}/stable/defaults/pref/00-kde-linux-default.js"
 
 # Install the KDE Linux default Firefox policy into the Firefox flatpak system config extension.
 # This installs the Plasma Browser Integration extension.

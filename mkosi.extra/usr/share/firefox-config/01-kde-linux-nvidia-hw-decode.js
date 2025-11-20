@@ -3,6 +3,6 @@
 
 // See https://support.mozilla.org/en-US/kb/customizing-firefox-using-autoconfig
 
-// Get speech-dispatcher to work in Firefox.
-pref("narrate.enabled", true);
-pref("narrate.filter-voices", false);
+// Ensure GPU hardware acceleration works on all hardware, including NVIDIA.
+// See https://wiki.archlinux.org/title/Firefox#Hardware_video_acceleration
+pref("media.hardware-video-decoding.force-enabled", true);
