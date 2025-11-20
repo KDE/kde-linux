@@ -160,6 +160,10 @@ command_not_found_handle () {
 }
 EOF
 
+# Symlink /usr/local out of the image to stay writable
+rm -rf /usr/local
+ln -s /var/local /usr/local
+
 # Clean up final remnants of the build process
 rm -rf \
     /buildroot \
