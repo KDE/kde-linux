@@ -1,0 +1,21 @@
+# SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL
+# SPDX-FileCopyrightText: 2025 Thomas Duckworth <tduck@filotimoproject.org>
+
+[Unit]
+Description=Automatically hide the bootloader if the image is good
+After=local-fs.target
+Before=kde-linux-bless-boot.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+# If the system either is not blessed or is forcibly shut down for some reason,
+# the boot menu timeout is reset to default, and the menu is shown.
+ExecStart=/usr/lib/auto-hide-bootloader show
+# If the boot was blessed, the user shuts the system down normally, and the uptime
+# is greater than 5 minutes, the bootloader is hidden, because the current image should work.
+# This is idempotent if more than one operating system is installed.
+ExecStop=/usr/lib/auto-hide-bootloader hide
+
+[Install]
+WantedBy=kde-linux-bless-boot.service
