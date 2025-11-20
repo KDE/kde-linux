@@ -21,6 +21,14 @@ if [ -f "$SRCDIR/.secure_files/gpg.public.key" ]; then # only useful and availab
     # https://invent.kde.org/kde-linux/kde-linux/-/issues/199
 fi
 
+# Uninstall sane, but keep its udev rules.
+# This ensures that they stay up to date.
+UDEV_BACKUP_DIR=$(mktemp -d)
+pacman -Qlq sane | grep '^/usr/lib/udev/' | xargs -r cp -a --parents -t "$UDEV_BACKUP_DIR"
+pacman -Rns --noconfirm sane
+cp -a "$UDEV_BACKUP_DIR"/* /
+rm -rf "$UDEV_BACKUP_DIR"
+
 # De-initialize pacman
 rm -rf \
     /etc/pacman.d/gnupg \
