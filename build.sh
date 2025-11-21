@@ -66,32 +66,7 @@ Server = https://storage.kde.org/kde-linux-packages/testing/repo/packages/
 SigLevel = Never
 Server = https://storage.kde.org/kde-linux-packages/testing/repo/packages-debug/
 EOF
-# Append official repos FIRST (higher priority)
 cat /etc/pacman.conf.nolinux >> mkosi.sandbox/etc/pacman.conf
-# Append Chaotic AUR LAST (lower priority)
-cat >> mkosi.sandbox/etc/pacman.conf <<'EOF'
-
-# From Garuda Linux - lower priority for CachyOS kernel only
-[chaotic-aur]
-SigLevel = Optional TrustAll
-Server = https://cdn-mirror.chaotic.cx/$repo/$arch
-EOF
-
-# Path to the pacman.conf inside mkosi sandbox
-PACMAN_CONF="mkosi.sandbox/etc/pacman.conf"
-
-# Ensure IgnorePkg is defined inside the [options] section
-if grep -q '^IgnorePkg' "$PACMAN_CONF"; then
-  # Append linux + headers to any existing IgnorePkg line
-  sed -i 's/^IgnorePkg.*/& linux linux-headers/' "$PACMAN_CONF"
-elif grep -q '^\[options\]' "$PACMAN_CONF"; then
-  # Insert right after the [options] header
-  sed -i '/^\[options\]/a IgnorePkg = linux linux-headers' "$PACMAN_CONF"
-else
-  # If somehow [options] is missing, create it at the top
-  sed -i '1i [options]\nIgnorePkg = linux linux-headers\n' "$PACMAN_CONF"
-fi
-
 mkdir --parents mkosi.sandbox/etc/pacman.d
 # Ensure the packages repo and the base image do not go out of sync
 # by using the same snapshot date from build_date.txt for both
@@ -102,33 +77,6 @@ if [ -z "$BUILD_DATE" ]; then
   exit 1
 fi
 echo "Server = https://archive.archlinux.org/repos/${BUILD_DATE}/\$repo/os/\$arch" > mkosi.sandbox/etc/pacman.d/mirrorlist
-
-# Install Chaotic Mirrorlist and Keyring into the mkosi build
-# Install Chaotic AUR packages manually by extracting and copying files
-BUILD_DIR="$PWD"  # Store the current build directory
-mkdir -p /tmp/chaotic-extract
-cd /tmp/chaotic-extract
-
-# Download and extract chaotic-keyring
-wget -q 'https://cdn-mirror.chaotic.cx/chaotic-aur/chaotic-keyring.pkg.tar.zst'
-tar -xf chaotic-keyring.pkg.tar.zst
-
-# Download and extract chaotic-mirrorlist  
-wget -q 'https://cdn-mirror.chaotic.cx/chaotic-aur/chaotic-mirrorlist.pkg.tar.zst'
-tar -xf chaotic-mirrorlist.pkg.tar.zst
-
-# Copy all files to mkosi.sandbox, preserving directory structure
-# Create file list and use tar for reliable copying
-find . -type f \( -path "./etc/*" -o -path "./usr/*" \) > filelist.txt
-if [ -s filelist.txt ]; then
-    tar -cf - -T filelist.txt | tar -xf - -C "$BUILD_DIR/mkosi.sandbox"
-else
-    echo "WARNING: No files found to copy from chaotic packages"
-    exit 1
-fi
-
-cd -
-
 # ... and make sure our cache is up to date. Second --refresh forces a refresh.
 pacman --sync --refresh --refresh --noconfirm
 
