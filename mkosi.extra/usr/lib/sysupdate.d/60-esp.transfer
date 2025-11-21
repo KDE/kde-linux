@@ -22,6 +22,6 @@ MatchPattern=kde-linux_@v+@l-@d.efi \
              kdeos_@v+@l.efi \
              kdeos_@v.efi
 Mode=0644
-TriesLeft=3
+TriesLeft=1
 TriesDone=0
 InstancesMax=4
