@@ -18,3 +18,4 @@ Path=/system
 # https://github.com/systemd/systemd/issues/38605
 MatchPattern=kde-linux_@v.erofs.caibx
 ReadOnly=yes
+InstancesMax=4

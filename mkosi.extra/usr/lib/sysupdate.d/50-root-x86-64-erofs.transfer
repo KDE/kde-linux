@@ -15,3 +15,4 @@ Type=regular-file
 Path=/system
 MatchPattern=kde-linux_@v.erofs
 ReadOnly=yes
+InstancesMax=4
