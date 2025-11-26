@@ -6,7 +6,7 @@ SPDX-FileCopyrightText = "Plymouth Developers"
 SPDX-License-Identifier = "GPL-2.0-or-later"
 
 [[annotations]]
-path = "mkosi.extra/usr/share/factory/etc/xdg/kde-builder.yaml"
+path = "mkosi.extra/etc/xdg/kde-builder.yaml"
 SPDX-FileCopyrightText = "none"
 SPDX-License-Identifier = "CC0-1.0"
 
