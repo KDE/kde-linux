@@ -1,0 +1,12 @@
+[Unit]
+Description=Bind mount /opt/local over /usr/local
+Before=local-fs.target
+
+[Mount]
+What=/opt/local
+Where=/usr/local
+Type=none
+Options=bind
+
+[Install]
+WantedBy=local-fs.target
