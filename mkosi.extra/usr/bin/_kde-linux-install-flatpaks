@@ -1,7 +1,0 @@
-#!/bin/sh
-# SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL
-# SPDX-FileCopyrightText: 2024 Harald Sitter <sitter@kde.org>
-
-set -eux
-
-flatpak install --noninteractive --assumeyes --sideload-repo=/system/@flatpak/.ostree/repo org.kde.dolphin org.kde.gwenview org.kde.okular org.kde.konsole org.kde.kate org.kde.kwrite org.kde.kwalletmanager5 org.kde.ark org.mozilla.firefox org.videolan.VLC

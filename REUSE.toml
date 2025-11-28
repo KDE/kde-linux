@@ -1,6 +1,0 @@
-version = 1
-
-[[annotations]]
-path = "mkosi.extra/etc/issue"
-SPDX-FileCopyrightText = "none"
-SPDX-License-Identifier = "CC0-1.0"
