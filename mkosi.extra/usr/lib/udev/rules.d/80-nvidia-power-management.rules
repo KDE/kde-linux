@@ -1,0 +1,21 @@
+# SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL
+# SPDX-FileCopyrightText: none
+
+# Enable runtime power management for NVIDIA VGA/3D controller devices on driver bind.
+ACTION=="add|bind", SUBSYSTEM=="pci", DRIVERS=="nvidia", \
+    ATTR{vendor}=="0x10de", ATTR{class}=="0x03[0-9]*", \
+    TEST=="power/control", ATTR{power/control}="auto"
+
+# Disable runtime power management for NVIDIA VGA/3D controller devices on driver unbind.
+ACTION=="remove|unbind", SUBSYSTEM=="pci", DRIVERS=="nvidia", \
+    ATTR{vendor}=="0x10de", ATTR{class}=="0x03[0-9]*", \
+    TEST=="power/control", ATTR{power/control}="on"
+
+# Enable runtime power management for NVIDIA VGA/3D controller devices on adding device.
+ACTION=="add", SUBSYSTEM=="pci", \
+    ATTR{vendor}=="0x10de", ATTR{class}=="0x030000", \
+    TEST=="power/control", ATTR{power/control}="auto"
+
+ACTION=="add", SUBSYSTEM=="pci", \
+    ATTR{vendor}=="0x10de", ATTR{class}=="0x030200", \
+    TEST=="power/control", ATTR{power/control}="auto"
