@@ -7,6 +7,7 @@ SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted
   <id>org.kde.linux</id>
   <name>KDE Linux</name>
   <name xml:lang="ar">لينكس كيدي</name>
+  <name xml:lang="bg">KDE Linux</name>
   <name xml:lang="ca">KDE Linux</name>
   <name xml:lang="ca-valencia">KDE Linux</name>
   <name xml:lang="de">KDE Linux</name>
