@@ -16,6 +16,13 @@ bootctl install
 echo 'timeout 5' >> "$SYSTEMD_ESP_PATH/loader/loader.conf"
 cp /usr/share/edk2-shell/x64/Shell.efi "$SYSTEMD_ESP_PATH/shellx64.efi"
 
+# dynamic-hibernate
+cd /tmp
+git clone --depth 1 https://invent.kde.org/tduck/dynamic-hibernate # TODO: move to kde-linux org and integrate into i18n infra
+cmake -S dynamic-hibernate -B dynamic-hibernate/build -DCMAKE_INSTALL_PREFIX=/usr
+cmake --build dynamic-hibernate/build -v
+cmake --install dynamic-hibernate/build
+
 # Meanwhile cleanup a bit
 ## Unnecessary for us
 pacman --remove --noconfirm qt6-doc qt6-examples || true

@@ -33,8 +33,10 @@ enable kde-linux-live-setup.service
 enable kde-linux-volatile-var-lib-flatpak.service
 enable plasma-setup-live-system.service
 enable var-lib-snapd-snap.mount
-# also one of ours but not prefixed with kde-linux- so others can use it too
+# also ours but not prefixed with kde-linux- so others can use it too
 enable etc-factory.service
+enable dynamic-hibernate-prepare.service
+enable dynamic-hibernate-cleanup.service
 
 # networkd - we use networkmanager
 disable systemd-networkd-wait-online.service
