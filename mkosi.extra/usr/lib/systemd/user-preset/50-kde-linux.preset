@@ -3,3 +3,7 @@
 
 # Screen reading is opt-in
 disable orca.service
+
+# Sends an error notification if dynamic hibernation fails
+# also ours but not prefixed with kde-linux- so others can use it too
+enable dynamic-hibernate-notifier.service

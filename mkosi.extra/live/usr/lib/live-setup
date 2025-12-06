@@ -74,3 +74,6 @@ chown -R live:live /home/live/
 # Start the basic-test (if it wants to be started)
 systemctl daemon-reload
 systemctl start --no-block kde-linux-basic-test.service
+
+# Disable hibernation since dynamic-hibernate won't work in a live environment
+systemctl mask hibernate.target
