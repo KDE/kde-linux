@@ -34,6 +34,11 @@ imaging:
   after_script:
     # Upload all images to Harald. You can grab them at http://images.kde-linux.haraldsitter.eu/
     - ./upload-to-harald.sh || true
+  artifacts: &artifacts
+    expire_in: 4 weeks
+    when: always
+    paths:
+      - "**/erofs.log"
 
 imaging+publish:
   stage: start
@@ -55,3 +60,4 @@ imaging+publish:
   after_script:
     # Upload broken images to Harald for inspection
     - "[ $CI_JOB_STATUS == 'success' ] || ./upload-to-harald.sh || true"
+  artifacts: *artifacts

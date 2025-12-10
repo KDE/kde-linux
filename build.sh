@@ -163,7 +163,7 @@ cd .. # and back to root
 # Drop flatpak data from erofs. They are in the usr/share/factory and deployed from there.
 rm -rf "$OUTPUT/var/lib/flatpak"
 mkdir "$OUTPUT/var/lib/flatpak" # but keep a mountpoint around for the live session
-time mkfs.erofs -d0 -zzstd -C 65536 --chunksize 65536 -Efragments,ztailpacking "$ROOTFS_EROFS" "$OUTPUT" > /dev/null 2>&1
+time mkfs.erofs -d0 -zzstd -C 65536 --chunksize 65536 -Efragments,ztailpacking "$ROOTFS_EROFS" "$OUTPUT" > erofs.log 2>&1
 cp --reflink=auto "$ROOTFS_EROFS" kde-linux.cache/root.raw
 
 # Now assemble the two generated images using systemd-repart and the definitions in mkosi.repart into $IMG.
