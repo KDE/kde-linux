@@ -27,6 +27,9 @@ enable nvidia-suspend.service
 enable nvidia-hibernate.service
 enable nvidia-resume.service
 
+# multi-gpu support (doesn't affect single-GPU use cases)
+enable switcheroo-control.service
+
 enable kde-linux-bootloader-visibility.service
 enable kde-linux-btrfs.service
 enable kde-linux-live-setup.service
