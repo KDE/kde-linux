@@ -47,13 +47,6 @@ rm -rf \
     /etc/locale.gen \
     /usr/bin/locale-gen
 
-## Multimedia players we only want for their libraries
-rm -rf \
-    /usr/share/applications/vlc.desktop \
-    /usr/bin/vlc \
-    /usr/share/applications/mpv.desktop \
-    /usr/bin/mpv
-
 ## Development tools that aren't useful even for the development edition
 rm -rf \
     /usr/bin/assistant \
