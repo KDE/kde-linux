@@ -7,8 +7,6 @@ set -ex
 env
 
 mkdir --mode 0700 /system # for the kde-linux-overlay.service
-mkdir /snap               # for snapd (will get a subvolume mounted into that snapd then mounts the snaps into)
-mkdir /media # for snap, wants this to exist or fails when trying to create it
 
 export SYSTEMD_ESP_PATH="$BOOT_MNT"
 mkdir --mode 0700 "$SYSTEMD_ESP_PATH"

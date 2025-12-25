@@ -198,7 +198,6 @@ fn run(root: &Path) -> Result<(), Box<dyn Error>> {
     let subvol_targets = [
         ("@home", "home"),
         ("@root", "root"),
-        ("@snap", "snap"),
         ("@containers", "var/lib/containers"),
         ("@docker", "var/lib/docker"),
     ];

@@ -16,8 +16,6 @@ enable cups.service
 enable NetworkManager.service
 enable pcscd.socket
 enable plasmalogin.service
-enable snapd.apparmor.service
-enable snapd.socket
 enable systemd-oomd.service
 enable systemd-zram-setup@zram0.service
 enable thermald.service
@@ -42,7 +40,6 @@ enable kde-linux-live-setup.service
 enable kde-linux-powertop.service
 enable kde-linux-volatile-var-lib-flatpak.service
 enable plasma-setup-live-system.service
-enable var-lib-snapd-snap.mount
 
 
 # Disable stuff we don't want
