@@ -5,7 +5,6 @@
 # ====================
 # General things
 enable accounts-daemon.service
-enable apparmor.service
 
 # Note that both avahi socket and service are needed. Client software on the system may only talk to the daemon but
 # fail to do so if the daemon is not up (avahi-browse for example just errors out instead of dbus-activating)
@@ -17,8 +16,6 @@ enable NetworkManager.service
 enable pcscd.socket
 enable plasmalogin.service
 enable ratbagd.service
-enable snapd.apparmor.service
-enable snapd.socket
 enable systemd-oomd.service
 enable systemd-zram-setup@zram0.service
 enable thermald.service
@@ -48,7 +45,6 @@ enable kde-linux-live-setup.service
 enable kde-linux-powertop.service
 enable kde-linux-volatile-var-lib-flatpak.service
 enable plasma-setup-live-system.service
-enable var-lib-snapd-snap.mount
 
 
 # Disable stuff we don't want
