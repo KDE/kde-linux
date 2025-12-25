@@ -96,6 +96,10 @@ rm -rf \
     /usr/share/lshw/artwork \
     /usr/share/lshw/ui
 
+# Make nvidia-settings a CLI-only tool for us, since it's only useful for a
+# small subset of NVIDIA gpu users
+rm -rf usr/share/applications/nvidia-settings.desktop
+
 ## Miscellaneous application entries that have zero value because we either have better stuff or they're for terminal applications
 rm -rf \
     /usr/share/applications/avahi-discover.desktop \
