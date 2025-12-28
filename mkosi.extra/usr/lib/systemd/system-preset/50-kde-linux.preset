@@ -1,50 +1,61 @@
 # SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL
 # SPDX-FileCopyrightText: 2023 Harald Sitter <sitter@kde.org>
 
-enable sddm.service
-enable avahi-daemon.socket
+
+# Enable stuff we want
+# ====================
+# General things
+enable accounts-daemon.service
+enable apparmor.service
 # Note that both avahi socket and service are needed. Client software on the system may only talk to the daemon but
 # fail to do so if the daemon is not up (avahi-browse for example just errors out instead of dbus-activating)
 enable avahi-daemon.service
-enable accounts-daemon.service
-enable NetworkManager.service
-enable snapd.socket
-enable snapd.apparmor.service
-enable apparmor.service
-enable systemd-zram-setup@zram0.service
-enable systemd-oomd.service
+enable avahi-daemon.socket
 enable bluetooth.service
 enable cups.service
-enable kde-linux-powertop.service
-enable tuned.service
-enable tuned-ppd.service
-enable thermald.service
+enable NetworkManager.service
 enable pcscd.socket
-enable kde-linux-configure-firefox.path
+enable sddm.service
+enable snapd.apparmor.service
+enable snapd.socket
+enable systemd-oomd.service
+enable systemd-zram-setup@zram0.service
+enable thermald.service
+enable tuned-ppd.service
+enable tuned.service
 
-# nvidia specific services (shouldn't affect non-nvidia hardware)
-enable nvidia-suspend.service
+# NVIDIA-specific services (shouldn't affect non-NVIDIA hardware)
 enable nvidia-hibernate.service
 enable nvidia-resume.service
+enable nvidia-suspend.service
 
+# Multi-gpu support (doesn't affect single-GPU use cases)
+enable switcheroo-control.service
+
+# KDE-Linux-specific stuff
+# also one of ours but not prefixed with kde-linux- so others can use it too
+enable etc-factory.service
 enable kde-linux-bootloader-visibility.service
 enable kde-linux-btrfs.service
+enable kde-linux-configure-firefox.path
 enable kde-linux-live-setup.service
+enable kde-linux-powertop.service
 enable kde-linux-volatile-var-lib-flatpak.service
 enable plasma-setup-live-system.service
 enable var-lib-snapd-snap.mount
-# also one of ours but not prefixed with kde-linux- so others can use it too
-enable etc-factory.service
 
+
+# Disable stuff we don't want
+# ===========================
 # networkd - we use networkmanager
-disable systemd-networkd-wait-online.service
 disable systemd-networkd.service
+disable systemd-networkd-wait-online.service
 
 # Pacman - we don't do packages
+disable archlinux-keyring-wkd-sync.timer
 disable dirmngr@etc-pacman.d-gnupg.socket
 disable gpg-agent-browser@etc-pacman.d-gnupg.socket
+disable gpg-agent@etc-pacman.d-gnupg.socket
 disable gpg-agent-extra@etc-pacman.d-gnupg.socket
 disable gpg-agent-ssh@etc-pacman.d-gnupg.socket
-disable gpg-agent@etc-pacman.d-gnupg.socket
 disable keyboxd@etc-pacman.d-gnupg.socket
-disable archlinux-keyring-wkd-sync.timer

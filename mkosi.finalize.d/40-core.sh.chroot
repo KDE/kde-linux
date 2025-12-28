@@ -47,13 +47,6 @@ rm -rf \
     /etc/locale.gen \
     /usr/bin/locale-gen
 
-## Multimedia players we only want for their libraries
-rm -rf \
-    /usr/share/applications/vlc.desktop \
-    /usr/bin/vlc \
-    /usr/share/applications/mpv.desktop \
-    /usr/bin/mpv
-
 ## Development tools that aren't useful even for the development edition
 rm -rf \
     /usr/bin/assistant \
@@ -159,6 +152,12 @@ command_not_found_handle () {
     python3 /usr/lib/command-not-found-handler.py "\$1"
 }
 EOF
+
+# Configure plocate to index bind mounts (needed on BTRFS)
+# See: https://wiki.archlinux.org/title/Locate#Btrfs
+if [ -f /etc/updatedb.conf ]; then
+    sed -i 's/^PRUNE_BIND_MOUNTS = "yes"/PRUNE_BIND_MOUNTS = "no"/' /etc/updatedb.conf
+fi
 
 # Symlink /usr/local out of the image to stay writable
 rm -rf /usr/local
