@@ -28,8 +28,8 @@ fi
 # NOTE: plymouth MUST be after systemd as per the wiki!
 cat <<- EOF > mkinitcpio.conf
 MODULES=(overlay)
-BINARIES=()
-FILES=()
+BINARIES=(nvidia nouveau) # Ensure both drivers are pulled into the initrd (see mkosi.finalize.d/20-nvidia-udev-generator.sh.chroot)
+FILES=(/usr/lib/udev/rules.d/99-nvidia-module-selection.rules) # Determine which driver is used at boot with udev
 HOOKS=(base systemd modconf kms keyboard block sd-encrypt filesystems fsck systemd-extension plymouth microcode)
 EOF
 
