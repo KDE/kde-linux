@@ -30,7 +30,7 @@ cat <<- EOF > mkinitcpio.conf
 MODULES=(overlay)
 BINARIES=()
 FILES=()
-HOOKS=(base systemd modconf kms keyboard block sd-encrypt filesystems fsck systemd-extension plymouth microcode)
+HOOKS=(base systemd modconf kms keyboard block sd-encrypt filesystems fsck systemd-extension plymouth microcode sd-shutdown)
 EOF
 
 echo "rw \
