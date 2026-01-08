@@ -24,6 +24,7 @@ pacman --remove --noconfirm corrosion rust || true
 
 # No packagekit support or AppStream metadata in discover please! We don't want discover talking about pacman things.
 pacman --remove --noconfirm packagekit libpackagekit-glib archlinux-appstream-data || true
+rm -rf /usr/share/swcatalog
 
 # Calamares
 cd /tmp
