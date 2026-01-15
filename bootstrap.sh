@@ -27,7 +27,7 @@ pacman-key --populate
 #  --refresh twice to force a refresh
 mkdir /tmp/pacman
 pacman --sync --refresh --refresh --downloadonly --noconfirm pacman
-tar --extract --file "$(find /var/cache/pacman/pkg -name 'pacman-*.pkg.tar.zst')" --directory /tmp/pacman
+tar --extract --file "$(ls -v /var/cache/pacman/pkg/pacman-[0-9]*.pkg.tar.zst | tail -n 1)" --directory /tmp/pacman
 cp /tmp/pacman/etc/pacman.conf /etc/pacman.conf
 
 cp /etc/pacman.conf /etc/pacman.conf.nolinux # store a backup for use in the packages pipeline
