@@ -30,11 +30,13 @@ ln -s ../usr/share/zoneinfo/UTC /etc/localtime
 timedatectl set-timezone UTC
 localectl set-locale C.UTF-8
 
-cat << EOF >> /etc/plasmalogin.conf
+mkdir --parents /etc/sddm.conf.d/
+cat << EOF > /etc/sddm.conf.d/live.conf
 [Autologin]
 User=live
 Session=plasma.desktop
-Relogin=true
+# Do not relogin for now it may cause login loops of death
+# Relogin=true
 EOF
 
 mkdir /home/live/.config/
