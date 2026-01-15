@@ -34,6 +34,7 @@ cat << EOF >> /etc/plasmalogin.conf
 [Autologin]
 User=live
 Session=plasma.desktop
+Relogin=true
 
 EOF
 
