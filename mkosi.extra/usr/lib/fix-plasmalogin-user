@@ -1,0 +1,30 @@
+#!/usr/bin/env python3
+# SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL
+# SPDX-FileCopyrightText: 2026 Harald Sitter <sitter@kde.org>
+
+# Fixes broken user created some time in the past that used /usr/var/lib/plasmalogin as home.
+# With /usr being readonly that makes no sense.
+
+import sys
+import subprocess
+
+def create_marker():
+    with open('/var/lib/kde-linux/fixed-plasmalogin-user', 'w'):
+        pass
+
+broken = False
+with open('/etc/passwd', 'r') as f:
+    for line in f.read().splitlines():
+        if line.startswith('plasmalogin:'):
+            if ':/usr/var/lib/plasmalogin:' in line:
+                broken = True
+                break
+            break
+
+if not broken:
+    create_marker()
+    sys.exit(0)
+
+# Broken: fix it by deleting that user. It will be recreated by systemd-sysusers. sysusers runs AFTER this unit.
+subprocess.check_call(['userdel', 'plasmalogin'])
+create_marker()

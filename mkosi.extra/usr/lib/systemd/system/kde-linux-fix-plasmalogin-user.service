@@ -1,0 +1,22 @@
+# SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL
+# SPDX-FileCopyrightText: 2026 Harald Sitter <sitter@kde.org>
+
+[Unit]
+Description=KDE Linux Plasma Login User Fix
+Documentation=https://invent.kde.org/kde-linux/kde-linux/-/issues/476
+ConditionPathIsReadWrite=/etc
+ConditionNeedsUpdate=|/etc
+ConditionPathExists=!/var/lib/kde-linux/fixed-plasmalogin-user
+DefaultDependencies=no
+After=-.mount etc.mount var.mount
+Before=systemd-sysusers.service
+# Make sure it gets pulled in as well so that the user actually gets recreated. Nothing worse than throwing away the user
+# and then not recreating it :D
+Wants=systemd-sysusers.service
+Conflicts=shutdown.target
+Before=shutdown.target
+
+[Service]
+Type=oneshot
+ExecStartPre=mkdir -p /var/lib/kde-linux
+ExecStart=/usr/lib/fix-plasmalogin-user
