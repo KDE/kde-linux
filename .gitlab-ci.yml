@@ -35,10 +35,13 @@ imaging:
     # Upload all images to Harald. You can grab them at http://images.kde-linux.haraldsitter.eu/
     - ./upload-to-harald.sh || true
   artifacts: &artifacts
+    name: "kde-linux-${CI_COMMIT_REF_SLUG}-${CI_COMMIT_SHORT_SHA}"
     expire_in: 4 weeks
     when: always
     paths:
-      - "**/erofs.log"
+      - "erofs.log"
+      - "kde-linux_*.raw"
+      - "kde-linux_*.efi"
 
 imaging+publish:
   stage: start
