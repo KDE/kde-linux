@@ -3,8 +3,6 @@
 
 [Unit]
 Description=Configure the Firefox flatpak
-Wants=network-online.target
-After=network-online.target
 # Ensures that if the path no longer exists, the service will be deactivated and then reactivated on reinstall.
 PartOf=kde-linux-configure-firefox.path
 
