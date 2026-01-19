@@ -41,7 +41,6 @@ unsupported_package_managers = [
 ]
 
 available_package_managers = {
-    "brew" : "https://community.kde.org/KDE_Linux/Install_software_not_available_in_Discover#Homebrew",
     "nix" : "https://community.kde.org/KDE_Linux/Install_software_not_available_in_Discover#Nix"
 }
 
