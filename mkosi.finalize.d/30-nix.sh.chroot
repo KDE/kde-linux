@@ -1,0 +1,35 @@
+#!/bin/sh
+# SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL
+# SPDX-FileCopyrightText: 2026 Thomas Duckworth <tduck@filotimoproject.org>
+
+# Set some options for using Nix here.
+export NIXPKGS_ALLOW_UNFREE=1
+# We don't have the daemon in CI, so do it locally.
+export NIX_REMOTE=local
+
+# Download some info about every Nix package so we can have this locally for the command not
+# found handler. The NixOS Search API needs authentication, the Nixhub.io API just doesn't seem to
+# exist anymore, and doing it through `nix search` needs to download quite a lot of stuff and is slow.
+# This has the benefit of working offline, and is about ~2MiB.
+
+# Create a temporary space for Nix.
+export NIX_STORE_DIR="$(mktemp -d)"
+export NIX_STATE_DIR="$(mktemp -d)"
+
+# Then, generate the db.
+# Make this silent so we don't have a humongous log file with every package name there is.
+nix --extra-experimental-features "nix-command flakes" \
+    search nixpkgs --json . 2>/dev/null | \
+    jq '[.[] | .pname] | unique' > /usr/share/nix/nixpkgs-db.json
+chmod 644 /usr/share/nix/nixpkgs-db.json
+
+# Now, clean up.
+rm -rf "$NIX_STORE_DIR" "$NIX_STATE_DIR"
+
+# Set up our own vendor-specific configuration for Nix.
+# pacman installs a default /etc/nix/nix.conf, so we should append it here.
+echo "include /usr/share/nix/kde-linux-default-nix.conf" >> /etc/nix/nix.conf
+
+# Get rid of all the nixbld users, they might still be on the system despite being unnecessary.
+for u in $(getent passwd | cut -d: -f1 | grep '^nixbld');
+do userdel "$u"; done

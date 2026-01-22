@@ -69,6 +69,9 @@ chmod +x /home/live/Desktop/calamares.desktop # without this there'd be a dialog
 
 chown -R live:live /home/live/
 
+# This will not work, as we'll run out of space. It's also pointless on a live image.
+systemctl disable kde-linux-nix-build-gl.path
+
 # Start the basic-test (if it wants to be started)
 systemctl daemon-reload
 systemctl start --no-block kde-linux-basic-test.service

@@ -1,0 +1,84 @@
+#!/usr/bin/env bash
+# SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL
+# SPDX-FileCopyrightText: 2026 Thomas Duckworth <tduck@filotimoproject.org>
+
+set -euo pipefail
+
+MODE=""
+
+usage() {
+    echo "Usage: $0 [--system|--user]" >&2
+    exit 2
+}
+
+while [ "$#" -gt 0 ]; do
+    case "$1" in
+        --system)
+            [ -n "$MODE" ] && usage
+            MODE="system"
+            ;;
+        --user)
+            [ -n "$MODE" ] && usage
+            MODE="user"
+            ;;
+        *)
+            usage
+            ;;
+    esac
+    shift
+done
+
+sync_nix_units() {
+    local src="$1"
+    local target="$2"
+
+    [ -d "$src" ] || return 0
+    mkdir -p "$target"
+
+    # Remove Nix-related symlinks that are broken or stale.
+    find "$target" -maxdepth 1 -type l \
+        \( -xtype l -o -lname '/nix/store/*' \) \
+        -delete
+
+    # Create or update symlinks.
+    for file in "$src"/*; do
+        [ -e "$file" ] || continue
+
+        local dest="$target/$(basename "$file")"
+
+        # Never overwrite real files or directories.
+        if [ -e "$dest" ] && [ ! -L "$dest" ]; then
+            echo "Skipping non-symlink unit: $dest" >&2
+            continue
+        fi
+
+        ln -sfn "$file" "$dest"
+    done
+}
+
+if [ "$MODE" = "system" ]; then
+    SYSTEM_UNITS="/nix/var/nix/profiles/default/lib/systemd/system"
+    USER_UNITS="/nix/var/nix/profiles/default/lib/systemd/user"
+
+    # Integrate system units.
+    sync_nix_units "$SYSTEM_UNITS" "/etc/systemd/system"
+    systemctl daemon-reload
+
+    # Integrate system-wide user units.
+    sync_nix_units "$USER_UNITS" "/etc/systemd/user"
+    # Reload all active user managers.
+    loginctl list-users --no-legend | awk '{print $1}' | while read -r uid; do
+        XDG_RUNTIME_DIR="/run/user/$uid" \
+        systemctl --user daemon-reload 2>/dev/null || true
+    done
+elif [ "$MODE" = "user" ]; then
+    USER_UNITS="$HOME/.nix-profile/lib/systemd/user"
+    TARGET="$HOME/.config/systemd/user"
+
+    # Integrate user units.
+    sync_nix_units "$USER_UNITS" "$TARGET"
+
+    systemctl --user daemon-reload
+else
+    usage
+fi

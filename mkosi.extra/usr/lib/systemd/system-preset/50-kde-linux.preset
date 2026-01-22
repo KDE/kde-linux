@@ -14,6 +14,7 @@ enable avahi-daemon.socket
 enable bluetooth.service
 enable cups.service
 enable NetworkManager.service
+enable nix-daemon.service
 enable pcscd.socket
 enable plasmalogin.service
 enable snapd.apparmor.service
@@ -39,6 +40,8 @@ enable kde-linux-bootloader-visibility.service
 enable kde-linux-btrfs.service
 enable kde-linux-configure-firefox.path
 enable kde-linux-live-setup.service
+enable kde-linux-nix-build-gl.path
+enable kde-linux-nix-integrate-services.path
 enable kde-linux-powertop.service
 enable kde-linux-volatile-var-lib-flatpak.service
 enable plasma-setup-live-system.service

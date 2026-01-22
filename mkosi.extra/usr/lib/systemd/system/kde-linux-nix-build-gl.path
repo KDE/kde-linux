@@ -1,0 +1,17 @@
+# SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL
+# SPDX-FileCopyrightText: 2026 Thomas Duckworth <tduck@filotimoproject.org>
+
+[Unit]
+Description=Rebuild Nix OpenGL Runtime Stack On Profile Existence Change
+
+[Path]
+# This should be good enough to capture any path where there is a profile.
+# Custom profile setups in non-standard places aren't supported by this, but that should be fine.
+# We're only doing this so people can install GL apps onto their system as if they were using a package manager.
+PathExists=/nix/var/nix/profiles/
+PathExists=/root/.nix-profile
+PathExistsGlob=/home/*/.nix-profile
+Unit=kde-linux-nix-build-gl.service
+
+[Install]
+WantedBy=multi-user.target

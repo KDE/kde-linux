@@ -1,0 +1,10 @@
+# SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL
+# SPDX-FileCopyrightText: 2026 Thomas Duckworth <tduck@filotimoproject.org>
+
+[Unit]
+Description=Integrate Nix Systemd Units From Nix Profiles
+Documentation=man:systemd.service(5)
+
+[Service]
+Type=oneshot
+ExecStart=/usr/lib/nix-integrate-services --user

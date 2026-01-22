@@ -1,0 +1,293 @@
+#!/usr/bin/env python3
+# SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL
+# SPDX-FileCopyrightText: 2026 Thomas Duckworth <tduck@filotimoproject.org>
+
+# Builds a userspace graphics driver stack for Nix applications, ensures it's up to date,
+# and then symlinks it into /run/opengl-driver, where Nix-built applications expect it.
+
+import json
+import os
+import re
+import subprocess
+import sys
+import tempfile
+from pathlib import Path
+
+NIX_BIN = Path("/usr/bin/nix")
+NIX_CHANNEL = Path("/usr/bin/nix-channel")
+
+# This path is where Nix-built binaries expect these drivers. Don't ask me why.
+RUN_SYMLINK = Path("/run/opengl-driver")
+# This GC root prevents the garbage collector from cleaning our drivers up automatically.
+GCROOT = Path("/nix/var/nix/gcroots/kde-linux-nix-opengl-driver/current")
+
+HASH_STORE = Path("/var/lib/kde-linux-nix-opengl-driver/hashmap.json")
+STATE_FILE = Path("/var/lib/kde-linux-nix-opengl-driver/state.json")
+
+def log(msg):
+    print(f"nix-build-gl: {msg}", file=sys.stderr)
+
+def ensure_nixpkgs_channel():
+    # Ensure <nixpkgs> is available in the Nix search path.
+    try:
+        cmd = [str(NIX_BIN), "eval", "--raw", "--impure", "--expr", "builtins.toString (import <nixpkgs> {}).path"]
+        subprocess.check_output(cmd, stderr=subprocess.DEVNULL, text=True).strip()
+        return True
+    except Exception:
+        pass
+
+    if not NIX_CHANNEL.exists():
+        log("nix-channel not found; cannot add nixpkgs channel.")
+        return False
+
+    log("nixpkgs not found in Nix search path; adding channel...")
+    try:
+        subprocess.check_call([str(NIX_CHANNEL), "--add", "https://nixos.org/channels/nixpkgs-unstable", "nixpkgs"])
+        subprocess.check_call([str(NIX_CHANNEL), "--update"])
+        return True
+    except Exception as e:
+        log(f"Failed to add nixpkgs channel: {e}")
+        return False
+
+def get_nvidia_version():
+    # Get the NVIDIA driver version from the kernel module, which only works
+    # if it's loaded and active. Otherwise return None. This is fine, as the
+    # NVIDIA driver just won't be built, saving some space.
+    path = Path("/proc/driver/nvidia/version")
+    if not path.exists():
+        return None
+    try:
+        content = path.read_text()
+        # Look for the version number (e.g., 535.113.01)
+        match = re.search(r'[0-9]+(\.[0-9]+)+', content)
+        return match.group(0) if match else None
+    except Exception:
+        return None
+
+def get_nixpkgs_rev():
+    # Get the nixpkgs revision. When this changes, rebuild, as we may have some new libs.
+    try:
+        cmd = [str(NIX_BIN), "eval", "--raw", "--impure", "--expr", "builtins.toString (import <nixpkgs> {}).path"]
+        return subprocess.check_output(cmd, stderr=subprocess.DEVNULL, text=True).strip()
+    except Exception:
+        return "unknown"
+
+def get_current_state():
+    # Get the current state of the *system*, not the current state of the
+    # Nix store with our userspace drivers.
+    # This tells us what the store should have, rather than what it does have.
+    # If both are the same, then nothing needs to be built.
+    nv_ver = get_nvidia_version()
+    return {
+        "nvidia_version": nv_ver,
+        "has_nvidia": nv_ver is not None,
+        "nixpkgs_rev": get_nixpkgs_rev()
+    }
+
+# Nix expression for the userspace drivers on non-NVIDIA systems.
+# NB: this one isn't formatted, so it only uses single braces.
+MESA_EXPR = """
+let pkgs = import <nixpkgs> { config.allowUnfree = true; };
+in pkgs.buildEnv {
+  name = "nix-opengl-driver";
+  paths = with pkgs; [
+    libglvnd libva libvdpau libvdpau-va-gl vulkan-loader
+    intel-media-driver intel-vaapi-driver intel-ocl rocmPackages.clr.icd
+    mesa mesa.opencl
+  ];
+}
+"""
+
+# Nix expression for the userspace drivers on NVIDIA systems.
+NVIDIA_EXPR = """
+let
+  pkgs = import <nixpkgs> {{
+    config.allowUnfree = true;
+    config.nvidia.acceptLicense = true;
+  }};
+in pkgs.buildEnv {{
+  name = "nix-opengl-driver";
+  paths = with pkgs; [
+    libglvnd libva libvdpau libvdpau-va-gl vulkan-loader
+    intel-media-driver intel-vaapi-driver intel-ocl rocmPackages.clr.icd
+    mesa mesa.opencl
+    ((pkgs.linuxPackages.nvidiaPackages.mkDriver {{
+        version = "{version}";
+        sha256_64bit = "{sha256}";
+        sha256_aarch64 = "";
+        settingsSha256 = "";
+        persistencedSha256 = "";
+    }}).override {{ libsOnly = true; kernel = null; }})
+    nvidia-vaapi-driver
+  ];
+}}
+"""
+
+def get_nix_tool(name):
+    # Look for tools in the same directory as the main Nix binary.
+    candidate = NIX_BIN.parent / name
+    if candidate.exists():
+        return candidate
+    # If it can't find them, fall back to path.
+    import shutil
+    path = shutil.which(name)
+    return Path(path) if path else None
+
+def resolve_hash(version):
+    # Construct the official NVIDIA download URL for the driver.
+    # The format is: https://download.nvidia.com/XFree86/Linux-x86_64/{version}/NVIDIA-Linux-x86_64-{version}.run
+    base_url = "https://download.nvidia.com/XFree86/Linux-x86_64"
+    filename = f"NVIDIA-Linux-x86_64-{version}.run"
+    url = f"{base_url}/{version}/{filename}"
+
+    log(f"Resolving hash for {version} via prefetch...")
+
+    # Determine the path for the prefetching tool.
+    prefetch_bin = get_nix_tool("nix-prefetch-url")
+
+    cmd = []
+    use_json = False
+    cmd = [str(prefetch_bin), url, "--type", "sha256"]
+
+    try:
+        # Now, run the prefetch
+        # This downloads the file to the Nix store immediately.
+        # The next 'nix build' will effectively be a cache hit, as the driver is already here.
+        proc = subprocess.run(cmd, capture_output=True, text=True)
+
+        if proc.returncode != 0:
+            # If there's a 404 or other network error, log it clearly.
+            log(f"Prefetch failed for {url}")
+            if proc.stderr:
+                log(f"Error: {proc.stderr.strip()}")
+            return None
+
+        # Extract the hash from the downloaded file.
+        if use_json:
+            data = json.loads(proc.stdout)
+            return data.get("hash")
+        else:
+            # nix-prefetch-url outputs the raw hash (base32) to stdout, and
+            # Nix mkDriver accepts base32 perfectly fine.
+            return proc.stdout.strip()
+
+    except Exception as e:
+        log(f"Exception during hash resolution: {e}")
+        return None
+
+def build_farm(state):
+    with tempfile.TemporaryDirectory() as tmpdir:
+        # Set up a temporary directory to put the desired Nix expression in.
+        expr_path = Path(tmpdir) / "default.nix"
+
+        # If we don't have NVIDIA, we can just choose the Mesa-only expression and
+        # we don't have to compute the hash of the NVIDIA driver's .run file.
+        if not state["has_nvidia"]:
+            expr_path.write_text(MESA_EXPR)
+        else:
+            version = state["nvidia_version"]
+            # Load the hash from the store, if one was saved previously.
+            # This store is if there's a nixpkgs update, but not a NVIDIA driver one
+            # so we aren't fetching the driver again just for its hash.
+            hashes = {}
+            if HASH_STORE.exists():
+                try:
+                    hashes = json.loads(HASH_STORE.read_text()).get("map", {})
+                except Exception:
+                    hashes = {}
+
+            # If we don't have a hash saved, we haven't downloaded the driver before.
+            # In this case, prefetch it for the build and resolve the hash.
+            sha256 = hashes.get(version) or resolve_hash(version)
+
+            if not sha256:
+                log(f"Could not resolve NVIDIA hash for {version}")
+                sys.exit(1)
+
+            # Save the new hash if found.
+            hashes[version] = sha256
+            HASH_STORE.parent.mkdir(parents=True, exist_ok=True)
+            HASH_STORE.write_text(json.dumps({"map": hashes}))
+
+            expr_path.write_text(NVIDIA_EXPR.format(version=version, sha256=sha256))
+
+        log("Running nix build...")
+        result_link = Path(tmpdir) / "result"
+        # Now we can build our Nix expression for our drivers, and then output the result.
+        subprocess.check_call([str(NIX_BIN), "build", "--impure", "-f", tmpdir, "-o", str(result_link)],
+                             stdout=subprocess.DEVNULL)
+        return str(result_link.resolve())
+
+def update_links(new_store_path=None):
+    # Updates the GC root if a new build occurred, then ensures the /run link is active.
+    # If we have a new build, update the persistent GC root first.
+    if new_store_path:
+        GCROOT.parent.mkdir(parents=True, exist_ok=True)
+        if GCROOT.exists() or GCROOT.is_symlink():
+            GCROOT.unlink()
+        os.symlink(new_store_path, GCROOT)
+
+    # Check if the GC root exists (either just created or already there).
+    if not (GCROOT.exists() or GCROOT.is_symlink()):
+        return False
+
+    # Then, ensure /run/opengl-driver points to the GC root.
+    if RUN_SYMLINK.exists() or RUN_SYMLINK.is_symlink():
+        if RUN_SYMLINK.is_dir() and not RUN_SYMLINK.is_symlink():
+            import shutil
+            shutil.rmtree(RUN_SYMLINK)
+        else:
+            RUN_SYMLINK.unlink()
+
+    os.symlink(GCROOT, RUN_SYMLINK)
+    return True
+
+def main():
+    if not NIX_BIN.exists():
+        log("Nix binary not found.")
+        sys.exit(1)
+
+    if not ensure_nixpkgs_channel():
+        sys.exit(1)
+
+    # Now, see what stack we need to have installed.
+    current_state = get_current_state()
+
+    # If the stack we currently have installed matches both the NVIDIA driver
+    # installed on the system, and the nixpkgs revision isn't out of date, we don't
+    # need to rebuild anything.
+    if STATE_FILE.exists():
+        try:
+            old_state = json.loads(STATE_FILE.read_text())
+            if old_state == current_state:
+                if update_links(): # No path passed, so just refresh the /run link.
+                    log(f"No changes. Linked /run/opengl-driver.")
+                    return
+                # If the GC root disappears, we probably need to build everything
+                # again just to be safe.
+                log("State unchanged but GC root missing; rebuilding.")
+        except Exception:
+            pass # Force a rebuild if the state file is corrupt.
+
+    log("Detected changes or new hardware. Rebuilding...")
+
+    try:
+        # Build a new store, and then get the new store path from it.
+        store_path = build_farm(current_state)
+
+        # Update the symlink to the new store path.
+        # This is pretty much atomic, and operates in place.
+        if update_links(store_path):
+            STATE_FILE.parent.mkdir(parents=True, exist_ok=True)
+            STATE_FILE.write_text(json.dumps(current_state))
+            log("Update successful.")
+        else:
+            log("Build finished but failed to create links.")
+            sys.exit(1)
+
+    except Exception as e:
+        log(f"Build failed: {e}")
+        sys.exit(1)
+
+if __name__ == "__main__":
+    main()

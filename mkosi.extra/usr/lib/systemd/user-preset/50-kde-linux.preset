@@ -3,3 +3,5 @@
 
 # Screen reading is opt-in
 disable orca.service
+
+enable kde-linux-nix-integrate-services.path
