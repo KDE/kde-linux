@@ -3,7 +3,7 @@
 
 config-version: 2
 global:
-  branch-group: kf6-qt6
+  branch-group: latest-kf6
 
   # All KDE dependencies are already included, so don't do
   # unnecessary work
