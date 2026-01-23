@@ -25,6 +25,11 @@ enable thermald.service
 enable tuned-ppd.service
 enable tuned.service
 
+# VM integration services
+# But not qemu-guest-agent.service; it gets activated automatically when needed
+enable vboxservice.service
+enable vmtoolsd.service
+
 # NVIDIA-specific services (shouldn't affect non-NVIDIA hardware)
 enable nvidia-hibernate.service
 enable nvidia-resume.service
