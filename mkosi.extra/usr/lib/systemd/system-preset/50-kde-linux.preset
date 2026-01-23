@@ -16,6 +16,7 @@ enable cups.service
 enable NetworkManager.service
 enable pcscd.socket
 enable plasmalogin.service
+enable ratbagd.service
 enable snapd.apparmor.service
 enable snapd.socket
 enable systemd-oomd.service
