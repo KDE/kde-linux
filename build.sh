@@ -139,8 +139,8 @@ mv "$LIVE_UKI" "${OUTPUT}/usr/share/factory/boot/EFI/Linux/$EFI"
 # Change to kde-linux.cache since we'll be working there.
 cd kde-linux.cache
 
-# Create a 260M large FAT32 filesystem inside of esp.raw.
-fallocate -l 260M esp.raw
+# Create a 500M large FAT32 filesystem inside of esp.raw.
+fallocate -l 500M esp.raw
 mkfs.fat -F 32 esp.raw
 
 # Mount it to esp.raw.mnt.
