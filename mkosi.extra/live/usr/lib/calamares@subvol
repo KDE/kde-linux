@@ -13,6 +13,63 @@ ROOT=$1
 device=$(findmnt --noheadings --nofsroot --output SOURCE "$ROOT")
 [ "$device" = "" ] && exit 1
 
+# Correct the GPT partition type if necessary (e.g., from manual partitioning)
+# This ensures /dev/gpt-auto-root is available for systemd detection
+realdevice=$(realpath --relative-to /dev "$device")
+if [ -r "/sys/block/$realdevice/dm/" ]; then
+    for slave in /sys/block/"$realdevice"/slaves/*; do
+        realdevice=$(basename "$slave")
+        break
+    done
+fi
+blockdev=/dev/$(basename "$(readlink --canonicalize "/sys/class/block/$realdevice/..")")
+
+# Extract partition number from device path
+partnum=$(echo "$device" | sed -n 's/.*[^0-9]\([0-9]\+\)$/\1/p')
+
+arch=$(uname -m)
+case "$arch" in
+    x86_64)
+        root_guid="4f68bce3-e8cd-4db1-96e7-fbcaf984b709"
+        ;;
+    i686|i386)
+        root_guid="44479540-f297-41b2-9af7-d131d5f0458a"
+        ;;
+    aarch64)
+        root_guid="b921b045-1df0-41c3-af44-4c6f280d3fae"
+        ;;
+    armv7l|armv7h)
+        root_guid="69dad710-2ce4-4e3c-b16c-21a1d49abed3"
+        ;;
+    riscv64)
+        root_guid="72ec70a6-cf74-40e6-bd49-4bda08e8f224"
+        ;;
+    loongarch64)
+        root_guid="77055800-792c-4f94-b39a-98c91b762bb6"
+        ;;
+    *)
+        echo "Unknown architecture: $arch, skipping partition type correction"
+        root_guid=""
+        ;;
+esac
+
+if [ -n "$partnum" ] && command -v sfdisk >/dev/null 2>&1; then
+    # Check current partition type and correct if needed
+    # 4f68bce3-e8cd-4db1-96e7-fbcaf984b709 is Linux root (x86-64)
+    current_guid=$(sfdisk --part-type "$blockdev" "$partnum" 2>/dev/null || echo "")
+    echo "current_guid: $current_guid"
+    echo "root_guid: $root_guid"
+    if [ -n "$current_guid" ] && [ "$current_guid" != "$root_guid" ]; then
+        echo "Correcting partition type from $current_guid to Linux root (x86-64)"
+        sfdisk --part-type "$blockdev" "$partnum" "$root_guid" || true
+        # Reload partition table
+        partprobe "$blockdev" 2>/dev/null || true
+        # Give udev a moment to update /dev/gpt-auto-root
+        sleep 1
+    fi
+fi
+
+
 . /etc/os-release
 
 tmpdir=$(mktemp --directory)

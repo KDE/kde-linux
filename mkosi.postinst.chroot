@@ -24,11 +24,15 @@ pacman --remove --noconfirm corrosion rust || true
 
 # No packagekit support or AppStream metadata in discover please! We don't want discover talking about pacman things.
 pacman --remove --noconfirm packagekit libpackagekit-glib archlinux-appstream-data || true
+rm -rf /usr/share/swcatalog
 
 # Calamares
 cd /tmp
-LATEST_RELEASE=$(curl -s "https://codeberg.org/api/v1/repos/Calamares/calamares/releases" | jq -r '.[0].tag_name')
-git clone --branch "$LATEST_RELEASE" --depth 1 https://codeberg.org/Calamares/calamares.git
+# We're building Calamares from master, due to https://codeberg.org/Calamares/calamares/pulls/2470 not being in a release yet.
+# It can be switched back to build from the latest release once a new release is cut that includes that PR.
+#LATEST_RELEASE=$(curl -s "https://codeberg.org/api/v1/repos/Calamares/calamares/releases" | jq -r '.[0].tag_name')
+#git clone --branch "$LATEST_RELEASE" --depth 1 https://codeberg.org/Calamares/calamares.git
+git clone --depth 1 https://codeberg.org/Calamares/calamares.git
 cmake -S calamares -B calamares/build -DCMAKE_BUILD_TYPE=MinSizeRel -DCMAKE_INSTALL_PREFIX=/usr -DBUILD_TESTING=OFF -DWITH_QT6=ON
 cmake --build calamares/build "-j$(nproc)"
 DESTDIR=/live/ cmake --install calamares/build

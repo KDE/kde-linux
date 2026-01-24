@@ -3,7 +3,7 @@
 
 config-version: 2
 global:
-  branch-group: kf6-qt6
+  branch-group: latest-kf6
 
   # All KDE dependencies are already included, so don't do
   # unnecessary work
@@ -136,6 +136,10 @@ override discover:
 
 override plasma-desktop:
     cmake-options: -DBUILD_KCM_TOUCHPAD_X11=OFF -DBUILD_KCM_MOUSE_X11=OFF
+
+# Different for KDE Linux: we don't include the X11 session.
+override plasma-workspace:
+    cmake-options: -DWITH_X11_SESSION=OFF
 
 override plasma-login-manager:
     cmake-options: -DPAM_OS_CONFIGURATION=kde-linux
