@@ -1,0 +1,18 @@
+#!/bin/bash
+# SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL
+# SPDX-FileCopyrightText: 2026 Thomas Duckworth <tduck@filotimoproject.org>
+
+# Necessary for letting udev control what GPUs get which drivers
+# using driver_override, so nouveau or nvidia can be dynamically selected.
+# Also gives us some certainty that these are included for kernel modesetting.
+
+build() {
+    add_module "nvidia"
+    add_module "nvidia-drm"
+    add_module "nvidia-modeset"
+    add_module "nvidia-uvm"
+
+    add_module "nouveau"
+
+    add_checked_modules "/drivers/gpu/drm"
+}
