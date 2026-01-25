@@ -40,7 +40,6 @@ enable switcheroo-control.service
 
 # KDE-Linux-specific stuff
 # also one of ours but not prefixed with kde-linux- so others can use it too
-enable etc-factory.service
 enable kde-linux-bootloader-visibility.service
 enable kde-linux-btrfs.service
 enable kde-linux-configure-firefox.path
