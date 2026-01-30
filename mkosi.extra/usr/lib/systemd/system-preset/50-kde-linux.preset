@@ -14,6 +14,7 @@ enable bluetooth.service
 enable cups.service
 enable NetworkManager.service
 enable pcscd.socket
+enable plasma-setup.service
 enable plasmalogin.service
 enable ratbagd.service
 enable systemd-oomd.service
