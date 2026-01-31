@@ -8,6 +8,7 @@
 /*.raw
 /*.tar
 /*.efi
+/*.log
 /pacman-cache/
 /systemdOS_*/
 /kde-builder/
@@ -17,7 +18,7 @@
 /btrfs-cleanup/target/
 /btrfs-migrator/target/
 
-/mkosi.extra/usr/bin/_kde-linux-btrfs-migrator
+/mkosi.extra/usr/lib/btrfs-migrator
 /mkosi.extra/usr/lib/etc-factory
 /mkosi.extra/usr/lib/kde-linux-sysupdated
 /mkosi.extra/usr/lib/kde-linux-sysupdated-redirector
@@ -28,4 +29,8 @@
 mkosi.local.conf
 
 kde-linux_*
+/kde-linux.cache
+/kde-linux-sysupdated
 /mkosi.sandbox/etc/pacman.conf
+
+/etc-factory
