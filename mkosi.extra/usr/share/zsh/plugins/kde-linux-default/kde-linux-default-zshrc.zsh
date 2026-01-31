@@ -17,6 +17,11 @@ bindkey '\eOF'  end-of-line
 bindkey '\e[3~' delete-char
 # Insert key (toggle overwrite mode):
 bindkey '\e[2~' overwrite-mode
+# Word navigation
+bindkey '^[[1;5D' backward-word     # Ctrl+Left
+bindkey '^[[1;5C' forward-word      # Ctrl+Right
+bindkey '^H' backward-kill-word     # Ctrl+Backspace
+WORDCHARS=${WORDCHARS//\/[&.;]} # Don't consider certain characters part of the word
 
 # Don't fail on non-matching globs - they may be used by a command internally.
 # This behaviour is more consistent with bash.
@@ -29,6 +34,9 @@ SAVEHIST=10000
 
 # Remove an older command from history if a duplicate is to be added.
 setopt HIST_IGNORE_ALL_DUPS
+
+# Allow comments even in interactive shells.
+setopt interactivecomments
 
 # Remove path separator from WORDCHARS.
 # Individual files/directories are treated as words, rather than the full path string.
