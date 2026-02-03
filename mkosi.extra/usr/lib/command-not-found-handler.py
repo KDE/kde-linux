@@ -23,8 +23,7 @@ known_alternatives = {
     "nslookup" : "resolvectl query",
     "route" : "ip route",
     "service" :"systemctl",
-    "traceroute" : "tracepath",
-    "vi" : "vim -u NONE -C"
+    "traceroute" : "tracepath"
 }
 
 unsupported_package_managers = [
