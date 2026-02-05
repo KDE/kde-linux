@@ -49,7 +49,7 @@ setopt PROMPT_SUBST
 # Gets the git branch and status to put into the prompt.
 parse_git_info() {
   if git rev-parse --is-inside-work-tree &>/dev/null; then
-    local branch="$(git rev-parse --abbrev-ref HEAD)"
+    local branch="$(git rev-parse --abbrev-ref HEAD 2>/dev/null)"
     local git_status_indicator=""
 
     if [[ -n "$(git status --porcelain)" ]]; then
