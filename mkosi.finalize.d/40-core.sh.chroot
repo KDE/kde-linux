@@ -133,6 +133,9 @@ rm -rf \
   /usr/lib/modules/*/vdso \
   /usr/src/*
 
+## Get rid of /usr/local for /opt/local
+rm -rf /usr/local
+
 ## Replace Falkon with Firefox as the default browser, since that's what we pre-install.
 sed -i 's/org.kde.falkon.desktop/org.mozilla.firefox.desktop/' /usr/share/applications/kde-mimeapps.list
 
