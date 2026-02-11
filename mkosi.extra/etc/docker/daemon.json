@@ -1,3 +1,4 @@
 {
-    "group": "wheel"
+    "group": "wheel",
+    "storage-driver": "btrfs"
 }
