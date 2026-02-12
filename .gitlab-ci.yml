@@ -7,7 +7,6 @@ include:
       - /gitlab-templates/reuse-lint.yml
       - /gitlab-templates/blocks/workflow.yml
 
-
 stages:
   - validate
   - start
@@ -24,16 +23,17 @@ imaging:
       when: manual
     - if: $CI_COMMIT_REF_PROTECTED != 'true' || $CI_DEFAULT_BRANCH != $CI_COMMIT_REF_NAME || $CI_PROJECT_PATH != 'kde-linux/kde-linux'
       when: always
-
   allow_failure: false
   image: storage.kde.org/vm-images/kde-linux-builder
+  id_tokens: &tokens
+    MINIO_OIDC:
+      aud: https://tokens.kde.org
   variables: &variables
     RUNNER_AFTER_SCRIPT_TIMEOUT: 1h
   script:
     - sudo ./build.sh --force --debug # bootstap.sh happens as part of CI image build
   after_script:
-    # Upload all images to Harald. You can grab them at http://images.kde-linux.haraldsitter.eu/
-    - ./upload-to-harald.sh || true
+    - ./upload-to-storage.sh || true
   artifacts: &artifacts
     expire_in: 4 weeks
     when: always
@@ -51,6 +51,7 @@ imaging+publish:
       when: always
   allow_failure: false
   image: storage.kde.org/vm-images/kde-linux-builder
+  id_tokens: *tokens
   variables: *variables
   script:
     - sudo pacman --sync --refresh --noconfirm curl which git
@@ -59,5 +60,5 @@ imaging+publish:
     - ./upload.sh
   after_script:
     # Upload broken images to Harald for inspection
-    - "[ $CI_JOB_STATUS == 'success' ] || ./upload-to-harald.sh || true"
+    - "[ $CI_JOB_STATUS == 'success' ] || ./upload-to-storage.sh || true"
   artifacts: *artifacts
