@@ -1,9 +1,10 @@
-#!/bin/sh
+#!/usr/bin/env bash
 # SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL
 # SPDX-FileCopyrightText: 2023 Harald Sitter <sitter@kde.org>
+# SPDX-FileCopyrightText: 2026 Hadi Chokr <hadichokr@icloud.com>
 
 if [ "$(id -u)" != "0" ]; then
-    exec pkexec /usr/local/bin/calamares "$@"
+    exec pkexec /opt/local/bin/calamares "$@"
 fi
 
 export KDE_FULL_SESSION=TRUE
