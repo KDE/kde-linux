@@ -66,10 +66,6 @@ local prompt_symbol='%(?. . %F{red}[%?]%f )%(#.#.$) '
 
 PROMPT="${path_segment}${git_segment}${prompt_symbol}"
 
-# Set Prefixes to /opt/local
-export LOCAL_PREFIX=/opt/local
-export PREFIX=/opt/local
-
 # Turn on completions.
 autoload -U compinit
 compinit
