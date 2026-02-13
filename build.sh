@@ -67,6 +67,13 @@ SigLevel = Never
 Server = https://storage.kde.org/kde-linux-packages/testing/repo/packages-debug/
 EOF
 cat /etc/pacman.conf.nolinux >> mkosi.sandbox/etc/pacman.conf
+
+# Enable multilib; we need it later for steam-devices
+cat <<EOF >> mkosi.sandbox/etc/pacman.conf
+[multilib]
+Include = /etc/pacman.d/mirrorlist
+EOF
+
 mkdir --parents mkosi.sandbox/etc/pacman.d
 # Ensure the packages repo and the base image do not go out of sync
 # by using the same snapshot date from build_date.txt for both
