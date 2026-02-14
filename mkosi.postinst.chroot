@@ -101,7 +101,7 @@ download_flatpaks() {
         org.kde.kwrite \
         org.mozilla.firefox
 
-    # Remove all dictionaries to save space
+    # Remove dictionaries to save space
     find /var/lib/flatpak/runtime/ -type d \( -name "hyphen" -o -name "hunspell" -o -name "mythes" \) -exec rm -rf {} +
 
     # And restore default
