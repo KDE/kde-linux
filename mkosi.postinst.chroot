@@ -102,7 +102,7 @@ download_flatpaks() {
         org.mozilla.firefox
 
     # Remove dictionaries to save space
-    find /var/lib/flatpak/runtime/ -type d \( -name "hyphen" -o -name "hunspell" -o -name "mythes" \) -exec rm -rf {} +
+    find /var/lib/flatpak/runtime/ -path "*.Locale*" -type d \( -name "hyphen" -o -name "hunspell" -o -name "mythes" \) -exec rm -rf {} +
 
     # And restore default
     flatpak config --unset languages

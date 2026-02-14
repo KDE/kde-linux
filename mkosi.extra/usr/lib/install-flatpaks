@@ -5,5 +5,4 @@
 set -eux
 
 flatpak install --noninteractive --assumeyes --sideload-repo=/usr/share/factory/var/lib/flatpak/.ostree/repo org.gtk.Gtk3theme.Breeze org.kde.gwenview org.kde.okular org.kde.kwrite org.kde.haruna org.kde.qrca org.kde.ark org.kde.kcalc org.mozilla.firefox
-flatpak repair # Let Flatpak notice missing dictionary files
-flatpak update --noninteractive --assumeyes # Download missing dictionary files
+flatpak install --reinstall --noninteractive --assumeyes flathub $(flatpak list --all --columns=origin,ref | grep "^flathub.*\.Locale/" | awk '{print $2}') # Reinstall locale extensions to fix deleted dictionaries. Filter to flathub to avoid other repos, otherwise we get an error.
