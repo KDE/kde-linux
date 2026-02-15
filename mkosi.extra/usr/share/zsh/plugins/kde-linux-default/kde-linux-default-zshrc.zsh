@@ -52,7 +52,7 @@ parse_git_info() {
     local branch="$(git rev-parse --abbrev-ref HEAD 2>/dev/null)"
     local git_status_indicator=""
 
-    if [[ -n "$(git status --porcelain)" ]]; then
+    if [[ -n "$(git status --porcelain 2>/dev/null)" ]]; then
       git_status_indicator="%F{red}*%f"
     fi
 
