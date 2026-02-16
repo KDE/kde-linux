@@ -303,11 +303,41 @@ SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted
     <release version="1.0.0" date="2025-01-15" type="stable">
       <description>
         <p>Initial release of KDE Linux featuring:</p>
+        <p xml:lang="ca">Versió inicial del KDE Linux:</p>
+        <p xml:lang="he">המהדורה הראשונית של לינוקס KDE כוללת את:</p>
+        <p xml:lang="ka">KDE Linux-ის პირველი ვერსია, ფუნქციებით:</p>
+        <p xml:lang="pt-BR">Lançamento inicial do KDE Linux com as seguintes funcionalidades:</p>
+        <p xml:lang="ru">Первый выпуск KDE Linux:</p>
+        <p xml:lang="sl">Začetna izdaja KDE Linuxa z:</p>
         <ul>
           <li>KDE Plasma</li>
+          <li xml:lang="ca">Plasma de KDE</li>
+          <li xml:lang="he">פלזמה מבית KDE‏ </li>
+          <li xml:lang="ka">KDE Plasma</li>
+          <li xml:lang="pt-BR">KDE Plasma</li>
+          <li xml:lang="ru">KDE Plasma</li>
+          <li xml:lang="sl">KDE Plasma</li>
           <li>Linux kernel 6.7</li>
+          <li xml:lang="ca">Nucli Linux 6.7</li>
+          <li xml:lang="he">ליבת לינוקס 6.7</li>
+          <li xml:lang="ka">Linux kernel 6.7</li>
+          <li xml:lang="pt-BR">Linux kernel 6.7</li>
+          <li xml:lang="ru">Ядро Linux 6.7</li>
+          <li xml:lang="sl">Linux kernel 6.7</li>
           <li>Updated KDE Applications suite</li>
+          <li xml:lang="ca">Paquet actualitzat d'aplicacions KDE</li>
+          <li xml:lang="he">חבילת היישומים של KDE עודכנה</li>
+          <li xml:lang="ka">განახლებული KDE-ის აპლიკაციების ნაკრები</li>
+          <li xml:lang="pt-BR">Pacote de aplicativos KDE atualizado</li>
+          <li xml:lang="ru">Обновлённый набор приложений KDE</li>
+          <li xml:lang="sl">Posodobljen paket aplikacij KDE</li>
           <li>New system installer</li>
+          <li xml:lang="ca">Instal·lador nou del sistema</li>
+          <li xml:lang="he">מתקין מערכת חדש</li>
+          <li xml:lang="ka">ახალი სისტემის დაყენების პროგრამა</li>
+          <li xml:lang="pt-BR">Novo instalador do sistema</li>
+          <li xml:lang="ru">Новый установщик системы</li>
+          <li xml:lang="sl">Nov namestitveni program sistema</li>
         </ul>
       </description>
     </release>
