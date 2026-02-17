@@ -132,8 +132,12 @@ func main() {
 	}
 	bucket := parts[0]
 	path := parts[1]
-	if bucket == "" || path == "" {
+	if bucket == "" {
 		log.Fatalln("Invalid remote path, expected format: /bucket/path")
+	}
+	if path == "" {
+		log.Println("Warning: path is empty, uploading to bucket root")
+		path = "/"
 	}
 
 	log.Println("Connecting to MinIO at", remoteURI.Host)
