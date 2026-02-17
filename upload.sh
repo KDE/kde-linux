@@ -41,8 +41,4 @@ gpg --homedir="$GNUPGHOME" --output SHA256SUMS.gpg --detach-sign SHA256SUMS
 
 scp -i "$SSH_IDENTITY" ./*.raw ./*.torrent "$REMOTE_ROOT"
 scp -i "$SSH_IDENTITY" ./*.efi ./*.tar.zst ./*.erofs ./*.caibx "$REMOTE_PATH"
-
-go -C ./token-redeemer/ run .
-go -C ./uploader/ run . --remote "s3+https://storage.kde.org/kde-linux/"
-
 scp -i "$SSH_IDENTITY" SHA256SUMS SHA256SUMS.gpg "$REMOTE_PATH" # upload as last artifact to finalize the upload
