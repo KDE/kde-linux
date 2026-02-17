@@ -42,3 +42,27 @@ gpg --homedir="$GNUPGHOME" --output SHA256SUMS.gpg --detach-sign SHA256SUMS
 scp -i "$SSH_IDENTITY" ./*.raw ./*.torrent "$REMOTE_ROOT"
 scp -i "$SSH_IDENTITY" ./*.efi ./*.tar.zst ./*.erofs ./*.caibx "$REMOTE_PATH"
 scp -i "$SSH_IDENTITY" SHA256SUMS SHA256SUMS.gpg "$REMOTE_PATH" # upload as last artifact to finalize the upload
+
+# The new s3 based upload system
+
+S3_ROOT="s3+https://storage.kde.org/kde-linux/"
+S3_STORE="$S3_ROOT/sysupdate/store/"
+S3_TARGET="$S3_ROOT/testing/"
+
+## Upload to the chunk store directly
+go install -v github.com/folbricht/desync/cmd/desync@latest
+go -C ./token-redeemer/ run .
+~/go/bin/desync chop \
+    --concurrency 16 \
+    --store "$S3_STORE" \
+    .*-x86-64.caibx \
+    .*-x86-64.erofs
+
+## Prepare the image upload tree
+mkdir upload-tree/
+mv ./*.raw ./*.torrent upload-tree/
+mkdir upload-tree/sysupdate/v2/
+mv ./*.efi ./*.tar.zst ./*.erofs ./*.caibx SHA256SUMS SHA256SUMS.gpg upload-tree/sysupdate/v2/
+### Upload
+go -C ./token-redeemer/ run .
+go -C ./uploader/ run . --remote "$S3_TARGET"

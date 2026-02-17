@@ -189,12 +189,6 @@ go install -v github.com/folbricht/desync/cmd/desync@latest
 # https://github.com/systemd/systemd/issues/38605
 cp "$ROOTFS_CAIBX" "$ROOTFS_EROFS.caibx"
 
-mkdir -p upload-tree/sysupdate/store
-~/go/bin/desync chop \
-    --store upload-tree/sysupdate/store \
-    "$ROOTFS_CAIBX" \
-    "$ROOTFS_EROFS"
-
 # Fake artifacts to keep older systems happy to upgrade to newer versions.
 # Can be removed once we have started having revisions in our update trees.
 tar -cf ${OUTPUT}_root-x86-64.tar -T /dev/null
