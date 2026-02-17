@@ -42,10 +42,6 @@ gpg --homedir="$GNUPGHOME" --output SHA256SUMS.gpg --detach-sign SHA256SUMS
 scp -i "$SSH_IDENTITY" ./*.raw ./*.torrent "$REMOTE_ROOT"
 scp -i "$SSH_IDENTITY" ./*.efi ./*.tar.zst ./*.erofs ./*.caibx "$REMOTE_PATH"
 
-~/go/bin/desync chop \
-    --store upload-tree/sysupdate/store \
-    ./*.erofs.caibx \
-    ./*.erofs
 go -C ./token-redeemer/ run .
 go -C ./uploader/ run . --remote "s3+https://storage.kde.org/kde-linux/"
 
