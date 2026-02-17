@@ -102,9 +102,13 @@ func upload(client *minio.Client, bucket string, objectNamePrefix string) {
 		go func() {
 			defer calcsWg.Done()
 			for obj := range calcs {
+				log.Println("Calculating SHA256 for", obj.Path)
 				obj.SHA256 = sha256File(obj.Path)
+				log.Println("Calculated SHA256 for", obj.Path, "is", obj.SHA256)
 				results <- obj
+				log.Println("SHA256 for", obj.Path, "is", obj.SHA256)
 			}
+			log.Println("SHA256 calculation worker done")
 		}()
 	}
 
@@ -121,6 +125,7 @@ func upload(client *minio.Client, bucket string, objectNamePrefix string) {
 			if err != nil {
 				return err
 			}
+			log.Println("Found", path)
 			objectName, err := filepath.Rel(dir, path)
 			if err != nil {
 				return err
@@ -149,17 +154,30 @@ func upload(client *minio.Client, bucket string, objectNamePrefix string) {
 	}()
 
 	// Upload. This loop only ends when results is closed and drained.
-	for res := range results {
-		log.Println("Uploading", res.ObjectName, "from", res.Path)
-		_, err := client.FPutObject(context.Background(), bucket, res.ObjectName, res.Path, minio.PutObjectOptions{
-			UserMetadata: map[string]string{
-				"X-KDE-SHA256": res.SHA256,
-			},
-		})
-		if err != nil {
-			log.Fatalln(err)
-		}
+	resultsWg := sync.WaitGroup{}
+	for i := 0; i < 2; i++ {
+		resultsWg.Add(1)
+		go func() {
+			defer resultsWg.Done()
+			for res := range results {
+				_, err := client.StatObject(context.Background(), bucket, res.ObjectName, minio.StatObjectOptions{})
+				if err == nil { // already exists
+					continue
+				}
+
+				_, err = client.FPutObject(context.Background(), bucket, res.ObjectName, res.Path, minio.PutObjectOptions{
+					UserMetadata: map[string]string{
+						"X-KDE-SHA256": res.SHA256,
+					},
+				})
+				if err != nil {
+					log.Fatalln(err)
+				}
+			}
+		}()
 	}
+	resultsWg.Wait()
+	log.Println("All uploads done")
 }
 
 func main() {

@@ -4,8 +4,6 @@
 
 set -eu
 
-# Do not blow the lid off the storage for now. Reset the tree and only publish a select few files
-mv upload-tree upload-tree-old || true
 if [ ! -d upload-tree ]; then
     mkdir upload-tree
     for f in *.raw *.erofs *.efi; do
