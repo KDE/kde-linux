@@ -15,6 +15,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"sync"
 
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
@@ -74,8 +75,46 @@ func sha256File(path string) string {
 	return hex.EncodeToString(hasher.Sum(nil))
 }
 
+type UploadObject struct {
+	ObjectName string
+	Path       string
+	SHA256     string
+}
+
 func upload(client *minio.Client, bucket string, objectNamePrefix string) {
 	dir := "../upload-tree"
+
+	// Somewhat involved producer-consumer going on here.
+	// - We start N sha256 calculation workers.
+	// - We then feed the calcs channel with partial UploadObjects.
+	// - Close the calcs channel to eventually let the workers drain and finish.
+	// - The workers calculate the sha and then push the complete objects into the results channel.
+	// - Once the calcs waitgroup is done we close the results channel as well to let the uploader drain and finish.
+
+	calcs := make(chan UploadObject)
+	results := make(chan UploadObject)
+
+	calcsWg := sync.WaitGroup{}
+
+	// The sha256 calculation workers.
+	for i := 0; i < 4; i++ {
+		calcsWg.Add(1)
+		go func() {
+			defer calcsWg.Done()
+			for obj := range calcs {
+				obj.SHA256 = sha256File(obj.Path)
+				results <- obj
+			}
+		}()
+	}
+
+	// Once they are all done we can close the results channel.
+	go func() {
+		calcsWg.Wait()
+		close(results)
+	}()
+
+	// The calcs channel gets fed by the walking of the upload tree.
 	err := filepath.WalkDir(dir, func(path string, d os.DirEntry, err error) error {
 		if err != nil {
 			return err
@@ -93,22 +132,31 @@ func upload(client *minio.Client, bucket string, objectNamePrefix string) {
 			return nil
 		}
 
-		log.Println("Uploading", objectName, "from", path)
-		info, err := client.FPutObject(context.Background(), bucket, objectName, path, minio.PutObjectOptions{
+		calcs <- UploadObject{
+			ObjectName: objectName,
+			Path:       path,
+		}
+
+		return nil
+	})
+	close(calcs)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	// Upload. This loop only ends when results is closed and drained.
+	for res := range results {
+		client.GetObjectAttributes(context.Background(), bucket, res.ObjectName, minio.ObjectAttributesOptions{})
+		log.Println("Uploading", res.ObjectName, "from", res.Path)
+		info, err := client.FPutObject(context.Background(), bucket, res.ObjectName, res.Path, minio.PutObjectOptions{
 			UserMetadata: map[string]string{
-				"X-KDE-SHA256": sha256File(path),
+				"X-KDE-SHA256": res.SHA256,
 			},
 		})
 		if err != nil {
 			log.Fatalln(err)
 		}
-		log.Println("Uploaded", objectName, "of size", info.Size, "ETag", info.ETag, "VersionID", info.VersionID, "SHA256", info.ChecksumSHA256, "Metadata", info)
-
-		log.Println(path, d)
-		return nil
-	})
-	if err != nil {
-		log.Fatalln(err)
+		log.Println("Uploaded", res.ObjectName, "of size", info.Size, "ETag", info.ETag, "VersionID", info.VersionID, "SHA256", info.ChecksumSHA256, "Metadata", info)
 	}
 }
 
