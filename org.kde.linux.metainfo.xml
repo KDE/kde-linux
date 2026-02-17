@@ -303,41 +303,76 @@ SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted
     <release version="1.0.0" date="2025-01-15" type="stable">
       <description>
         <p>Initial release of KDE Linux featuring:</p>
+        <p xml:lang="ar">تحوي الإصدارة المبدئية لينكس كيدي على:</p>
         <p xml:lang="ca">Versió inicial del KDE Linux:</p>
+        <p xml:lang="ca-valencia">Versió inicial de KDE Linux:</p>
+        <p xml:lang="es">Versión inicial de KDE Linux que contiene:</p>
         <p xml:lang="he">המהדורה הראשונית של לינוקס KDE כוללת את:</p>
+        <p xml:lang="ia">Version initial de KDE Linux con:</p>
         <p xml:lang="ka">KDE Linux-ის პირველი ვერსია, ფუნქციებით:</p>
+        <p xml:lang="nl">Eerste versie van KDE Linux met de volgende kenmerken:</p>
         <p xml:lang="pt-BR">Lançamento inicial do KDE Linux com as seguintes funcionalidades:</p>
         <p xml:lang="ru">Первый выпуск KDE Linux:</p>
         <p xml:lang="sl">Začetna izdaja KDE Linuxa z:</p>
+        <p xml:lang="uk">У початковому випуску KDE Linux ви знайдете:</p>
+        <p xml:lang="zh-CN">KDE Linux 的首个正式版使用以下组件：</p>
         <ul>
           <li>KDE Plasma</li>
+          <li xml:lang="ar">سطح مكتب بلازما</li>
           <li xml:lang="ca">Plasma de KDE</li>
+          <li xml:lang="ca-valencia">Plasma de KDE</li>
+          <li xml:lang="es">KDE Plasma</li>
           <li xml:lang="he">פלזמה מבית KDE‏ </li>
+          <li xml:lang="ia">KDE Plasma</li>
           <li xml:lang="ka">KDE Plasma</li>
+          <li xml:lang="nl">KDE Plasma</li>
           <li xml:lang="pt-BR">KDE Plasma</li>
           <li xml:lang="ru">KDE Plasma</li>
           <li xml:lang="sl">KDE Plasma</li>
+          <li xml:lang="uk">Плазма KDE</li>
+          <li xml:lang="zh-CN">KDE Plasma 桌面环境</li>
           <li>Linux kernel 6.7</li>
+          <li xml:lang="ar">نواة لينكس 6.7</li>
           <li xml:lang="ca">Nucli Linux 6.7</li>
+          <li xml:lang="ca-valencia">Nucli Linux 6.7</li>
+          <li xml:lang="es">Kernel de Linux 6.7</li>
           <li xml:lang="he">ליבת לינוקס 6.7</li>
+          <li xml:lang="ia">Kernel (nucleo) de Linux 6.7</li>
           <li xml:lang="ka">Linux kernel 6.7</li>
+          <li xml:lang="nl">Linux kernel 6.7</li>
           <li xml:lang="pt-BR">Linux kernel 6.7</li>
           <li xml:lang="ru">Ядро Linux 6.7</li>
           <li xml:lang="sl">Linux kernel 6.7</li>
+          <li xml:lang="uk">Ядро Linux 6.7</li>
+          <li xml:lang="zh-CN">Linux 内核 6.7</li>
           <li>Updated KDE Applications suite</li>
+          <li xml:lang="ar">حزمة تطبيقات كِيدِي محدثة</li>
           <li xml:lang="ca">Paquet actualitzat d'aplicacions KDE</li>
+          <li xml:lang="ca-valencia">Paquet actualitzat d'aplicacions KDE</li>
+          <li xml:lang="es">Se ha actualizado el paquete de aplicaciones de KDE</li>
           <li xml:lang="he">חבילת היישומים של KDE עודכנה</li>
+          <li xml:lang="ia">Suite de Applicationes de KDE actualisate</li>
           <li xml:lang="ka">განახლებული KDE-ის აპლიკაციების ნაკრები</li>
+          <li xml:lang="nl">Bijgewerkte KDE-toepassingensuite</li>
           <li xml:lang="pt-BR">Pacote de aplicativos KDE atualizado</li>
           <li xml:lang="ru">Обновлённый набор приложений KDE</li>
           <li xml:lang="sl">Posodobljen paket aplikacij KDE</li>
+          <li xml:lang="uk">Оновлено комплект програм KDE</li>
+          <li xml:lang="zh-CN">最新 KDE 应用程序套件</li>
           <li>New system installer</li>
+          <li xml:lang="ar">مثبت نظام جديد</li>
           <li xml:lang="ca">Instal·lador nou del sistema</li>
+          <li xml:lang="ca-valencia">Instal·lador nou del sistema</li>
+          <li xml:lang="es">Nuevo instalador del sistema</li>
           <li xml:lang="he">מתקין מערכת חדש</li>
+          <li xml:lang="ia">Nove installkator de systema</li>
           <li xml:lang="ka">ახალი სისტემის დაყენების პროგრამა</li>
+          <li xml:lang="nl">Nieuw systeeminstallatieprogramma</li>
           <li xml:lang="pt-BR">Novo instalador do sistema</li>
           <li xml:lang="ru">Новый установщик системы</li>
           <li xml:lang="sl">Nov namestitveni program sistema</li>
+          <li xml:lang="uk">Новий засіб встановлення системи</li>
+          <li xml:lang="zh-CN">新版系统安装程序</li>
         </ul>
       </description>
     </release>
