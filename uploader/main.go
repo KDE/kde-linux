@@ -91,8 +91,8 @@ func upload(client *minio.Client, bucket string, objectNamePrefix string) {
 	// - The workers calculate the sha and then push the complete objects into the results channel.
 	// - Once the calcs waitgroup is done we close the results channel as well to let the uploader drain and finish.
 
-	calcs := make(chan UploadObject)
-	results := make(chan UploadObject)
+	calcs := make(chan UploadObject, 32) // mind that the size causes this channel to buffer which prevents deadlocks
+	results := make(chan UploadObject, 32)
 
 	calcsWg := sync.WaitGroup{}
 
@@ -111,42 +111,45 @@ func upload(client *minio.Client, bucket string, objectNamePrefix string) {
 	// Once they are all done we can close the results channel.
 	go func() {
 		calcsWg.Wait()
+		log.Println("All SHA256 calculations done, closing results channel")
 		close(results)
 	}()
 
 	// The calcs channel gets fed by the walking of the upload tree.
-	err := filepath.WalkDir(dir, func(path string, d os.DirEntry, err error) error {
-		if err != nil {
-			return err
-		}
-		objectName, err := filepath.Rel(dir, path)
-		if err != nil {
-			return err
-		}
-		objectName = filepath.Join(objectNamePrefix, objectName)
-		if objectName == "" {
-			return errors.New("object name cannot be empty")
-		}
+	go func() {
+		err := filepath.WalkDir(dir, func(path string, d os.DirEntry, err error) error {
+			if err != nil {
+				return err
+			}
+			objectName, err := filepath.Rel(dir, path)
+			if err != nil {
+				return err
+			}
+			objectName = filepath.Join(objectNamePrefix, objectName)
+			if objectName == "" {
+				return errors.New("object name cannot be empty")
+			}
 
-		if d.IsDir() {
+			if d.IsDir() {
+				return nil
+			}
+
+			calcs <- UploadObject{
+				ObjectName: objectName,
+				Path:       path,
+			}
+
 			return nil
+		})
+		log.Println("Finished walking upload tree, closing calcs channel")
+		close(calcs)
+		if err != nil {
+			log.Fatalln(err)
 		}
-
-		calcs <- UploadObject{
-			ObjectName: objectName,
-			Path:       path,
-		}
-
-		return nil
-	})
-	close(calcs)
-	if err != nil {
-		log.Fatalln(err)
-	}
+	}()
 
 	// Upload. This loop only ends when results is closed and drained.
 	for res := range results {
-		client.GetObjectAttributes(context.Background(), bucket, res.ObjectName, minio.ObjectAttributesOptions{})
 		log.Println("Uploading", res.ObjectName, "from", res.Path)
 		_, err := client.FPutObject(context.Background(), bucket, res.ObjectName, res.Path, minio.PutObjectOptions{
 			UserMetadata: map[string]string{
