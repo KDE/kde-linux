@@ -192,8 +192,8 @@ cp "$ROOTFS_CAIBX" "$ROOTFS_EROFS.caibx"
 mkdir -p upload-tree/sysupdate/store
 ~/go/bin/desync chop \
     --store upload-tree/sysupdate/store \
-    ./*.erofs.caibx \
-    ./*.erofs
+    "$ROOTFS_CAIBX" \
+    "$ROOTFS_EROFS"
 
 # Fake artifacts to keep older systems happy to upgrade to newer versions.
 # Can be removed once we have started having revisions in our update trees.
