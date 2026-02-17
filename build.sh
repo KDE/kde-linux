@@ -189,6 +189,7 @@ go install -v github.com/folbricht/desync/cmd/desync@latest
 # https://github.com/systemd/systemd/issues/38605
 cp "$ROOTFS_CAIBX" "$ROOTFS_EROFS.caibx"
 
+mkdir -p upload-tree/sysupdate/store
 ~/go/bin/desync chop \
     --store upload-tree/sysupdate/store \
     ./*.erofs.caibx \
