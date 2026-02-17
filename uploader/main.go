@@ -148,7 +148,7 @@ func upload(client *minio.Client, bucket string, objectNamePrefix string) {
 	for res := range results {
 		client.GetObjectAttributes(context.Background(), bucket, res.ObjectName, minio.ObjectAttributesOptions{})
 		log.Println("Uploading", res.ObjectName, "from", res.Path)
-		info, err := client.FPutObject(context.Background(), bucket, res.ObjectName, res.Path, minio.PutObjectOptions{
+		_, err := client.FPutObject(context.Background(), bucket, res.ObjectName, res.Path, minio.PutObjectOptions{
 			UserMetadata: map[string]string{
 				"X-KDE-SHA256": res.SHA256,
 			},
@@ -156,7 +156,6 @@ func upload(client *minio.Client, bucket string, objectNamePrefix string) {
 		if err != nil {
 			log.Fatalln(err)
 		}
-		log.Println("Uploaded", res.ObjectName, "of size", info.Size, "ETag", info.ETag, "VersionID", info.VersionID, "SHA256", info.ChecksumSHA256, "Metadata", info)
 	}
 }
 
