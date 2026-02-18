@@ -17,8 +17,9 @@ mv kde-linux_202508202317_root-x86-64.erofs.caibx kde-linux_202508202317_root-x8
 ## Upload to the chunk store directly
 go install -v github.com/folbricht/desync/cmd/desync@latest
 go -C ./token-redeemer/ run .
-cat ~/.aws/credentials
+
 cat ~/.config/desync/config.json
+
 ~/go/bin/desync chop \
     --concurrency 16 \
     --store "$S3_STORE" \
