@@ -310,6 +310,7 @@ SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted
         <p xml:lang="he">המהדורה הראשונית של לינוקס KDE כוללת את:</p>
         <p xml:lang="ia">Version initial de KDE Linux con:</p>
         <p xml:lang="ka">KDE Linux-ის პირველი ვერსია, ფუნქციებით:</p>
+        <p xml:lang="lt">Pradinė KDE Linux laida, kurioje yra:</p>
         <p xml:lang="nl">Eerste versie van KDE Linux met de volgende kenmerken:</p>
         <p xml:lang="pt-BR">Lançamento inicial do KDE Linux com as seguintes funcionalidades:</p>
         <p xml:lang="ru">Первый выпуск KDE Linux:</p>
@@ -325,6 +326,7 @@ SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted
           <li xml:lang="he">פלזמה מבית KDE‏ </li>
           <li xml:lang="ia">KDE Plasma</li>
           <li xml:lang="ka">KDE Plasma</li>
+          <li xml:lang="lt">KDE Plasma</li>
           <li xml:lang="nl">KDE Plasma</li>
           <li xml:lang="pt-BR">KDE Plasma</li>
           <li xml:lang="ru">KDE Plasma</li>
@@ -339,6 +341,7 @@ SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted
           <li xml:lang="he">ליבת לינוקס 6.7</li>
           <li xml:lang="ia">Kernel (nucleo) de Linux 6.7</li>
           <li xml:lang="ka">Linux kernel 6.7</li>
+          <li xml:lang="lt">Linux branduolys 6.7</li>
           <li xml:lang="nl">Linux kernel 6.7</li>
           <li xml:lang="pt-BR">Linux kernel 6.7</li>
           <li xml:lang="ru">Ядро Linux 6.7</li>
@@ -353,6 +356,7 @@ SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted
           <li xml:lang="he">חבילת היישומים של KDE עודכנה</li>
           <li xml:lang="ia">Suite de Applicationes de KDE actualisate</li>
           <li xml:lang="ka">განახლებული KDE-ის აპლიკაციების ნაკრები</li>
+          <li xml:lang="lt">Atnaujintas KDE programų rinkinys</li>
           <li xml:lang="nl">Bijgewerkte KDE-toepassingensuite</li>
           <li xml:lang="pt-BR">Pacote de aplicativos KDE atualizado</li>
           <li xml:lang="ru">Обновлённый набор приложений KDE</li>
@@ -367,6 +371,7 @@ SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted
           <li xml:lang="he">מתקין מערכת חדש</li>
           <li xml:lang="ia">Nove installkator de systema</li>
           <li xml:lang="ka">ახალი სისტემის დაყენების პროგრამა</li>
+          <li xml:lang="lt">Nauja sistemos diegimo programa</li>
           <li xml:lang="nl">Nieuw systeeminstallatieprogramma</li>
           <li xml:lang="pt-BR">Novo instalador do sistema</li>
           <li xml:lang="ru">Новый установщик системы</li>
