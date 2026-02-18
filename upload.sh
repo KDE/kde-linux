@@ -48,8 +48,7 @@ scp -i "$SSH_IDENTITY" SHA256SUMS SHA256SUMS.gpg "$REMOTE_PATH" # upload as last
 S3_ROOT="s3+https://storage.kde.org/kde-linux"
 S3_STORE="$S3_ROOT/sysupdate/store/"
 S3_TARGET="$S3_ROOT/testing/"
-cat ~/.config/desync/config.json || true
-cat ~/.aws/credentials || true
+
 ## Upload to the chunk store directly
 go install -v github.com/folbricht/desync/cmd/desync@latest
 go -C ./token-redeemer/ run .
