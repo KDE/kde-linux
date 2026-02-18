@@ -55,8 +55,8 @@ go -C ./token-redeemer/ run .
 ~/go/bin/desync chop \
     --concurrency 16 \
     --store "$S3_STORE" \
-    .*-x86-64.caibx \
-    .*-x86-64.erofs
+    ./*-x86-64.caibx \
+    ./*-x86-64.erofs
 
 ## Prepare the image upload tree
 mkdir upload-tree/
