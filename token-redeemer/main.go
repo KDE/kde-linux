@@ -63,6 +63,10 @@ func (r *Redeemer) redeem(oidc string) Credentials {
 		log.Fatalln("Failed to redeem token:", err)
 	}
 	defer response.Body.Close()
+	if response.StatusCode != http.StatusOK {
+		body, _ := io.ReadAll(response.Body)
+		log.Fatalln("Failed to redeem token:", response.Status, string(body))
+	}
 
 	var creds Credentials
 	decoder := json.NewDecoder(response.Body)
@@ -71,6 +75,10 @@ func (r *Redeemer) redeem(oidc string) Credentials {
 	if err != nil {
 		body, _ := io.ReadAll(response.Body)
 		log.Fatalln("Failed to decode credentials:", err, response.Status, string(body))
+	}
+
+	if creds.AccessKeyId == "" {
+		log.Fatalln("Received empty access key ID")
 	}
 
 	return creds
