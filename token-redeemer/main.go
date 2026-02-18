@@ -122,12 +122,16 @@ func (r *Redeemer) writeConfigDesync(creds Credentials) {
 	if err != nil {
 		log.Fatal(err)
 	}
+	if len(configData) == 0 {
+		log.Fatal("Generated empty config")
+	}
 
 	err = os.MkdirAll(filepath.Dir(r.desyncConfigPath), 0700)
 	if err != nil {
 		log.Fatal(err)
 	}
 
+	log.Println("Writing desync config to", r.desyncConfigPath)
 	err = os.WriteFile(r.desyncConfigPath, configData, 0600)
 	if err != nil {
 		log.Fatal(err)
