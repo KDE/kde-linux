@@ -91,8 +91,6 @@ func (r *Redeemer) writeConfigAWS(creds Credentials) {
 		SessionToken: creds.SessionToken,
 	}
 
-	// Disable spaces around =, it screws with parsing in desync's s3 support
-	ini.PrettyFormat = false
 	cfg := ini.Empty()
 	section := cfg.Section("default")
 	err := section.ReflectFrom(a)
