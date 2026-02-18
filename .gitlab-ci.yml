@@ -62,3 +62,22 @@ imaging+publish:
     # Upload broken images to Harald for inspection
     - "[ $CI_JOB_STATUS == 'success' ] || ./upload-to-storage.sh || true"
   artifacts: *artifacts
+
+upload-test:
+  stage: start
+  tags:
+    - VM
+    - amd64
+  rules:
+    - if: $CI_COMMIT_REF_PROTECTED == 'true'
+      when: manual
+  allow_failure: false
+  image: storage.kde.org/vm-images/kde-linux-builder
+  id_tokens: *tokens
+  variables: *variables
+  script:
+    - ./upload-test.sh
+  after_script:
+    # Upload broken images to Harald for inspection
+    - "[ $CI_JOB_STATUS == 'success' ] || ./upload-to-storage.sh || true"
+  artifacts: *artifacts
