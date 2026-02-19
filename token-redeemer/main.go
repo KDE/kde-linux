@@ -132,7 +132,6 @@ func (r *Redeemer) writeConfigDesync(creds Credentials) {
 	}
 
 	log.Println("Writing desync config to", r.desyncConfigPath)
-	log.Println("Config content:", string(configData))
 	err = os.WriteFile(r.desyncConfigPath, configData, 0600)
 	if err != nil {
 		log.Fatal(err)
