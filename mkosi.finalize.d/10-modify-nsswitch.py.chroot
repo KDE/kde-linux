@@ -23,4 +23,6 @@ def modify_nsswitch():
         file.writelines(lines)
 
 if __name__ == "__main__":
-    modify_nsswitch()
+#     TODO: Aleix
+    # modify_nsswitch()
+    pass

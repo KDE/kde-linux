@@ -15,62 +15,18 @@ env
 mkdir --mode 0700 /system # for the kde-linux-overlay.service
 
 export SYSTEMD_ESP_PATH="$BOOT_MNT"
-mkdir --mode 0700 "$SYSTEMD_ESP_PATH"
+mkdir -p --mode 0700 "$SYSTEMD_ESP_PATH"
 bootctl install
 echo 'timeout 7' >> "$SYSTEMD_ESP_PATH/loader/loader.conf"
-cp /usr/share/edk2-shell/x64/Shell.efi "$SYSTEMD_ESP_PATH/shellx64.efi"
-
-# Meanwhile cleanup a bit
-## Unnecessary for us
-pacman --remove --noconfirm qt6-doc qt6-examples || true
-# FIXME: needed by cxx-rust-cssparser; can't remove these for now
-# pacman --remove --noconfirm corrosion rust || true
-# FIXME: pulled in as a secret service provider
-pacman --remove --noconfirm gnome-keyring
-
-# No packagekit support or AppStream metadata in discover please! We don't want discover talking about pacman things.
-pacman --remove --noconfirm packagekit libpackagekit-glib archlinux-appstream-data || true
+cp /usr/share/ovmf/Shell.efi "$SYSTEMD_ESP_PATH/"
 rm -rf /usr/share/swcatalog
 
-# Calamares
-cd /tmp
-# We're building Calamares from master, due to https://codeberg.org/Calamares/calamares/pulls/2470 not being in a release yet.
-# It can be switched back to build from the latest release once a new release is cut that includes that PR.
-#LATEST_RELEASE=$(curl -s "https://codeberg.org/api/v1/repos/Calamares/calamares/releases" | jq -r '.[0].tag_name')
-#git clone --branch "$LATEST_RELEASE" --depth 1 https://codeberg.org/Calamares/calamares.git
-git clone --depth 1 https://codeberg.org/Calamares/calamares.git
-cmake -S calamares -B calamares/build -DCMAKE_BUILD_TYPE=MinSizeRel -DCMAKE_INSTALL_PREFIX=/usr -DBUILD_TESTING=OFF -DWITH_QT6=ON
-cmake --build calamares/build "-j$(nproc)"
-DESTDIR=/live/ cmake --install calamares/build
-
+mkdir -p /usr/share/icons/default/
 cat <<- EOF > /usr/share/icons/default/index.theme
 [Icon Theme]
 Inherits=breeze_cursors
 EOF
 
-# WARNING: only set up os-release after the build otherwise kde-build doesn't know how to handle the system currently
-cat <<- EOF > /usr/lib/os-release
-NAME="KDE Linux"
-PRETTY_NAME="KDE Linux"
-ID=kde-linux
-DEFAULT_HOSTNAME=kde-linux
-VERSION_ID="$VERSION_DATE"
-BUILD_ID=$CI_COMMIT_SHORT_SHA
-ANSI_COLOR="38;2;61;174;233"
-HOME_URL="https://linux.kde.org"
-DOCUMENTATION_URL="https://community.kde.org/KDE_Linux"
-SUPPORT_URL="https://kde.org/support/"
-BUG_REPORT_URL="https://invent.kde.org/kde-linux/kde-linux/-/issues"
-PRIVACY_POLICY_URL="https://kde.org/privacypolicy-apps/"
-LOGO=/usr/share/pixmaps/kde-linux-logo.png
-IMAGE_ID=kde-linux
-IMAGE_VERSION=$IMAGE_VERSION
-# KDE Linux specific keys.
-KDE_LINUX_COMMIT_SHA=$CI_COMMIT_SHA
-KDE_LINUX_COMMIT_SHORT_SHA=$CI_COMMIT_SHORT_SHA
-KDE_LINUX_CI_URL=$CI_PIPELINE_URL
-KDE_LINUX_SYSUPDATE_ENDPOINT=sysupdate/v2
-EOF
 [ -f /usr/lib/os-release ] || false
 cat /usr/lib/os-release
 

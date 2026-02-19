@@ -24,7 +24,7 @@ rm --recursive --force /usr/share/factory/etc/pam.d
 
 # Copy all of etc into factory dir for tmpfiles.d (see tmpfiles.d docs).
 [ -d /usr/share/factory ] || mkdir /usr/share/factory
-cp --archive --no-target-directory --update=all /etc /usr/share/factory/etc
+find /etc -mindepth 1 ! -path /etc/resolv.conf -exec cp --archive --parents --target-directory=/usr/share/factory/ {} +
 
 # Clean up factory content that we absolutely do not want because it is machine/installation dependent.
 cd /usr/share/factory/etc
@@ -41,6 +41,7 @@ rm --force \
     localtime \
     machine-id \
     crypttab \
+    resolv.conf \
     vconsole.conf \
     hostname \
     locale.conf

@@ -6,7 +6,6 @@ set -ex
 
 userdel --remove --force builder || true
 passwd --delete root
-passwd --lock root
 
 if [ -f "$SRCDIR/.secure_files/gpg.public.key" ]; then # only useful and available for publishing branches
     # Put our key into the systemd keyring
@@ -20,25 +19,6 @@ if [ -f "$SRCDIR/.secure_files/gpg.public.key" ]; then # only useful and availab
     # TODO: Make sure the keyring is actually used. This notably broke in the past because of an upstream change.
     # https://invent.kde.org/kde-linux/kde-linux/-/issues/199
 fi
-
-# Uninstall solaar and sane, but keep their udev rules.
-# This ensures that they stay up to date.
-UDEV_BACKUP_DIR=$(mktemp -d)
-pacman -Qlq solaar sane | grep '^/usr/lib/udev/' | xargs -r cp -a --parents -t "$UDEV_BACKUP_DIR"
-pacman -Rns --noconfirm solaar sane
-cp -a "$UDEV_BACKUP_DIR"/* /
-rm -rf "$UDEV_BACKUP_DIR"
-
-# De-initialize pacman
-rm -rf \
-    /etc/pacman.d/gnupg \
-    /.gnupg \
-    /var/cache/pacman \
-    /var/lib/pacman \
-    /var/log/pacman.log
-
-## Pacman being present confuses users into thinking they can use it to install packages.
-rm -f /usr/bin/pacman
 
 # Remove all excess things we don't want in the final image
 
@@ -136,7 +116,8 @@ rm -rf /usr/share/xsessions/
 rm -rf /usr/local
 
 # Prevent tuned from messing with the vm.swappiness parameter we already set
-sed --in-place 's|^vm.swappiness.*||' /usr/lib/tuned/profiles/*/*
+# TODO: Aleix
+# sed --in-place 's|^vm.swappiness.*||' /usr/lib/tuned/profiles/*/*
 
 # Give KWin phenomenal cosmic power so it can do its job better; see
 # https://community.kde.org/Distributions/Packaging_Recommendations#KWin_package_configuration
@@ -150,7 +131,7 @@ setcap 'cap_sys_nice=+ep' /usr/bin/kwin_wayland
 # Need to do it ourselves due to
 # https://gitlab.archlinux.org/pacman/pacman/-/work_items/320
 # TODO: remove once we stop outputting pkgbuilds in the packaging pipeline
-setcap 'cap_perfmon=+ep' /usr/lib/ksystemstats_intel_helper
+setcap 'cap_perfmon=+ep' /usr/lib/*/libexec/ksystemstats_intel_helper
 
 # Add a "command not found" handler for Bash. We have to modify the existing file because it
 # already exists, and we can't put this in /etc/profile or /etc/profile.d/ because for profile

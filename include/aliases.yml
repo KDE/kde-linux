@@ -1,0 +1,16 @@
+# SPDX-FileCopyrightText: 2025 Aleix Pol Gonzalez <aleix.pol@codethink.co.uk>
+# SPDX-License-Identifier: BSD-2-Clause
+
+aliases:
+  github: https://github.com/
+  gitlab: https://gitlab.com/
+  pypi: https://files.pythonhosted.org/packages/
+  qt: https://download.qt.io/official_releases/qt/
+  kde: https://invent.kde.org/
+  kde_cdn: https://download.kde.org/stable/
+  fdo: https://gitlab.freedesktop.org/
+  xorg: https://xorg.freedesktop.org/
+  cpan: https://cpan.metacpan.org/
+  samba_pub: https://download.samba.org/pub/
+  openldap: https://openldap.org/
+  kerberos: https://kerberos.org/
