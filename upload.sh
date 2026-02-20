@@ -59,8 +59,9 @@ go -C ./token-redeemer/ run .
 
 ## Prepare the image upload tree
 mkdir upload-tree/
-mv ./*.raw ./*.torrent upload-tree/
+mkdir upload-tree/sysupdate/
 mkdir upload-tree/sysupdate/v2/
+mv ./*.raw ./*.torrent upload-tree/
 mv ./*.efi ./*.tar.zst ./*.erofs ./*.caibx SHA256SUMS SHA256SUMS.gpg upload-tree/sysupdate/v2/
 ### Upload
 go -C ./token-redeemer/ run .
