@@ -159,6 +159,10 @@ if [ -f /etc/updatedb.conf ]; then
     sed -i 's/^PRUNE_BIND_MOUNTS = "yes"/PRUNE_BIND_MOUNTS = "no"/' /etc/updatedb.conf
 fi
 
+# ydotool can be an attack surface; make it a system-level service so it doesn't get
+# enabled by default and requires authentication to manually enable.
+mv /usr/lib/systemd/user/ydotool.service /usr/lib/systemd/system/ydotool.service
+
 # Clean up final remnants of the build process
 rm -rf \
     /buildroot \
