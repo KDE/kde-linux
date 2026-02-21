@@ -78,7 +78,7 @@ SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted
     <p xml:lang="ca-valencia">KDE Linux és un sistema operatiu fàcil d'utilitzar construït al voltant de l'entorn d'escriptori Plasma de KDE. Proporciona una experiència de computació completa amb un enfocament en la productivitat, la personalització i la facilitat d'ús.</p>
     <p xml:lang="de">KDE Linux ist ein benutzerfreundliches Betriebssystem, das um die „KDE Plasma“-Arbeitsflächenumgebung gebaut ist. Es bietet eine umfassende Benutzererfahrung mit Schwerpunkt auf Produktivität, Anpassbarkeit und einfacher Bedienung.</p>
     <p xml:lang="es">KDE Linux es un sistema operativo amigable con el usuario y está construido alrededor del entorno de escritorio KDE Plasma. Proporciona una experiencia informática completa enfocada a la productividad, personalización y facilidad de uso.</p>
-    <p xml:lang="eu">KDE Linux, KDE Plasma mahaigain ingurunearen inguruan eraikitako sistema eragile lagunkoi bat da. Konputazio esperientzia osoa eskaintzen du, produktibitatean, norbere neurrira egokitzean, eta erabiltzeko erraztasunean arreta jarriz.</p>
+    <p xml:lang="eu">KDE Linux, KDE Plasma mahaigain ingurunearen inguruan eraikita dagoen sistema eragile lagunkoi bat da. Konputazio esperientzia osoa eskaintzen du, arreta produktibitatean, pertsonalizazioan, eta erabiltzeko erraztasunean jarriz.</p>
     <p xml:lang="fi">KDE Linux on KDE Plasma -työpöytäympäristön ympärille rakennettu käyttäjäystävällinen käyttöjärjestelmä. Se tarjoaa täydellisen tietokoneympäristön keskittymällä tuottavuuteen, mukautettavuuteen ja käytön helppouteen</p>
     <p xml:lang="fr">KDE Linux est un système d'exploitation convivial construit à partir de l'environnement de bureau KDE Plasma. Il offre une expérience informatique globale, en mettant l'accent sur la productivité, la personnalisation et l'ergonomie.</p>
     <p xml:lang="gl">KDE Linux é un sistema operativo para xente usuaria construído arredor do contorno de escritorio KDE Plasma. Fornece unha experiencia informática completa centrada na produtividade, na personalización e na facilidade de uso.</p>
@@ -307,14 +307,17 @@ SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted
         <p xml:lang="ca">Versió inicial del KDE Linux:</p>
         <p xml:lang="ca-valencia">Versió inicial de KDE Linux:</p>
         <p xml:lang="es">Versión inicial de KDE Linux que contiene:</p>
+        <p xml:lang="eu">KDE Linux-en hasierako bertsioa, honako hauek ditu:</p>
         <p xml:lang="he">המהדורה הראשונית של לינוקס KDE כוללת את:</p>
         <p xml:lang="ia">Version initial de KDE Linux con:</p>
         <p xml:lang="ka">KDE Linux-ის პირველი ვერსია, ფუნქციებით:</p>
         <p xml:lang="lt">Pradinė KDE Linux laida, kurioje yra:</p>
         <p xml:lang="nl">Eerste versie van KDE Linux met de volgende kenmerken:</p>
         <p xml:lang="pt-BR">Lançamento inicial do KDE Linux com as seguintes funcionalidades:</p>
+        <p xml:lang="ro">Ediția inițială de KDE Linux cu:</p>
         <p xml:lang="ru">Первый выпуск KDE Linux:</p>
         <p xml:lang="sl">Začetna izdaja KDE Linuxa z:</p>
+        <p xml:lang="tr">KDE Linux’un şunları içeren ilk yayımı:</p>
         <p xml:lang="uk">У початковому випуску KDE Linux ви знайдете:</p>
         <p xml:lang="zh-CN">KDE Linux 的首个正式版使用以下组件：</p>
         <ul>
@@ -323,14 +326,17 @@ SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted
           <li xml:lang="ca">Plasma de KDE</li>
           <li xml:lang="ca-valencia">Plasma de KDE</li>
           <li xml:lang="es">KDE Plasma</li>
+          <li xml:lang="eu">KDE Plasma</li>
           <li xml:lang="he">פלזמה מבית KDE‏ </li>
           <li xml:lang="ia">KDE Plasma</li>
           <li xml:lang="ka">KDE Plasma</li>
           <li xml:lang="lt">KDE Plasma</li>
           <li xml:lang="nl">KDE Plasma</li>
           <li xml:lang="pt-BR">KDE Plasma</li>
+          <li xml:lang="ro">Plasma KDE</li>
           <li xml:lang="ru">KDE Plasma</li>
           <li xml:lang="sl">KDE Plasma</li>
+          <li xml:lang="tr">KDE Plasma</li>
           <li xml:lang="uk">Плазма KDE</li>
           <li xml:lang="zh-CN">KDE Plasma 桌面环境</li>
           <li>Linux kernel 6.7</li>
@@ -338,14 +344,17 @@ SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted
           <li xml:lang="ca">Nucli Linux 6.7</li>
           <li xml:lang="ca-valencia">Nucli Linux 6.7</li>
           <li xml:lang="es">Kernel de Linux 6.7</li>
+          <li xml:lang="eu">Linux kernel 6.7</li>
           <li xml:lang="he">ליבת לינוקס 6.7</li>
           <li xml:lang="ia">Kernel (nucleo) de Linux 6.7</li>
           <li xml:lang="ka">Linux kernel 6.7</li>
           <li xml:lang="lt">Linux branduolys 6.7</li>
           <li xml:lang="nl">Linux kernel 6.7</li>
           <li xml:lang="pt-BR">Linux kernel 6.7</li>
+          <li xml:lang="ro">Nucleu Linux 6.7</li>
           <li xml:lang="ru">Ядро Linux 6.7</li>
           <li xml:lang="sl">Linux kernel 6.7</li>
+          <li xml:lang="tr">Linux 6.7</li>
           <li xml:lang="uk">Ядро Linux 6.7</li>
           <li xml:lang="zh-CN">Linux 内核 6.7</li>
           <li>Updated KDE Applications suite</li>
@@ -353,14 +362,17 @@ SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted
           <li xml:lang="ca">Paquet actualitzat d'aplicacions KDE</li>
           <li xml:lang="ca-valencia">Paquet actualitzat d'aplicacions KDE</li>
           <li xml:lang="es">Se ha actualizado el paquete de aplicaciones de KDE</li>
+          <li xml:lang="eu">KDE aplikazioen suite eguneratua</li>
           <li xml:lang="he">חבילת היישומים של KDE עודכנה</li>
           <li xml:lang="ia">Suite de Applicationes de KDE actualisate</li>
           <li xml:lang="ka">განახლებული KDE-ის აპლიკაციების ნაკრები</li>
           <li xml:lang="lt">Atnaujintas KDE programų rinkinys</li>
           <li xml:lang="nl">Bijgewerkte KDE-toepassingensuite</li>
           <li xml:lang="pt-BR">Pacote de aplicativos KDE atualizado</li>
+          <li xml:lang="ro">Suită de aplicații KDE actualizată</li>
           <li xml:lang="ru">Обновлённый набор приложений KDE</li>
           <li xml:lang="sl">Posodobljen paket aplikacij KDE</li>
+          <li xml:lang="tr">Güncellenmiş KDE uygulamaları süiti</li>
           <li xml:lang="uk">Оновлено комплект програм KDE</li>
           <li xml:lang="zh-CN">最新 KDE 应用程序套件</li>
           <li>New system installer</li>
@@ -368,14 +380,17 @@ SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted
           <li xml:lang="ca">Instal·lador nou del sistema</li>
           <li xml:lang="ca-valencia">Instal·lador nou del sistema</li>
           <li xml:lang="es">Nuevo instalador del sistema</li>
+          <li xml:lang="eu">Sistema-instalatzaile berria</li>
           <li xml:lang="he">מתקין מערכת חדש</li>
           <li xml:lang="ia">Nove installkator de systema</li>
           <li xml:lang="ka">ახალი სისტემის დაყენების პროგრამა</li>
           <li xml:lang="lt">Nauja sistemos diegimo programa</li>
           <li xml:lang="nl">Nieuw systeeminstallatieprogramma</li>
           <li xml:lang="pt-BR">Novo instalador do sistema</li>
+          <li xml:lang="ro">Instalator de sistem nou</li>
           <li xml:lang="ru">Новый установщик системы</li>
           <li xml:lang="sl">Nov namestitveni program sistema</li>
+          <li xml:lang="tr">Yeni sistem kurucusu</li>
           <li xml:lang="uk">Новий засіб встановлення системи</li>
           <li xml:lang="zh-CN">新版系统安装程序</li>
         </ul>
