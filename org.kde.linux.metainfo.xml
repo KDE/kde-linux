@@ -306,8 +306,10 @@ SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted
         <p xml:lang="ar">تحوي الإصدارة المبدئية لينكس كيدي على:</p>
         <p xml:lang="ca">Versió inicial del KDE Linux:</p>
         <p xml:lang="ca-valencia">Versió inicial de KDE Linux:</p>
+        <p xml:lang="de">Erste Veröffentlichung von KDE Linux mit folgenden Funktionen:</p>
         <p xml:lang="es">Versión inicial de KDE Linux que contiene:</p>
         <p xml:lang="eu">KDE Linux-en hasierako bertsioa, honako hauek ditu:</p>
+        <p xml:lang="fr">Première version de KDE Linux incluant :</p>
         <p xml:lang="he">המהדורה הראשונית של לינוקס KDE כוללת את:</p>
         <p xml:lang="ia">Version initial de KDE Linux con:</p>
         <p xml:lang="ka">KDE Linux-ის პირველი ვერსია, ფუნქციებით:</p>
@@ -325,8 +327,10 @@ SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted
           <li xml:lang="ar">سطح مكتب بلازما</li>
           <li xml:lang="ca">Plasma de KDE</li>
           <li xml:lang="ca-valencia">Plasma de KDE</li>
+          <li xml:lang="de">KDE Plasma</li>
           <li xml:lang="es">KDE Plasma</li>
           <li xml:lang="eu">KDE Plasma</li>
+          <li xml:lang="fr">KDE Plasma</li>
           <li xml:lang="he">פלזמה מבית KDE‏ </li>
           <li xml:lang="ia">KDE Plasma</li>
           <li xml:lang="ka">KDE Plasma</li>
@@ -343,8 +347,10 @@ SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted
           <li xml:lang="ar">نواة لينكس 6.7</li>
           <li xml:lang="ca">Nucli Linux 6.7</li>
           <li xml:lang="ca-valencia">Nucli Linux 6.7</li>
+          <li xml:lang="de">Linux-Kernel 6.7</li>
           <li xml:lang="es">Kernel de Linux 6.7</li>
           <li xml:lang="eu">Linux kernel 6.7</li>
+          <li xml:lang="fr">Linux kernel 6.7</li>
           <li xml:lang="he">ליבת לינוקס 6.7</li>
           <li xml:lang="ia">Kernel (nucleo) de Linux 6.7</li>
           <li xml:lang="ka">Linux kernel 6.7</li>
@@ -361,8 +367,10 @@ SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted
           <li xml:lang="ar">حزمة تطبيقات كِيدِي محدثة</li>
           <li xml:lang="ca">Paquet actualitzat d'aplicacions KDE</li>
           <li xml:lang="ca-valencia">Paquet actualitzat d'aplicacions KDE</li>
+          <li xml:lang="de">Aktalisierte KDE-Anwendungssuite</li>
           <li xml:lang="es">Se ha actualizado el paquete de aplicaciones de KDE</li>
           <li xml:lang="eu">KDE aplikazioen suite eguneratua</li>
+          <li xml:lang="fr">Suite d'applications de KDE mise à jour</li>
           <li xml:lang="he">חבילת היישומים של KDE עודכנה</li>
           <li xml:lang="ia">Suite de Applicationes de KDE actualisate</li>
           <li xml:lang="ka">განახლებული KDE-ის აპლიკაციების ნაკრები</li>
@@ -379,8 +387,10 @@ SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted
           <li xml:lang="ar">مثبت نظام جديد</li>
           <li xml:lang="ca">Instal·lador nou del sistema</li>
           <li xml:lang="ca-valencia">Instal·lador nou del sistema</li>
+          <li xml:lang="de">Neues System-Installationsprogramm</li>
           <li xml:lang="es">Nuevo instalador del sistema</li>
           <li xml:lang="eu">Sistema-instalatzaile berria</li>
+          <li xml:lang="fr">Nouvel installateur de système</li>
           <li xml:lang="he">מתקין מערכת חדש</li>
           <li xml:lang="ia">Nove installkator de systema</li>
           <li xml:lang="ka">ახალი სისტემის დაყენების პროგრამა</li>
