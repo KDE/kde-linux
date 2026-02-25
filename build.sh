@@ -176,6 +176,9 @@ cp --reflink=auto "$ROOTFS_EROFS" kde-linux.cache/root.raw
 touch "$IMG"
 systemd-repart --no-pager --empty=allow --size=auto --dry-run=no --root=kde-linux.cache --definitions=mkosi.repart "$IMG"
 
+# Incase the owner is root
+chown -R "$USER":"$USER" mkosi.output
+
 ./basic-test.py "$IMG" "$EFI_BASE.efi" || exit 1
 rm ./mkosi.output/*.test.raw
 
@@ -196,6 +199,5 @@ zstd --threads=0 --rm ${OUTPUT}_root-x86-64.tar
 # TODO before accepting new uploads perform sanity checks on the artifacts (e.g. the tar being well formed)
 
 # efi images and torrents are 700, make them readable so the server can serve them
-chown -R "$USER":"$USER" mkosi.output
 chmod go+r "$OUTPUT".* ./mkosi.output/*.efi ./mkosi.output/*.torrent
 ls -lah
