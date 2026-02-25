@@ -177,7 +177,7 @@ touch "$IMG"
 systemd-repart --no-pager --empty=allow --size=auto --dry-run=no --root=kde-linux.cache --definitions=mkosi.repart "$IMG"
 
 # Incase the owner is root
-chown -R "$USER":"$USER" mkosi.output
+chown -R user:user mkosi.output
 
 ./basic-test.py "$IMG" "$EFI_BASE.efi" || exit 1
 rm ./mkosi.output/*.test.raw
