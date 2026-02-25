@@ -17,7 +17,7 @@ if [ ! -d upload-tree ]; then
             # Skip test images
             continue
         fi
-        sudo mv "$f" upload-tree/
+        mv "$f" upload-tree/
     done
 fi
 
