@@ -22,19 +22,20 @@ known_alternatives = {
     "netstat" : "ss",
     "nslookup" : "resolvectl query",
     "route" : "ip route",
-    "service" :"systemctl",
+    "service" : "systemctl",
     "traceroute" : "tracepath"
 }
 
 unsupported_package_managers = [
     "apt",
-    "apt-get",
     "dnf",
     "dpkg",
+    "npm",
     "pacman",
     "pamac",
     "portage",
     "rpm",
+    "yay",
     "yum",
     "zypper"
 ]
@@ -44,7 +45,20 @@ available_package_managers = {
     "nix" : "https://kde.org/linux/docs/more-software/#nix"
 }
 
+related_commands = {
+    "nix-env" : "nix",
+    "nix-shell" : "nix",
+    "nix-store" : "nix",
+    "apt-cache" : "apt",
+    "apt-config" : "apt",
+    "apt-get" : "apt",
+    "apt-mark" : "apt"
+}
+
 command = sys.argv[1]
+
+if command in related_commands:
+    command = related_commands[command]
 
 if command in known_alternatives:
     print("\nKDE Linux does not include the “%s” tool.\n\nInstead, try using “%s”.\n" % (command, known_alternatives[command]))
