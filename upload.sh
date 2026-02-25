@@ -31,7 +31,7 @@ echo "origin.files.kde.org ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILUjdH4S7otYIdLUk
 
 # The initial SHA256SUMS file is created by the vacuum script based on what is left on the server. We append to it.
 
-sudo chown -R "$USER":"$USER" "$OUTDIR"
+chown -R "$USER":"$USER" "$OUTDIR"
 cd "$OUTDIR"
 
 # We need shell globs here! More readable this way. Ignore shellcheck.
