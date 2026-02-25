@@ -56,7 +56,7 @@ S3_TARGET="s3+https://storage.kde.org/kde-linux/testing/"
 
 ## Upload to the chunk store directly
 go install -v github.com/folbricht/desync/cmd/desync@latest
-go -C ./token-redeemer/ run .
+go -C ../token-redeemer/ run .
 ~/go/bin/desync chop \
     --concurrency "$(nproc)" \
     --store "$S3_STORE" \
