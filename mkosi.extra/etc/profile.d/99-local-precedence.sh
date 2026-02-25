@@ -7,6 +7,7 @@ export PATH="$HOME/.local/bin:$HOME/.local/sbin:/opt/local/sbin:/opt/local/bin:$
 # Prefixes
 export LOCAL_PREFIX=/opt/local
 export PREFIX=/opt/local
+export DESTDIR=/opt/local
 
 # For .desktop files and systemd
 export XDG_DATA_DIRS="$HOME/.local/share:/opt/local/share:${XDG_DATA_DIRS:-/usr/local/share:/usr/share}"
