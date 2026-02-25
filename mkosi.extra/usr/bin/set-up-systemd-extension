@@ -33,7 +33,7 @@ else
     sudo chattr +i "${SYSEXT_LOCATION}/extension-release.kde"
 
     # Turn it on!
-    sudo systemd-sysext merge
+    sudo systemd-sysext refresh || sudo systemd-sysext merge
 
     echo "Finished setting up extension! When you put files in ${SYSEXT_BASE_LOCATION} and run 'sudo systemd-sysext refresh', they will appear in /usr/. See https://community.kde.org/KDE_Linux/Add_or_override_content_in_/usr for more information."
 fi
