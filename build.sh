@@ -34,7 +34,7 @@ make_debug_archive () {
 EPOCH=$(date --utc +%s) # The epoch (only used to then construct the various date strings)
 VERSION_DATE=$(date --utc --date="@$EPOCH" --rfc-3339=seconds)
 VERSION=$(date --utc --date="@$EPOCH" +%Y%m%d%H%M)
-OUTPUT=kde-linux_$VERSION   # Built rootfs path (mkosi uses this directory by default)
+OUTPUT="mkosi.output/kde-linux_$VERSION"   # Built rootfs path (mkosi uses this directory by default)
 
 # Canonicalize the path in $OUTPUT to avoid any possible path issues.
 OUTPUT="$(readlink --canonicalize-missing "$OUTPUT")"
@@ -107,7 +107,6 @@ mkosi \
     --environment="CI_PIPELINE_URL=${CI_PIPELINE_URL:-https://invent.kde.org}" \
     --environment="VERSION_DATE=${VERSION_DATE}" \
     --image-version="$VERSION" \
-    --output-directory=. \
     "$@"
 
 # Adjust mtime to reduce unnecessary churn between images caused by us rebuilding repos that have possible not changed in source or binary interfaces.
@@ -178,7 +177,7 @@ touch "$IMG"
 systemd-repart --no-pager --empty=allow --size=auto --dry-run=no --root=kde-linux.cache --definitions=mkosi.repart "$IMG"
 
 ./basic-test.py "$IMG" "$EFI_BASE.efi" || exit 1
-rm ./*.test.raw
+rm ./mkosi.output/*.test.raw
 
 # Create a torrent for the image
 ./torrent-create.rb "$VERSION" "$OUTPUT" "$IMG"
@@ -197,5 +196,5 @@ zstd --threads=0 --rm ${OUTPUT}_root-x86-64.tar
 # TODO before accepting new uploads perform sanity checks on the artifacts (e.g. the tar being well formed)
 
 # efi images and torrents are 700, make them readable so the server can serve them
-chmod go+r "$OUTPUT".* ./*.efi ./*.torrent
+chmod go+r "$OUTPUT".* ./mkosi.output/*.efi ./mkosi.output/*.torrent
 ls -lah

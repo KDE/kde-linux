@@ -26,6 +26,8 @@
 /mkosi.extra/usr/lib/systemd/system/kde-linux-sysupdated.service
 /mkosi.extra/usr/lib/systemd/system/kde-linux-sysupdated.socket
 
+/mkosi.output/
+
 mkosi.local.conf
 
 kde-linux_*
