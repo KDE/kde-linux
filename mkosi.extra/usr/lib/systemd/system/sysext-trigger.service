@@ -15,12 +15,11 @@ Type=oneshot
 # --- Ensure base dirs exist ---
 ExecStart=/usr/bin/mkdir -p /var/lib/extensions
 ExecStart=/usr/bin/mkdir -p /var/lib/extensions.mutable/usr
-ExecStart=/usr/bin/mkdir -p /var/lib/extensions.mutable/.systemd-usr-workdir
 
 # --- Ensure correct permissions ---
 ExecStart=/usr/bin/chmod 0755 /var/lib/extensions.mutable
 ExecStart=/usr/bin/chmod 0755 /var/lib/extensions.mutable/usr
-ExecStart=/usr/bin/chmod 0700 /var/lib/extensions.mutable/.systemd-usr-workdir
+ExecStart=/usr/bin/chmod 0755 /var/lib/extensions.mutable/opt
 
 # --- Route /usr/local → /opt/local ---
 ExecStart=/usr/bin/ln -sfn /opt/local /var/lib/extensions.mutable/usr/local
