@@ -1,8 +1,11 @@
-#!/bin/sh
+#!/usr/bin/env bash
 # SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL
 # SPDX-FileCopyrightText: 2024 Harald Sitter <sitter@kde.org>
+# SPDX-FileCopyrightText: 2026 Hadi Chokr <hadichokr@icloud.com>
 
 set -eux
+
+OUTDIR=mkosi.output
 
 # For the vacuum helper and this script
 export SSH_IDENTITY="$PWD/.secure_files/ssh.key"
@@ -27,6 +30,8 @@ REMOTE_PATH=$SSH_USER@$SSH_HOST:$SSH_PATH
 echo "origin.files.kde.org ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILUjdH4S7otYIdLUkOZK+owIiByjNQPzGi7GQ5HOWjO6" >> ~/.ssh/known_hosts
 
 # The initial SHA256SUMS file is created by the vacuum script based on what is left on the server. We append to it.
+
+cd "$OUTDIR"
 
 # We need shell globs here! More readable this way. Ignore shellcheck.
 # shellcheck disable=SC2129
@@ -58,11 +63,13 @@ go -C ./token-redeemer/ run .
     ./*-x86-64.erofs
 
 ## Prepare the image upload tree
-mkdir upload-tree/
-mkdir upload-tree/sysupdate/
-mkdir upload-tree/sysupdate/v2/
-mv ./*.raw ./*.torrent upload-tree/
-mv ./*.efi ./*.tar.zst ./*.erofs ./*.caibx SHA256SUMS SHA256SUMS.gpg upload-tree/sysupdate/v2/
+cd ..
+rm -rf upload-tree
+mkdir -p upload-tree/sysupdate/v2
+
+mv "$OUTDIR"/*.raw "$OUTDIR"/*.torrent upload-tree/
+mv "$OUTDIR"/*.efi "$OUTDIR"/*.tar.zst "$OUTDIR"/*.erofs "$OUTDIR"/*.caibx "$OUTDIR"/SHA256SUMS "$OUTDIR"/SHA256SUMS.gpg upload-tree/sysupdate/v2/
+
 ### Upload
 go -C ./token-redeemer/ run .
 go -C ./uploader/ run . --remote "$S3_TARGET"
