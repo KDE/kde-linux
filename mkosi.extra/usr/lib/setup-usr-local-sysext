@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+# SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL
+# SPDX-FileCopyrightText: 2026 Hadi Chokr <hadichokr@icloud.com>
+
 set -eu
 
 EXT_NAME="usr-local-routing"
