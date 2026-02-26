@@ -6,13 +6,12 @@ set -eu
 
 EXT_NAME="usr-local-routing"
 EXT_DIR="/var/lib/extensions/${EXT_NAME}"
-REL_DIR="${EXT_DIR}/extension-release.d"
+REL_DIR="${EXT_DIR}/usr/lib/extension-release.d"
 
 # If already exists, do nothing
 [ -L "${EXT_DIR}/usr/local" ] && exit 0
 
 mkdir -p "${REL_DIR}"
-mkdir -p "${EXT_DIR}/usr"
 
 # Create the symlink inside the extension
 ln -sfn /opt/local "${EXT_DIR}/usr/local"
