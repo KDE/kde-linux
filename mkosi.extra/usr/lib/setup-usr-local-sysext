@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+set -eu
+
+EXT_NAME="usr-local-routing"
+EXT_DIR="/var/lib/extensions/${EXT_NAME}"
+REL_DIR="${EXT_DIR}/extension-release.d"
+
+# If already exists, do nothing
+[ -L "${EXT_DIR}/usr/local" ] && exit 0
+
+mkdir -p "${REL_DIR}"
+mkdir -p "${EXT_DIR}/usr"
+
+# Create the symlink inside the extension
+ln -sfn /opt/local "${EXT_DIR}/usr/local"
+
+# Create extension-release metadata
+cp /usr/lib/os-release "${REL_DIR}/extension-release.${EXT_NAME}"
+
+# Make it universal so updates don't break it
+sed -i 's/^ID=.*/ID=_any/' "${REL_DIR}/extension-release.${EXT_NAME}"
