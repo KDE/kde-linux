@@ -66,6 +66,7 @@ echo "rw rootflags=subvol=@system,compress=zstd:1,lazytime \
   preempt=full threadirqs \
   nohz=on nohz_full=all \
   rcu_nocbs=all rcutree.enable_rcu_lazy=1 \
+  systemd.hostname=kde-linux \
   vt.global_cursor_default=0 quiet splash loglevel=3" > cmdline
 mkinitcpio --config mkinitcpio.conf --generate initrd --kernel "$kernel_version"
 ukify build \
