@@ -5,4 +5,3 @@
 set -eux
 
 flatpak install --noninteractive --assumeyes --sideload-repo=/usr/share/factory/var/lib/flatpak/.ostree/repo org.gtk.Gtk3theme.Breeze org.kde.gwenview org.kde.okular org.kde.kwrite org.kde.haruna org.kde.qrca org.kde.ark org.kde.kcalc org.mozilla.firefox
-flatpak repair # Get localizations back now

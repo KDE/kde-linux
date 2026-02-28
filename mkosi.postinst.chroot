@@ -70,8 +70,8 @@ download_flatpaks() {
     # Do this separately, when used as part of remote-add it complains about GPG for unknown reasons
     flatpak remote-modify --collection-id=org.flathub.Stable flathub
 
-    # Only check out en. We don't really support other languages on the live image at this time.
-    flatpak config --set languages en
+    # Setting "*" will let Flatpak download all languages at once
+    flatpak config --set languages "*"
 
     kde_nightly=(
         ark
