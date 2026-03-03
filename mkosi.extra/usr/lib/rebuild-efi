@@ -40,6 +40,7 @@ echo "rw \
   preempt=full threadirqs \
   nohz=on nohz_full=all \
   rcu_nocbs=all rcutree.enable_rcu_lazy=1 \
+  amdgpu.dcdebugmask=0x10 \
   vt.global_cursor_default=0 quiet splash loglevel=3" > cmdline
 mkinitcpio --config mkinitcpio.conf --generate initrd --kernel "$kernel_version"
 ukify build \
@@ -60,12 +61,15 @@ ukify build \
 # reducing wake-ups and therefore power usage. rcu_nocbs=all is actually turned on
 # automatically by nohz_full=all, but we manually specify it here anyway because
 # rcutree.enable_rcu_lazy=1 needs it and we don't want that to break.
+
+# amdgpu.dcdebugmask=0x10 works around https://gitlab.freedesktop.org/drm/amd/-/issues/4831
 echo "rw rootflags=subvol=@system,compress=zstd:1,lazytime \
   lsm=landlock,lockdown,yama,integrity,bpf \
   zswap.enabled=0 \
   preempt=full threadirqs \
   nohz=on nohz_full=all \
   rcu_nocbs=all rcutree.enable_rcu_lazy=1 \
+  amdgpu.dcdebugmask=0x10 \
   systemd.hostname=kde-linux \
   vt.global_cursor_default=0 quiet splash loglevel=3" > cmdline
 mkinitcpio --config mkinitcpio.conf --generate initrd --kernel "$kernel_version"
