@@ -324,6 +324,7 @@ SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted
         <p xml:lang="tr">KDE Linux’un şunları içeren ilk yayımı:</p>
         <p xml:lang="uk">У початковому випуску KDE Linux ви знайдете:</p>
         <p xml:lang="zh-CN">KDE Linux 的首个正式版使用以下组件：</p>
+        <p xml:lang="zh-TW">KDE Linux 初始釋出，內含：</p>
         <ul>
           <li>KDE Plasma</li>
           <li xml:lang="ar">سطح مكتب بلازما</li>
@@ -347,6 +348,7 @@ SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted
           <li xml:lang="tr">KDE Plasma</li>
           <li xml:lang="uk">Плазма KDE</li>
           <li xml:lang="zh-CN">KDE Plasma 桌面环境</li>
+          <li xml:lang="zh-TW">KDE Plasma</li>
           <li>Linux kernel 6.7</li>
           <li xml:lang="ar">نواة لينكس 6.7</li>
           <li xml:lang="ca">Nucli Linux 6.7</li>
@@ -369,6 +371,7 @@ SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted
           <li xml:lang="tr">Linux 6.7</li>
           <li xml:lang="uk">Ядро Linux 6.7</li>
           <li xml:lang="zh-CN">Linux 内核 6.7</li>
+          <li xml:lang="zh-TW">Linux 核心 6.7</li>
           <li>Updated KDE Applications suite</li>
           <li xml:lang="ar">حزمة تطبيقات كِيدِي محدثة</li>
           <li xml:lang="ca">Paquet actualitzat d'aplicacions KDE</li>
@@ -391,6 +394,7 @@ SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted
           <li xml:lang="tr">Güncellenmiş KDE uygulamaları süiti</li>
           <li xml:lang="uk">Оновлено комплект програм KDE</li>
           <li xml:lang="zh-CN">最新 KDE 应用程序套件</li>
+          <li xml:lang="zh-TW">最新的 KDE 應用程式套裝軟體</li>
           <li>New system installer</li>
           <li xml:lang="ar">مثبت نظام جديد</li>
           <li xml:lang="ca">Instal·lador nou del sistema</li>
@@ -413,6 +417,7 @@ SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted
           <li xml:lang="tr">Yeni sistem kurucusu</li>
           <li xml:lang="uk">Новий засіб встановлення системи</li>
           <li xml:lang="zh-CN">新版系统安装程序</li>
+          <li xml:lang="zh-TW">新的系統安裝器</li>
         </ul>
       </description>
     </release>
