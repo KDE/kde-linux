@@ -89,3 +89,7 @@ alias grep='grep --color=auto'
 alias la='ls -A'
 alias ll='ls -l'
 alias lla='ls -lA'
+
+# Wrap journal logs viewed in terminal rather than truncating; friendlier for reading
+# and copying
+export SYSTEMD_LESS=FRXMK
