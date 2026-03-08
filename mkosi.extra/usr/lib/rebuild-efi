@@ -63,7 +63,7 @@ ukify build \
 # rcutree.enable_rcu_lazy=1 needs it and we don't want that to break.
 
 # amdgpu.dcdebugmask=0x10 works around https://gitlab.freedesktop.org/drm/amd/-/issues/4831
-echo "rw rootflags=subvol=@system,compress=zstd:1,lazytime \
+echo "rw rootflags=subvol=@system,compress=zstd:-4,lazytime \
   lsm=landlock,lockdown,yama,integrity,bpf \
   zswap.enabled=0 \
   preempt=full threadirqs \
