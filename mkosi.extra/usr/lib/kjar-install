@@ -1,0 +1,34 @@
+#!/usr/bin/env bash
+# SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL
+# SPDX-FileCopyrightText: 2026 Hadi Chokr <hadichokr@icloud.com>
+
+if flatpak list --app | grep -q org.kde.kjar; then
+    notify-send -a "Java Support" -i application-x-java-archive \
+        "Java Support" "Java is already installed and ready to use."
+    exit 0
+fi
+
+notify-send -a "Java Support" -i application-x-java-archive \
+    "Installing Java Support" \
+    "This may take a few minutes. Your file will open automatically when done."
+
+flatpak remote-add --if-not-exists --user kjar-nightly \
+    https://cdn.kde.org/flatpak/kjar-nightly/kjar-nightly.flatpakrepo
+
+flatpak install --user org.kde.kjar --assumeyes
+
+flatpak run org.kde.kjar --generate-wrappers
+
+mkdir -p ~/.local/share/applications
+cat > ~/.local/share/applications/kjar.desktop << 'EOF'
+[Desktop Entry]
+Hidden=true
+NoDisplay=true
+Type=Application
+Name=masked
+EOF
+update-desktop-database ~/.local/share/applications/
+
+notify-send -a "Java Support" -i application-x-java-archive \
+    "Java Support Ready" \
+    "Installation complete. Opening your file now."

@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=Install Java Support
+Comment=Install Java to run JAR Files
+Exec=java -jar %f
+Icon=application-x-java-archive
+Terminal=false
+Type=Application
+MimeType=application/java-archive;
+Categories=Development;
