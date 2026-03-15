@@ -12,6 +12,7 @@ Type=Application
 Name=masked
 EOF
     update-desktop-database ~/.local/share/applications/
+    flatpak run org.kde.kjar --generate-wrappers
 }
 
 if flatpak list --app | grep -q org.kde.kjar; then
@@ -28,7 +29,6 @@ notify-send -a "Java Support" -i application-x-java-archive \
 flatpak remote-add --if-not-exists --user kjar-nightly \
     https://cdn.kde.org/flatpak/kjar-nightly/kjar-nightly.flatpakrepo
 flatpak install --user org.kde.kjar --assumeyes
-flatpak run org.kde.kjar --generate-wrappers
 mask
 
 notify-send -a "Java Support" -i application-x-java-archive \
