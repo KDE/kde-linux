@@ -14,15 +14,34 @@ if flatpak list --app --user | grep -q org.kde.kjar; then
     exit 0
 fi
 
-notify-send -a "Java Support" -i application-x-java-archive \
-    "Installing Java Support" \
-    "This may take a few minutes. Your file will open automatically when done."
-
 flatpak remote-add --if-not-exists --user kjar-nightly \
     https://cdn.kde.org/flatpak/kjar-nightly/kjar-nightly.flatpakrepo
-flatpak install --user org.kde.kjar --assumeyes
-mask
 
-notify-send -a "Java Support" -i application-x-java-archive \
-    "Java Support Ready" \
-    "Installation complete."
+NOTIF_ID=$(notify-send --print-id \
+    -a "Java Support" \
+    -i application-x-java-archive \
+    -u low \
+    -t 0 \
+    -h int:value:0 \
+    "Installing Java Support" "Starting…")
+
+flatpak install --user org.kde.kjar --assumeyes 2>&1 | \
+    stdbuf -oL grep -oP '\d+(?=%)' | \
+    while IFS= read -r pct; do
+        gdbus call --session \
+            --dest org.freedesktop.Notifications \
+            --object-path /org/freedesktop/Notifications \
+            --method org.freedesktop.Notifications.Notify \
+            "Java Support" "$NOTIF_ID" "application-x-java-archive" \
+            "Installing Java Support" "${pct}%" \
+            "[]" "{'value': <int32 $pct>, 'urgency': <byte 0>, 'suppress-popup': <true>}" \
+            "int32 0" > /dev/null 2>&1
+    done
+
+notify-send \
+    -a "Java Support" \
+    -i application-x-java-archive \
+    -r "$NOTIF_ID" \
+    "Java Support Ready" "Installation complete."
+
+mask
