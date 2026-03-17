@@ -11,6 +11,7 @@ import (
 	"flag"
 	"io"
 	"log"
+	"log/slog"
 	"os"
 	"path/filepath"
 	"runtime"
@@ -117,7 +118,7 @@ func analyzeFile(input FileAnalysis) FileAnalysis {
 	}
 
 	// The file has not actually changed. Apply the original mtime.
-	log.Println("Restoring mtime for file", input.relPath)
+	slog.Debug("Restoring mtime for file", "path", input.relPath)
 	os.Chtimes(input.absPath, time.Unix(input.blobInfo.MTime, 0), time.Unix(input.blobInfo.MTime, 0))
 	return input
 }
@@ -141,7 +142,7 @@ func analyzeLink(input LinkAnalysis) LinkAnalysis {
 	}
 
 	// The link has not actually changed. Apply the original mtime.
-	log.Println("Restoring mtime for symlink", input.relPath)
+	slog.Debug("Restoring mtime for symlink", "path", input.relPath)
 	os.Chtimes(input.absPath, time.Unix(input.blobInfo.MTime, 0), time.Unix(input.blobInfo.MTime, 0))
 	return input
 }

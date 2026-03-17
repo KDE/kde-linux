@@ -1,1 +1,4 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-FileCopyrightText: 2023 Bruno Gonçalves <www.biglinux.com.br>
+
 ACTION=="add", KERNEL=="sd[a-z]", SUBSYSTEM=="block", ENV{ID_USB_TYPE}=="disk", RUN+="/usr/lib/usb-dirty-pages-udev %k"

@@ -29,8 +29,8 @@ else
     # Skip this step if you want the extension to only work for the current system build
     sed -i "s/^ID=.*/ID=_any/g" "${SYSEXT_LOCATION}/extension-release.kde"
 
-    # Make the release file owned by root so it can't be accidentally removed
-    sudo chown root:root "${SYSEXT_LOCATION}/extension-release.kde"
+    # Make the release file immutable so it can't be accidentally removed
+    sudo chattr +i "${SYSEXT_LOCATION}/extension-release.kde"
 
     # Turn it on!
     sudo systemd-sysext merge

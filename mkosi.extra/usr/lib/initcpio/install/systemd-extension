@@ -10,11 +10,13 @@ build() {
         /usr/lib/systemd/system-generators/kde-linux-live-generator \
         /usr/lib/systemd/system-generators/kde-linux-mount-generator \
         /usr/lib/systemd/systemd-bootchart \
+        /usr/lib/etc-factory \
         /usr/bin/btrfs
 
     map add_systemd_unit \
         systemd-volatile-root.service \
-        systemd-bootchart.service
+        systemd-bootchart.service \
+        etc-factory.service
 
     # Make double sure the dissection rule is present. Without it booting doesn't work because we can't find a root.
     # Notably not getting added by the release initcpio combined with aur systemd-git at the time of writing.

@@ -15,20 +15,9 @@ flatpak override --system org.mozilla.firefox \
   --filesystem=xdg-config/gtk-3.0:ro \
   --filesystem=xdg-run/speech-dispatcher:ro
 
-# Install codecs-extra at runtime - this gets around distribution restrictions on codec licensing.
-# This is required for Firefox to decode certain video formats.
-
-# Make sure it installs the codecs-extra package for the correct runtime.
+# Get the architecture from the runtime.
 RUNTIME_REF="$(flatpak info org.mozilla.firefox 2>/dev/null | grep -E 'Runtime:' | awk '{print $2}')"
 RUNTIME_ARCH="$(echo "$RUNTIME_REF" | cut -d'/' -f2)"
-RUNTIME_BRANCH="$(echo "$RUNTIME_REF" | cut -d'/' -f3)"
-CODEC_REF="org.freedesktop.Platform.codecs-extra/${RUNTIME_ARCH}/${RUNTIME_BRANCH}-extra"
-
-if (! flatpak info "$CODEC_REF" &>/dev/null) && flatpak remote-info flathub "$CODEC_REF" &>/dev/null; then
-    flatpak install --system --runtime -y "$CODEC_REF"
-elif ! flatpak info org.freedesktop.Platform.codecs-extra &>/dev/null; then
-    flatpak install --system --runtime -y org.freedesktop.Platform.codecs-extra
-fi
 
 # Install the KDE Linux default Firefox config into the Firefox flatpak system config extension.
 # This enables hardware acceleration on NVIDIA but can break it on other cards,

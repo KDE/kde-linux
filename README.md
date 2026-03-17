@@ -9,4 +9,4 @@ https://community.kde.org/KDE_Linux
 
 For installation details see the Installation section
 
-https://community.kde.org/KDE_Linux#Installation
+https://kde.org/linux/docs/install/

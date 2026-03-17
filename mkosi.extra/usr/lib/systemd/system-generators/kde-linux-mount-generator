@@ -61,7 +61,7 @@ After=blockdev@dev-gpt\x2dauto\x2droot.target
 [Mount]
 What=/dev/gpt-auto-root
 Where=/sysroot/system
-Options=rw,nodev,suid,exec,subvol=/,compress=zstd:1
+Options=rw,nodev,suid,exec,subvol=/,compress=zstd:-4
 DirectoryMode=0700
 EOF
 

@@ -1,8 +1,9 @@
 # SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL
 # SPDX-FileCopyrightText: 2024 Harald Sitter <sitter@kde.org>
+# SPDX-FileCopyrightText: 2025 Thomas Duckworth <tduck@filotimoproject.org>
 
 [Unit]
-Description=Mark the Current Boot Loader Entry as Good
+Description=Mark the Current Boot Loader Entry as Good and Hide Bootloader
 Conflicts=shutdown.target
 Before=shutdown.target
 
@@ -10,3 +11,7 @@ Before=shutdown.target
 Type=oneshot
 RemainAfterExit=yes
 ExecStart=/usr/lib/systemd/systemd-bless-boot good
+# If the boot was blessed, the user shuts the system down normally, and the uptime
+# is greater than 5 minutes, the bootloader is hidden, because the current image should work.
+# This is idempotent if more than one operating system is installed.
+ExecStopPost=/usr/lib/auto-hide-bootloader hide

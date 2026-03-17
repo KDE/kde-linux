@@ -30,16 +30,17 @@ cat <<- EOF > mkinitcpio.conf
 MODULES=(overlay)
 BINARIES=()
 FILES=()
-HOOKS=(base systemd modconf kms keyboard block sd-encrypt filesystems fsck systemd-extension plymouth microcode)
+HOOKS=(base systemd modconf kms keyboard block sd-encrypt filesystems fsck systemd-extension plymouth microcode sd-shutdown)
 EOF
 
 echo "rw \
   systemd.volatile=overlay systemd.firstboot=false systemd.hostname=kde-linux kde-linux.live=1 plasma.live.user=live \
-  lsm=landlock,lockdown,yama,integrity,apparmor,bpf \
+  lsm=landlock,lockdown,yama,integrity,bpf \
   zswap.enabled=0 \
   preempt=full threadirqs \
   nohz=on nohz_full=all \
   rcu_nocbs=all rcutree.enable_rcu_lazy=1 \
+  amdgpu.dcdebugmask=0x10 \
   vt.global_cursor_default=0 quiet splash loglevel=3" > cmdline
 mkinitcpio --config mkinitcpio.conf --generate initrd --kernel "$kernel_version"
 ukify build \
@@ -47,8 +48,6 @@ ukify build \
   --initrd initrd \
   --cmdline @cmdline \
   --output live.efi
-
-# lsm= defaulting to apparmor from https://wiki.archlinux.org/title/AppArmor
 
 # "preempt=full threadirqs" reduces latency especially for audio and gaming workflows.
 
@@ -62,12 +61,16 @@ ukify build \
 # reducing wake-ups and therefore power usage. rcu_nocbs=all is actually turned on
 # automatically by nohz_full=all, but we manually specify it here anyway because
 # rcutree.enable_rcu_lazy=1 needs it and we don't want that to break.
-echo "rw rootflags=subvol=@system,compress=zstd:1,lazytime \
-  lsm=landlock,lockdown,yama,integrity,apparmor,bpf \
+
+# amdgpu.dcdebugmask=0x10 works around https://gitlab.freedesktop.org/drm/amd/-/issues/4831
+echo "rw rootflags=subvol=@system,compress=zstd:-4,lazytime \
+  lsm=landlock,lockdown,yama,integrity,bpf \
   zswap.enabled=0 \
   preempt=full threadirqs \
   nohz=on nohz_full=all \
   rcu_nocbs=all rcutree.enable_rcu_lazy=1 \
+  amdgpu.dcdebugmask=0x10 \
+  systemd.hostname=kde-linux \
   vt.global_cursor_default=0 quiet splash loglevel=3" > cmdline
 mkinitcpio --config mkinitcpio.conf --generate initrd --kernel "$kernel_version"
 ukify build \

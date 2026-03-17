@@ -2,20 +2,19 @@
 # SPDX-FileCopyrightText: 2025 Thomas Duckworth <tduck@filotimoproject.org>
 
 [Unit]
-Description=Automatically hide the bootloader if the image is good
+Description=Automatically Show Bootloader on Boot - Hidden on Blessed Boot
+DefaultDependencies=no
 After=local-fs.target
-Before=kde-linux-bless-boot.service
+Before=sysinit.target shutdown.target
 
 [Service]
 Type=oneshot
 RemainAfterExit=yes
 # If the system either is not blessed or is forcibly shut down for some reason,
 # the boot menu timeout is reset to default, and the menu is shown.
+# This shows the bootloader on startup, for it to then be hidden once
+# kde-linux-bless-boot.service blesses the system.
 ExecStart=/usr/lib/auto-hide-bootloader show
-# If the boot was blessed, the user shuts the system down normally, and the uptime
-# is greater than 5 minutes, the bootloader is hidden, because the current image should work.
-# This is idempotent if more than one operating system is installed.
-ExecStop=/usr/lib/auto-hide-bootloader hide
 
 [Install]
-WantedBy=kde-linux-bless-boot.service
+WantedBy=sysinit.target

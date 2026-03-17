@@ -7,8 +7,6 @@ set -ex
 env
 
 mkdir --mode 0700 /system # for the kde-linux-overlay.service
-mkdir /snap               # for snapd (will get a subvolume mounted into that snapd then mounts the snaps into)
-mkdir /media # for snap, wants this to exist or fails when trying to create it
 
 export SYSTEMD_ESP_PATH="$BOOT_MNT"
 mkdir --mode 0700 "$SYSTEMD_ESP_PATH"
@@ -24,11 +22,15 @@ pacman --remove --noconfirm corrosion rust || true
 
 # No packagekit support or AppStream metadata in discover please! We don't want discover talking about pacman things.
 pacman --remove --noconfirm packagekit libpackagekit-glib archlinux-appstream-data || true
+rm -rf /usr/share/swcatalog
 
 # Calamares
 cd /tmp
-LATEST_RELEASE=$(curl -s "https://codeberg.org/api/v1/repos/Calamares/calamares/releases" | jq -r '.[0].tag_name')
-git clone --branch "$LATEST_RELEASE" --depth 1 https://codeberg.org/Calamares/calamares.git
+# We're building Calamares from master, due to https://codeberg.org/Calamares/calamares/pulls/2470 not being in a release yet.
+# It can be switched back to build from the latest release once a new release is cut that includes that PR.
+#LATEST_RELEASE=$(curl -s "https://codeberg.org/api/v1/repos/Calamares/calamares/releases" | jq -r '.[0].tag_name')
+#git clone --branch "$LATEST_RELEASE" --depth 1 https://codeberg.org/Calamares/calamares.git
+git clone --depth 1 https://codeberg.org/Calamares/calamares.git
 cmake -S calamares -B calamares/build -DCMAKE_BUILD_TYPE=MinSizeRel -DCMAKE_INSTALL_PREFIX=/usr -DBUILD_TESTING=OFF -DWITH_QT6=ON
 cmake --build calamares/build "-j$(nproc)"
 DESTDIR=/live/ cmake --install calamares/build
@@ -68,8 +70,8 @@ download_flatpaks() {
     # Do this separately, when used as part of remote-add it complains about GPG for unknown reasons
     flatpak remote-modify --collection-id=org.flathub.Stable flathub
 
-    # Only check out en. We don't really support other languages on the live image at this time.
-    flatpak config --set languages en
+    # Setting "*" will let Flatpak download all languages at once
+    flatpak config --set languages "*"
 
     kde_nightly=(
         ark

@@ -41,7 +41,7 @@ fi
 echo
 if [ "${DID_SOMETHING}" = "true" ]; then
     echo "== Done! =="
-    echo "See https://community.kde.org/KDE_Linux/Develop_KDE_software#Use to learn what to do next."
+    echo "See https://kde.org/linux/docs/kde-dev/#use to learn what to do next."
     echo "See https://community.kde.org/Get_Involved/development to learn about KDE development in general."
 else
     echo "== Nothing to do! =="
