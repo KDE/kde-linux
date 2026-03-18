@@ -11,7 +11,7 @@ Before=shutdown.target
 Type=oneshot
 RemainAfterExit=yes
 ExecStart=/usr/lib/systemd/systemd-bless-boot good
-# If the boot was blessed, the user shuts the system down normally, and the uptime
-# is greater than 5 minutes, the bootloader is hidden, because the current image should work.
+# If the boot was blessed and the user shuts the system down normally,
+# the bootloader is hidden, because the current image should work.
 # This is idempotent if more than one operating system is installed.
 ExecStopPost=/usr/lib/auto-hide-bootloader hide

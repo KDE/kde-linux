@@ -14,11 +14,6 @@ case "${1:-}" in
             echo "Multiple operating systems detected, not hiding bootloader."
             exit 0
         fi
-        UPTIME_SECONDS="$(cut -d. -f1 /proc/uptime)"
-        if [ "$UPTIME_SECONDS" -lt 300 ]; then
-            echo "System uptime was less than 5 minutes, not hiding bootloader."
-            exit 0
-        fi
         if [ "$(systemctl show -p Result --value kde-linux-bless-boot.service 2>/dev/null || echo "failed")" = "success" ]; then
             /usr/bin/bootctl set-timeout 0
         fi
