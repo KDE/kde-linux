@@ -10,6 +10,7 @@ SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted
   <name xml:lang="bg">KDE Linux</name>
   <name xml:lang="ca">KDE Linux</name>
   <name xml:lang="ca-valencia">KDE Linux</name>
+  <name xml:lang="cs">KDE Linux</name>
   <name xml:lang="de">KDE Linux</name>
   <name xml:lang="es">KDE Linux</name>
   <name xml:lang="eu">KDE Linux</name>
@@ -268,6 +269,7 @@ SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted
   <developer_name xml:lang="ar">فريق لينكس كيدي</developer_name>
   <developer_name xml:lang="ca">Equip de KDE Linux</developer_name>
   <developer_name xml:lang="ca-valencia">Equip de KDE Linux</developer_name>
+  <developer_name xml:lang="cs">Tým KDE Linux</developer_name>
   <developer_name xml:lang="de">„KDE Linux“-Team</developer_name>
   <developer_name xml:lang="es">Equipo de KDE Linux</developer_name>
   <developer_name xml:lang="eu">KDE Linux Taldea</developer_name>
@@ -330,6 +332,7 @@ SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted
           <li xml:lang="ar">سطح مكتب بلازما</li>
           <li xml:lang="ca">Plasma de KDE</li>
           <li xml:lang="ca-valencia">Plasma de KDE</li>
+          <li xml:lang="cs">KDE Plasma</li>
           <li xml:lang="de">KDE Plasma</li>
           <li xml:lang="es">KDE Plasma</li>
           <li xml:lang="eu">KDE Plasma</li>
@@ -353,6 +356,7 @@ SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted
           <li xml:lang="ar">نواة لينكس 6.7</li>
           <li xml:lang="ca">Nucli Linux 6.7</li>
           <li xml:lang="ca-valencia">Nucli Linux 6.7</li>
+          <li xml:lang="cs">Linuxové jádro 6.7</li>
           <li xml:lang="de">Linux-Kernel 6.7</li>
           <li xml:lang="es">Kernel de Linux 6.7</li>
           <li xml:lang="eu">Linux kernel 6.7</li>
