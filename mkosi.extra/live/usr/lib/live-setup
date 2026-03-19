@@ -52,6 +52,12 @@ LiveEnvironment=true
 LiveInstaller=calamares
 EOF
 
+# No updates check for live session
+cat << EOF > /home/live/.config/PlasmaDiscoverUpdates
+[Global]
+RequiredNotificationInterval=-1
+EOF
+
 # KWallet is also useless in a live environment
 cat << EOF > /home/live/.config/kwalletrc
 [Wallet]
