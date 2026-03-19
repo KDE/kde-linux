@@ -1,0 +1,64 @@
+# Copyright (C) 2026 This file is copyright:
+# This file is distributed under the same license as the kde-linux package.
+#
+# SPDX-FileCopyrightText: 2026 giovanni <g.sora@tiscali.it>
+msgid ""
+msgstr ""
+"Project-Id-Version: kde-linux\n"
+"Report-Msgid-Bugs-To: https://bugs.kde.org\n"
+"POT-Creation-Date: 2026-03-18 00:43+0000\n"
+"PO-Revision-Date: 2026-03-18 10:50+0100\n"
+"Last-Translator: giovanni <g.sora@tiscali.it>\n"
+"Language-Team: Interlingua <kde-i18n-doc@kde.org>\n"
+"Language: ia\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Lokalize 23.08.5\n"
+
+#: mkosi.extra/usr/lib/command-not-found-handler.py:72
+msgid ""
+"KDE Linux does not include the “{}” tool.\n"
+"\n"
+"Instead, try using “{}”."
+msgstr ""
+"KDE Linux non include le instrumento “{}”.\n"
+"\n"
+"In loco, essaya usar “{}”."
+
+#: mkosi.extra/usr/lib/command-not-found-handler.py:74
+msgid ""
+"KDE Linux does not include the “{}” package manager.\n"
+"\n"
+"Graphical software is available using the Discover app center. To learn how "
+"to install software that’s not available in Discover, see {}"
+msgstr ""
+"KDE Linux non include le gerente de pacchettos  “{}” .\n"
+"\n"
+"Software graphic es disponibile si on usa le centro de Discover. Per "
+"apprender como installar software que non es disponibile in Discover, vide {}"
+
+#: mkosi.extra/usr/lib/command-not-found-handler.py:76
+msgid ""
+"KDE Linux does not pre-install the “{}” package manager, but it can be added "
+"manually.\n"
+"\n"
+"To do so, follow the instructions at {}"
+msgstr ""
+"KDE Linux non pre-install le gerente de pacchetto “{}”, sed il pote esser "
+"addite manualmente.\n"
+"\n"
+"Pro facer assi, seque le instructiones a {}"
+
+#: mkosi.extra/usr/lib/command-not-found-handler.py:78
+msgid ""
+"KDE Linux does not include the “{}” command.\n"
+"\n"
+"If you know it exists, and it’s important for your workflow, learn about "
+"options for getting it at {}"
+msgstr ""
+"KDE Linux non include le commando “{}” .\n"
+"\n"
+"Si tu sape que il existe, e que il es  importante per tu fluxo de labor, "
+"appreende re optiones per obtener lo a {}"

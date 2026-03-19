@@ -1,0 +1,63 @@
+# Copyright (C) 2026 This file is copyright:
+# This file is distributed under the same license as the kde-linux package.
+#
+# SPDX-FileCopyrightText: 2026 Freek de Kruijf <freekdekruijf@kde.nl>
+msgid ""
+msgstr ""
+"Project-Id-Version: kde-linux\n"
+"Report-Msgid-Bugs-To: https://bugs.kde.org\n"
+"POT-Creation-Date: 2026-03-18 00:43+0000\n"
+"PO-Revision-Date: 2026-03-18 17:15+0100\n"
+"Last-Translator: Freek de Kruijf <freekdekruijf@kde.nl>\n"
+"Language-Team: \n"
+"Language: nl\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: Lokalize 25.12.3\n"
+
+#: mkosi.extra/usr/lib/command-not-found-handler.py:72
+msgid ""
+"KDE Linux does not include the “{}” tool.\n"
+"\n"
+"Instead, try using “{}”."
+msgstr ""
+"KDE Linux bevat niet het hulpmiddel “{}”.\n"
+"\n"
+"Probeer, in plaats daarvan, “{}” te gebruiken."
+
+#: mkosi.extra/usr/lib/command-not-found-handler.py:74
+msgid ""
+"KDE Linux does not include the “{}” package manager.\n"
+"\n"
+"Graphical software is available using the Discover app center. To learn how "
+"to install software that’s not available in Discover, see {}"
+msgstr ""
+"KDE Linux bevat niet de pakketbeheerder “{}”.Grafische software is "
+"beschikbaar via de toepassing Discover. Zie {} voor meer informatie over het "
+"installeren van software die niet beschikbaar is in Discover, zie {}"
+
+#: mkosi.extra/usr/lib/command-not-found-handler.py:76
+msgid ""
+"KDE Linux does not pre-install the “{}” package manager, but it can be added "
+"manually.\n"
+"\n"
+"To do so, follow the instructions at {}"
+msgstr ""
+"KDE Linux installeert niet de pakketbeheerder “{}”, maar deze kan handmatig "
+"toegevoegd worden.\n"
+"\n"
+"Om dat te doen, volg de instructies op {}"
+
+#: mkosi.extra/usr/lib/command-not-found-handler.py:78
+msgid ""
+"KDE Linux does not include the “{}” command.\n"
+"\n"
+"If you know it exists, and it’s important for your workflow, learn about "
+"options for getting it at {}"
+msgstr ""
+"KDE Linux bevat niet de opdract “{}”\n"
+"\n"
+"Als u weet dat het bestaat en het belangrijk is voor uw werkmethode, lees "
+"dan meer over de mogelijkheden om het te verkrijgen op {}."

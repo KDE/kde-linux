@@ -1,0 +1,63 @@
+# Copyright (C) 2026 This file is copyright:
+# This file is distributed under the same license as the kde-linux package.
+#
+# SPDX-FileCopyrightText: 2026 Yaron Shahrabani <sh.yaron@gmail.com>
+msgid ""
+msgstr ""
+"Project-Id-Version: kde-linux\n"
+"Report-Msgid-Bugs-To: https://bugs.kde.org\n"
+"POT-Creation-Date: 2026-03-18 00:43+0000\n"
+"PO-Revision-Date: 2026-03-18 16:17+0200\n"
+"Last-Translator: Yaron Shahrabani <sh.yaron@gmail.com>\n"
+"Language-Team: צוות התרגום של KDE ישראל\n"
+"Language: en_US\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: Lokalize 25.12.3\n"
+
+#: mkosi.extra/usr/lib/command-not-found-handler.py:72
+msgid ""
+"KDE Linux does not include the “{}” tool.\n"
+"\n"
+"Instead, try using “{}”."
+msgstr ""
+"לינוקס KDE לא כולל את הכלי „{}”.\n"
+"\n"
+"במקום, כדאי לנסות להשתמש ב־„{}”."
+
+#: mkosi.extra/usr/lib/command-not-found-handler.py:74
+msgid ""
+"KDE Linux does not include the “{}” package manager.\n"
+"\n"
+"Graphical software is available using the Discover app center. To learn how "
+"to install software that’s not available in Discover, see {}"
+msgstr ""
+"לינוקס KDE לא כולל את מנהל החבילות „{}”.\n"
+"\n"
+"תוכנות גרפיות זמינות דרך מרכז היישומים Discover. כדי ללמוד איך להתקין את "
+"התוכנה שאינה זמינה ב־Discover, יש לגשת אל {}"
+
+#: mkosi.extra/usr/lib/command-not-found-handler.py:76
+msgid ""
+"KDE Linux does not pre-install the “{}” package manager, but it can be added "
+"manually.\n"
+"\n"
+"To do so, follow the instructions at {}"
+msgstr ""
+"לינוקס KDE לא מתקין את מנהל החבילות „{}” מראש אבל אפשר להוסיף אותו ידנית.\n"
+"\n"
+"כדי לבצע את זה, יש לפעול לפי ההנחיות שמופיעות כאן: {}"
+
+#: mkosi.extra/usr/lib/command-not-found-handler.py:78
+msgid ""
+"KDE Linux does not include the “{}” command.\n"
+"\n"
+"If you know it exists, and it’s important for your workflow, learn about "
+"options for getting it at {}"
+msgstr ""
+"לינוקס KDE לא כולל את הפקודה „{}”.\n"
+"\n"
+"אם ברור לך שהיא קיימת והיא חשובה לרצף העבודה שלך, אפשר ללמוד על אפשרויות "
+"לקבלת הפקודה הזאת כאן: {}"

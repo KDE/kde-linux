@@ -1,0 +1,65 @@
+# Copyright (C) 2026 This file is copyright:
+# This file is distributed under the same license as the kde-linux package.
+#
+# SPDX-FileCopyrightText: 2026 Emir SARI <emir_sari@icloud.com>
+msgid ""
+msgstr ""
+"Project-Id-Version: kde-linux\n"
+"Report-Msgid-Bugs-To: https://bugs.kde.org\n"
+"POT-Creation-Date: 2026-03-18 00:43+0000\n"
+"PO-Revision-Date: 2026-03-18 13:06+0300\n"
+"Last-Translator: Emir SARI <emir_sari@icloud.com>\n"
+"Language-Team: Turkish <kde-l10n-tr@kde.org>\n"
+"Language: tr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"X-Generator: Lokalize 25.12.3\n"
+
+#: mkosi.extra/usr/lib/command-not-found-handler.py:72
+msgid ""
+"KDE Linux does not include the “{}” tool.\n"
+"\n"
+"Instead, try using “{}”."
+msgstr ""
+"KDE Linux’ta “{}” aracı bulunmaz.\n"
+"\n"
+"Bunun yerine “{}” kullanmayı deneyin."
+
+#: mkosi.extra/usr/lib/command-not-found-handler.py:74
+msgid ""
+"KDE Linux does not include the “{}” package manager.\n"
+"\n"
+"Graphical software is available using the Discover app center. To learn how "
+"to install software that’s not available in Discover, see {}"
+msgstr ""
+"KDE Linux’ta “{}” paket yöneticisi bulunmaz.\n"
+"\n"
+"Grafik arayüze sahip yazılımları “Keşfet” uygulama merkezinden "
+"kurabilirsiniz. “Keşfet” üzerinde bulunamayan yazılımları kurma ile ilgili "
+"bilgi için {} bölümüne bakın."
+
+#: mkosi.extra/usr/lib/command-not-found-handler.py:76
+msgid ""
+"KDE Linux does not pre-install the “{}” package manager, but it can be added "
+"manually.\n"
+"\n"
+"To do so, follow the instructions at {}"
+msgstr ""
+"KDE Linux, “{}” paket yöneticisini önceden kurulu olarak sunmaz; ancak onu "
+"elle ekleyebilirsiniz.\n"
+"\n"
+"Bunu yapma ile ilgili bilgi için {} bölümüne bakın."
+
+#: mkosi.extra/usr/lib/command-not-found-handler.py:78
+msgid ""
+"KDE Linux does not include the “{}” command.\n"
+"\n"
+"If you know it exists, and it’s important for your workflow, learn about "
+"options for getting it at {}"
+msgstr ""
+"KDE Linux’ta “{}” komutu bulunmaz.\n"
+"\n"
+"Bu komutun var olduğunu biliyorsanız ve iş akışınız için elzemse nasıl elde "
+"edebileceğiniz ile ilgili bilgi için {} bölümüne bakın."
