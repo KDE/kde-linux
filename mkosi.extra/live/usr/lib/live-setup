@@ -40,6 +40,14 @@ EOF
 mkdir /home/live/.config/
 mkdir /home/live/Desktop/
 
+# Disable automatic screen locking
+cat << EOF > /home/live/.config/kscreenlockerrc
+[Daemon]
+Autolock=false
+LockOnResume=false
+Timeout=0
+EOF
+
 # No search indexing. Useless and eating away at already meh performance
 cat << EOF > /home/live/.config/baloofilerc
 [Basic Settings]
