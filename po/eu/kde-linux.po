@@ -1,21 +1,23 @@
+# Translation for kde-linux.po to Euskara/Basque (eu).
 # Copyright (C) 2026 This file is copyright:
 # This file is distributed under the same license as the kde-linux package.
+# KDE euskaratzeko proiektuaren arduraduan <xalba@ni.eus>.
 #
-# SPDX-FileCopyrightText: 2026 Yaron Shahrabani <sh.yaron@gmail.com>
+# Translators:
+# SPDX-FileCopyrightText: 2026 Iñigo Salvador Azurmendi <xalba@ni.eus>
 msgid ""
 msgstr ""
 "Project-Id-Version: kde-linux\n"
 "Report-Msgid-Bugs-To: https://bugs.kde.org\n"
 "POT-Creation-Date: 2026-03-18 00:43+0000\n"
-"PO-Revision-Date: 2026-03-18 16:17+0200\n"
-"Last-Translator: Yaron Shahrabani <sh.yaron@gmail.com>\n"
-"Language-Team: צוות התרגום של KDE ישראל\n"
-"Language: he\n"
+"PO-Revision-Date: 2026-03-19 21:17+0100\n"
+"Last-Translator: Iñigo Salvador Azurmendi <xalba@ni.eus>\n"
+"Language-Team: Basque <kde-i18n-eu@kde.org>\n"
+"Language: eu\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=4; plural=(n == 1) ? 0 : ((n == 2) ? 1 : ((n > 10 && "
-"n % 10 == 0) ? 2 : 3));\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
 "X-Generator: Lokalize 25.12.3\n"
 
 #: mkosi.extra/usr/lib/command-not-found-handler.py:72
@@ -24,9 +26,9 @@ msgid ""
 "\n"
 "Instead, try using “{}”."
 msgstr ""
-"לינוקס KDE לא כולל את הכלי „{}”.\n"
+"KDE Linuxek ez dakar “{}” tresna.\n"
 "\n"
-"במקום, כדאי לנסות להשתמש ב־„{}”."
+"Horren ordez, saiatu “{}” erabiltzen."
 
 #: mkosi.extra/usr/lib/command-not-found-handler.py:74
 msgid ""
@@ -35,10 +37,11 @@ msgid ""
 "Graphical software is available using the Discover app center. To learn how "
 "to install software that’s not available in Discover, see {}"
 msgstr ""
-"לינוקס KDE לא כולל את מנהל החבילות „{}”.\n"
+"KDE Linuxek ez dakar “{}” pakete-kudeatzailea.\n"
 "\n"
-"תוכנות גרפיות זמינות דרך מרכז היישומים Discover. כדי ללמוד איך להתקין את "
-"התוכנה שאינה זמינה ב־Discover, יש לגשת אל {}"
+"Software grafikoa Discover aplikazio-gunearen bidez erabilgarri dago. "
+"Discoverren erabilgarri ez dagoen softwarea nola instalatu jakiteko, "
+"begiratu {}."
 
 #: mkosi.extra/usr/lib/command-not-found-handler.py:76
 msgid ""
@@ -47,9 +50,10 @@ msgid ""
 "\n"
 "To do so, follow the instructions at {}"
 msgstr ""
-"לינוקס KDE לא מתקין את מנהל החבילות „{}” מראש אבל אפשר להוסיף אותו ידנית.\n"
+"KDE Linuxek ez dakar “{}” pakete-kudeatzailea aurrez instalatuta, baina "
+"eskuz gehitu daiteke.\n"
 "\n"
-"כדי לבצע את זה, יש לפעול לפי ההנחיות שמופיעות כאן: {}"
+"Horretarako, {}(e)n emandako argibideei jarraitu."
 
 #: mkosi.extra/usr/lib/command-not-found-handler.py:78
 msgid ""
@@ -58,7 +62,7 @@ msgid ""
 "If you know it exists, and it’s important for your workflow, learn about "
 "options for getting it at {}"
 msgstr ""
-"לינוקס KDE לא כולל את הפקודה „{}”.\n"
+"KDE Linuxek ez dakar “{}” komandoa.\n"
 "\n"
-"אם ברור לך שהיא קיימת והיא חשובה לרצף העבודה שלך, אפשר ללמוד על אפשרויות "
-"לקבלת הפקודה הזאת כאן: {}"
+"Existitzen dela badakizu, eta zure lan-fluxurako garrantzitsua bada, {}(e)n "
+"hura lortzeko aukerei buruzko informazioa."
