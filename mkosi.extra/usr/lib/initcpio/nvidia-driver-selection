@@ -1,0 +1,42 @@
+#!/bin/sh
+# SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL
+# SPDX-FileCopyrightText: 2026 Thomas Duckworth <tduck@filotimoproject.org>
+
+# Checks sysfs for NVIDIA GPUs and generates a modprobe blacklist dynamically.
+
+mkdir -p /run/modprobe.d
+mkdir -p /run/modules-load.d
+USE_NVIDIA=0
+GPU_FOUND=0
+
+for dev in /sys/bus/pci/devices/*; do
+    [ -f "$dev/vendor" ] && [ -f "$dev/device" ] && [ -f "$dev/class" ] || continue
+
+    vendor=$(cat "$dev/vendor")
+    class=$(cat "$dev/class")
+
+    # 0x10de = NVIDIA. Class 0x03* = Display controllers
+    if [ "$vendor" = "0x10de" ] && [[ "$class" == 0x03* ]]; then
+        GPU_FOUND=1
+        device=$(cat "$dev/device")
+        dec_id=$(printf "%d" "$device")
+
+        # 7680 (0x1e00) is the Turing (NVIDIA driver) cutoff
+        if [ "$dec_id" -ge 7680 ]; then
+            USE_NVIDIA=1
+        fi
+    fi
+done
+
+if [ "$GPU_FOUND" -eq 1 ]; then
+    if [ "$USE_NVIDIA" -eq 1 ]; then
+        echo "blacklist nouveau" > /run/modprobe.d/05-dynamic-gpu.conf
+        modprobe nvidia-drm modeset=1
+    else
+        echo "blacklist nvidia" > /run/modprobe.d/05-dynamic-gpu.conf
+        echo "blacklist nvidia-drm" >> /run/modprobe.d/05-dynamic-gpu.conf
+        echo "blacklist nvidia-modeset" >> /run/modprobe.d/05-dynamic-gpu.conf
+        echo "blacklist nvidia-uvm" >> /run/modprobe.d/05-dynamic-gpu.conf
+        modprobe nouveau
+    fi
+fi

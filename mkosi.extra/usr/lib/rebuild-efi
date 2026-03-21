@@ -28,8 +28,8 @@ fi
 cat <<- EOF > mkinitcpio.conf
 MODULES=(overlay)
 BINARIES=()
-FILES=(/usr/lib/udev/rules.d/05-nvidia-module-selection.rules) # Determine which driver is used at boot with udev
-HOOKS=(base systemd nvidia-module-selection modconf kms keyboard block sd-encrypt filesystems fsck systemd-extension plymouth microcode sd-shutdown)
+FILES=()
+HOOKS=(base systemd nvidia-driver-selection modconf kms keyboard block sd-encrypt filesystems fsck systemd-extension plymouth microcode sd-shutdown)
 EOF
 
 echo "rw \

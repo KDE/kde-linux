@@ -1,0 +1,14 @@
+# SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL
+# SPDX-FileCopyrightText: 2025 Thomas Duckworth <tduck@filotimoproject.org>
+
+[Unit]
+Description=Dynamic NVIDIA Driver Selection
+DefaultDependencies=no
+Before=systemd-udevd.service systemd-modules-load.service
+ConditionPathExists=/sys/bus/pci/devices
+
+# This service and binary is included in the initramfs.
+[Service]
+Type=oneshot
+ExecStart=/usr/lib/initcpio/nvidia-driver-selection
+RemainAfterExit=yes

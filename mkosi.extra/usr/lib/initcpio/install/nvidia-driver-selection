@@ -2,8 +2,8 @@
 # SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL
 # SPDX-FileCopyrightText: 2026 Thomas Duckworth <tduck@filotimoproject.org>
 
-# Necessary for letting udev control what GPUs get which drivers
-# using driver_override, so nouveau or nvidia can be dynamically selected.
+# Necessary for generating automatic modprobe blacklists before
+# drivers load so nouveau or nvidia can be dynamically selected.
 # Also gives us some certainty that these are included for kernel modesetting.
 
 build() {
@@ -11,8 +11,12 @@ build() {
     add_module "nvidia-drm"
     add_module "nvidia-modeset"
     add_module "nvidia-uvm"
-
     add_module "nouveau"
 
     add_checked_modules "/drivers/gpu/drm"
+
+    add_binary "/usr/lib/initcpio/nvidia-driver-selection"
+
+    add_systemd_unit "kde-linux-nvidia-driver-selection.service"
+    add_symlink "/etc/systemd/system/sysinit.target.wants/kde-linux-nvidia-driver-selection.service" "/usr/lib/systemd/system/kde-linux-nvidia-driver-selection.service"
 }
