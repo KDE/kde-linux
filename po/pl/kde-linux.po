@@ -1,0 +1,66 @@
+# Copyright (C) 2026 This file is copyright:
+# This file is distributed under the same license as the kde-linux package.
+# SPDX-FileCopyrightText: 2026 Łukasz Wojniłowicz <lukasz.wojnilowicz@gmail.com>
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: kde-linux\n"
+"Report-Msgid-Bugs-To: https://bugs.kde.org\n"
+"POT-Creation-Date: 2026-03-18 00:43+0000\n"
+"PO-Revision-Date: 2026-03-21 06:09+0100\n"
+"Last-Translator: Łukasz Wojniłowicz <lukasz.wojnilowicz@gmail.com>\n"
+"Language-Team: pl\n"
+"Language: pl\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=(n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 "
+"|| n%100>=20) ? 1 : 2);\n"
+"X-Generator: Lokalize 25.08.2\n"
+
+#: mkosi.extra/usr/lib/command-not-found-handler.py:72
+msgid ""
+"KDE Linux does not include the “{}” tool.\n"
+"\n"
+"Instead, try using “{}”."
+msgstr ""
+"KDE Linux nie zawiera narzędzia “{}”.\n"
+"\n"
+"Zamiast niego spróbuj użyć “{}”."
+
+#: mkosi.extra/usr/lib/command-not-found-handler.py:74
+msgid ""
+"KDE Linux does not include the “{}” package manager.\n"
+"\n"
+"Graphical software is available using the Discover app center. To learn how "
+"to install software that’s not available in Discover, see {}"
+msgstr ""
+"KDE Linux nie zawiera programu do zarządzania pakietami “{}”.\n"
+"\n"
+"Graficzne oprogramowanie jest dostępne przy użyciu w zarządzaniu "
+"oprogramowaniem Discover. Aby dowiedzieć się jak wgrywać oprogramowanie "
+"niedostępne w Discover, zajrzy na {}"
+
+#: mkosi.extra/usr/lib/command-not-found-handler.py:76
+msgid ""
+"KDE Linux does not pre-install the “{}” package manager, but it can be added "
+"manually.\n"
+"\n"
+"To do so, follow the instructions at {}"
+msgstr ""
+"KDE Linux domyślnie nie ma wgranego programu do zarządzania pakietami “{}”, "
+"lecz można go dodać ręcznie.\n"
+"\n"
+"Aby to zrobić, podążaj za krokami na {}"
+
+#: mkosi.extra/usr/lib/command-not-found-handler.py:78
+msgid ""
+"KDE Linux does not include the “{}” command.\n"
+"\n"
+"If you know it exists, and it’s important for your workflow, learn about "
+"options for getting it at {}"
+msgstr ""
+"KDE Linux nie zawiera polecenia “{}”.\n"
+"\n"
+"Jeśli wiesz, że istnieje i jest ważne w twojej pracy, to poczytaj o "
+"możliwościach jego uzyskania na {}"
