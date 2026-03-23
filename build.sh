@@ -117,7 +117,7 @@ if [ -f "$PWD/.secure_files/ssh.key" ]; then
   chmod 600 "$PWD/.secure_files/ssh.key"
 
   scp -i "$PWD/.secure_files/ssh.key" kdeos@origin.files.kde.org:/home/kdeos/mtimer.json mtimer.json
-  # Note: use absoltue paths. since we chdir via go
+  # Note: use absolute paths. since we chdir via go
   go -C ./mtimer/ run . -root "$OUTPUT" -json "$PWD/mtimer.json"
   scp -i "$PWD/.secure_files/ssh.key" mtimer.json kdeos@origin.files.kde.org:/home/kdeos/mtimer.json
 fi
