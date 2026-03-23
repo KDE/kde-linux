@@ -7,6 +7,7 @@ build() {
         /usr/lib/systemd/systemd-volatile-root \
         /usr/lib/rootfs-transition \
         /usr/lib/btrfs-migrator \
+        /usr/lib/systemd/system-generators/00-kde-linux-os-release \
         /usr/lib/systemd/system-generators/kde-linux-live-generator \
         /usr/lib/systemd/system-generators/kde-linux-mount-generator \
         /usr/lib/systemd/systemd-bootchart \
