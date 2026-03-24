@@ -45,6 +45,7 @@ cat <<- EOF > /usr/lib/os-release
 NAME="KDE Linux"
 PRETTY_NAME="KDE Linux"
 ID=kde-linux
+DEFAULT_HOSTNAME=kde-linux
 VERSION_ID="$VERSION_DATE"
 BUILD_ID=$CI_COMMIT_SHORT_SHA
 ANSI_COLOR="38;2;61;174;233"
