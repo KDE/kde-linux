@@ -11,7 +11,7 @@ mkdir --mode 0700 /system # for the kde-linux-overlay.service
 export SYSTEMD_ESP_PATH="$BOOT_MNT"
 mkdir --mode 0700 "$SYSTEMD_ESP_PATH"
 bootctl install
-echo 'timeout 5' >> "$SYSTEMD_ESP_PATH/loader/loader.conf"
+echo 'timeout 7' >> "$SYSTEMD_ESP_PATH/loader/loader.conf"
 cp /usr/share/edk2-shell/x64/Shell.efi "$SYSTEMD_ESP_PATH/shellx64.efi"
 
 # Meanwhile cleanup a bit
