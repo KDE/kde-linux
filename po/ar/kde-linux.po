@@ -1,0 +1,64 @@
+# Copyright (C) 2026 This file is copyright:
+# This file is distributed under the same license as the kde-linux package.
+# SPDX-FileCopyrightText: 2026 Zayed Al-Saidi <zayed.alsaidi@gmail.com>
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: kde-linux\n"
+"Report-Msgid-Bugs-To: https://bugs.kde.org\n"
+"POT-Creation-Date: 2026-03-18 00:43+0000\n"
+"PO-Revision-Date: 2026-03-24 09:52+0400\n"
+"Last-Translator: Zayed Al-Saidi <zayed.alsaidi@gmail.com>\n"
+"Language-Team: ar\n"
+"Language: ar\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=6; plural=n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 "
+"&& n%100<=10 ? 3 : n%100>=11 ? 4 : 5;\n"
+"X-Generator: Lokalize 23.08.5\n"
+
+#: mkosi.extra/usr/lib/command-not-found-handler.py:72
+msgid ""
+"KDE Linux does not include the “{}” tool.\n"
+"\n"
+"Instead, try using “{}”."
+msgstr ""
+"لا تتضمن كيدي لينكس أداة «{}».\n"
+"\n"
+"بدلاً من ذلك، جرب استخدام «{}»."
+
+#: mkosi.extra/usr/lib/command-not-found-handler.py:74
+msgid ""
+"KDE Linux does not include the “{}” package manager.\n"
+"\n"
+"Graphical software is available using the Discover app center. To learn how "
+"to install software that’s not available in Discover, see {}"
+msgstr ""
+"لا تتضمن كيدي لينكس مدير الحزم “{}”.\n"
+"\n"
+"تتوفر البرامج الرسومية عبر مركز التطبيقات المستكشف. لمعرفة كيفية تثبيت "
+"البرامج غير المتوفرة في المستكشف، انظر {}"
+
+#: mkosi.extra/usr/lib/command-not-found-handler.py:76
+msgid ""
+"KDE Linux does not pre-install the “{}” package manager, but it can be added "
+"manually.\n"
+"\n"
+"To do so, follow the instructions at {}"
+msgstr ""
+"لا تقوم كيدي لينكس بتثبيت مدير الحزم «{}» مسبقًا، ولكن يمكن إضافته يدويًّا.\n"
+"\n"
+"للقيام بذلك، اتبع التعليمات الموجودة على {}"
+
+#: mkosi.extra/usr/lib/command-not-found-handler.py:78
+msgid ""
+"KDE Linux does not include the “{}” command.\n"
+"\n"
+"If you know it exists, and it’s important for your workflow, learn about "
+"options for getting it at {}"
+msgstr ""
+"لا تتضمن كيدي لينكس الأمر “{}”.\n"
+"\n"
+"إذا كنت تعلم بوجوده، وكان مهمًا لسير عملك، فتعرف على الخيارات المتاحة للحصول "
+"عليه على {}"
