@@ -6,8 +6,4 @@ if [[ ! -f ~/.local/share/flatpak/exports/share/applications/org.kde.kjar.deskto
     /usr/lib/kjar-install
 fi
 
-if [[ "$1" == "-jar" && -z "$2" ]]; then
-    exit 0
-fi
-
 flatpak run org.kde.kjar java "$@"
