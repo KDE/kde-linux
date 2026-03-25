@@ -22,7 +22,6 @@ bindkey '^[[1;5D' backward-word     # Ctrl+Left
 bindkey '^[[1;5C' forward-word      # Ctrl+Right
 bindkey '^H' backward-kill-word     # Ctrl+Backspace
 bindkey '^[[3;5~' kill-word         # Ctrl+Delete
-WORDCHARS=${WORDCHARS//\/[&.;]} # Don't consider certain characters part of the word
 # Scroll through commands in history that start with current command line:
 autoload -U up-line-or-beginning-search
 autoload -U down-line-or-beginning-search
@@ -46,9 +45,8 @@ setopt HIST_IGNORE_ALL_DUPS
 # Allow comments even in interactive shells.
 setopt interactivecomments
 
-# Remove path separator from WORDCHARS.
-# Individual files/directories are treated as words, rather than the full path string.
-WORDCHARS=${WORDCHARS//[\/]}
+# Don't consider certain characters part of the word
+WORDCHARS=${WORDCHARS//[\/&.;]}
 
 # Set up a nicer prompt than the default.
 autoload -U colors && colors
