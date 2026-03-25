@@ -1,0 +1,8 @@
+# SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL
+# SPDX-FileCopyrightText: none
+
+# Only runs if the nvidia kernel module is loaded
+ACTION=="add", SUBSYSTEM=="module", KERNEL=="nvidia", RUN+="/usr/bin/sh -c 'echo SYSTEMD_SLEEP_FREEZE_USER_SESSIONS=false > /run/nvidia-no-freeze-session'"
+
+# Clean up if the module is unloaded
+ACTION=="remove", SUBSYSTEM=="module", KERNEL=="nvidia", RUN+="/usr/bin/rm -f /run/nvidia-no-freeze-session"
