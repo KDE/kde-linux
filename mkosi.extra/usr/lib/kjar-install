@@ -14,6 +14,12 @@ if flatpak list --app --user | grep -q org.kde.kjar; then
     exit 0
 fi
 
+# Ask for confirmation before downloading anything
+if ! kdialog --title "Java Required" \
+             --yesno "This file requires Java, but it is not installed.\n\nDownload and install it now?"; then
+    exit 1
+fi
+
 flatpak remote-add --if-not-exists --user kjar-nightly \
     https://cdn.kde.org/flatpak/kjar-nightly/kjar-nightly.flatpakrepo
 
@@ -43,5 +49,4 @@ notify-send \
     -i application-x-java-archive \
     -r "$NOTIF_ID" \
     "Java Support Ready" "Installation complete."
-
 mask
