@@ -1,0 +1,10 @@
+[Desktop Entry]
+Name=Run JAR File
+Comment=Execute Java archive with Java
+Exec=java -jar %f
+Icon=application-x-java-archive
+Terminal=false
+Type=Application
+NoDisplay=true
+MimeType=application/java-archive;
+Categories=Development;
