@@ -2,21 +2,23 @@
 # SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL
 # SPDX-FileCopyrightText: 2026 Hadi Chokr <hadichokr@icloud.com>
 
+export TEXTDOMAIN=kde-linux
+. gettext.sh
+
 mask() {
     update-desktop-database ~/.local/share/flatpak/exports/share/applications/
     flatpak run org.kde.kjar --generate-wrappers
 }
 
 if flatpak list --app --user | grep -q org.kde.kjar; then
-    notify-send -a "Java Support" -i application-x-java-archive \
-        "Java Support" "Java is already installed and ready to use."
+    notify-send -a "$(gettext "Java Support")" -i application-x-java-archive \
+        "$(gettext "Java Support")" "$(gettext "Java is already installed and ready to use.")"
     mask
     exit 0
 fi
 
-# Ask for confirmation before downloading anything
-if ! kdialog --title "Java Required" \
-             --yesno "This file requires Java, but it is not installed.\n\nDownload and install it now?"; then
+if ! kdialog --title "$(gettext "Java Required")" \
+             --yesno "$(gettext "This file requires Java, but it is not installed.\n\nDownload and install it now?")"; then
     exit 1
 fi
 
@@ -24,12 +26,12 @@ flatpak remote-add --if-not-exists --user kjar-nightly \
     https://cdn.kde.org/flatpak/kjar-nightly/kjar-nightly.flatpakrepo
 
 NOTIF_ID=$(notify-send --print-id \
-    -a "Java Support" \
+    -a "$(gettext "Java Support")" \
     -i application-x-java-archive \
     -u low \
     -t 0 \
     -h int:value:0 \
-    "Installing Java Support" "Starting…")
+    "$(gettext "Installing Java Support")" "$(gettext "Starting…")")
 
 flatpak install --user org.kde.kjar --assumeyes 2>&1 | \
     stdbuf -oL grep -oP '\d+(?=%)' | \
@@ -39,14 +41,15 @@ flatpak install --user org.kde.kjar --assumeyes 2>&1 | \
             --object-path /org/freedesktop/Notifications \
             --method org.freedesktop.Notifications.Notify \
             "Java Support" "$NOTIF_ID" "application-x-java-archive" \
-            "Installing Java Support" "${pct}%" \
+            "$(gettext "Installing Java Support")" "${pct}%" \
             "[]" "{'value': <int32 $pct>, 'urgency': <byte 0>, 'suppress-popup': <true>}" \
             "int32 0" > /dev/null 2>&1
     done
 
 notify-send \
-    -a "Java Support" \
+    -a "$(gettext "Java Support")" \
     -i application-x-java-archive \
     -r "$NOTIF_ID" \
-    "Java Support Ready" "Installation complete."
+    "$(gettext "Java Support Ready")" "$(gettext "Installation complete.")"
+
 mask
