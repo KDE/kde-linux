@@ -1,0 +1,18 @@
+#!/usr/bin/env python3
+# SPDX-License-Identifier: GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL
+# SPDX-FileCopyrightText: 2026 Hadi Chokr <hadichokr@icloud.com>
+import sys, struct, os
+
+path = sys.argv[1]
+
+if not path.lower().endswith('.bat'):
+    with open(path, 'rb') as f:
+        if f.read(2) == b'MZ':
+            f.seek(0x3c)
+            off = struct.unpack('<I', f.read(4))[0]
+            f.seek(off)
+            if f.read(4) == b'PE\x00\x00':
+                print("Windows PE binary", file=sys.stderr)
+                sys.exit(1)
+
+os.execvp("dosbox", ["dosbox", path])
