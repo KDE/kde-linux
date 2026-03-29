@@ -1,0 +1,5 @@
+# SPDX-License-Identifier: CC0-1.0
+# SPDX-FileCopyrightText: None
+
+# Enable password feedback (asterisks) when typing sudo password
+Defaults pwfeedback
