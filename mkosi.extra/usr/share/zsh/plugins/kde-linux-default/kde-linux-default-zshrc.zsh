@@ -1,6 +1,9 @@
 # SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL
 # SPDX-FileCopyrightText: 2025 Thomas Duckworth <tduck@filotimoproject.org>
 
+# Include ~/.local/bin in $PATH.
+export PATH="$HOME/.local/bin:$PATH"
+
 # Set keybinds to emacs mode.
 bindkey -e
 
