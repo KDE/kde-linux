@@ -1,0 +1,17 @@
+# SPDX-License-Identifier: CC0-1.0
+# SPDX-FileCopyrightText: None
+
+[Default Applications]
+
+# Assign unsupported package types to Package Compatibility Helper
+application/x-ms-dos-executable=org.kde.package-compatibility-helper.desktop
+application/x-msi=org.kde.package-compatibility-helper.desktop
+application/x-ms-shortcut=org.kde.package-compatibility-helper.desktop
+application/vnd.microsoft.portable-executable=org.kde.package-compatibility-helper.desktop
+application/x-msdownload=org.kde.package-compatibility-helper.desktop
+application/x-rpm=org.kde.package-compatibility-helper.desktop
+application/vnd.debian.binary-package=org.kde.package-compatibility-helper.desktop
+
+# Set Firefox as the default web browser
+x-scheme-handler/http=org.mozilla.firefox.desktop
+x-scheme-handler/https=org.mozilla.firefox.desktop
