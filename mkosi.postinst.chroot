@@ -141,10 +141,6 @@ for theme in $(plymouth-set-default-theme --list); do
     fi
 done
 
-# Rename the packaged kde-mimeapps.list to mimeapps.list
-# This allows our kde-mimeapps.list to take precedence.
-mv -v /usr/share/applications/kde-mimeapps.list /usr/share/applications/mimeapps.list
-
 cd /tmp
 /usr/lib/rebuild-efi
 mv -v ./*.efi /
