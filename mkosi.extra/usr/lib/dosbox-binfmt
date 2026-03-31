@@ -6,7 +6,7 @@ import struct
 import os
 import subprocess
 
-FLATPAK_APP_ID = "org.dosbox_staging.DOSBox_Staging"
+FLATPAK_APP_ID = "io.github.dosbox-staging"
 FLATPAK_REMOTE = "flathub"
 
 def ensure_flatpak_installed():
