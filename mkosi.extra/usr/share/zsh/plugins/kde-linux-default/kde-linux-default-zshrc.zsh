@@ -83,6 +83,10 @@ zstyle ':completion:*' menu no
 alias ls='ls --color=auto'
 alias grep='grep --color=auto'
 
+# Preserve metadata by default; match the behavior of `mv`.
+alias cp='cp --preserve=all'
+alias rsync='rsync --perms --xattrs --acls --times --atimes --crtimes'
+
 # Add various useful aliases.
 alias la='ls -A'
 alias ll='ls -l'
