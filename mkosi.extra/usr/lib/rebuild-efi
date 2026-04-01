@@ -33,6 +33,11 @@ FILES=()
 HOOKS=(base systemd modconf kms keyboard block sd-encrypt filesystems fsck systemd-extension plymouth microcode sd-shutdown)
 EOF
 
+cat <<- EOF > sbat
+sbat,1,SBAT Version,sbat,1,https://github.com/rhboot/shim/blob/main/SBAT.md
+uki.kde-linux.testing,1,KDE e.V.,uki.kde-linux.testing,${IMAGE_VERSION},https://linux.kde.org
+EOF
+
 echo "rw \
   systemd.volatile=overlay systemd.firstboot=false systemd.hostname=kde-linux kde-linux.live=1 plasma.live.user=live \
   lsm=landlock,lockdown,yama,integrity,bpf \
@@ -47,6 +52,7 @@ ukify build \
   --linux /usr/lib/modules/$kernel_version/vmlinuz \
   --initrd initrd \
   --cmdline @cmdline \
+  --sbat @sbat \
   --output live.efi
 
 # "preempt=full threadirqs" reduces latency especially for audio and gaming workflows.
@@ -77,6 +83,7 @@ ukify build \
   --linux /usr/lib/modules/$kernel_version/vmlinuz \
   --initrd initrd \
   --cmdline @cmdline \
+  --sbat @sbat \
   --output kde-linux.efi
 
 # Mock artifact for upgrades, see build.sh
