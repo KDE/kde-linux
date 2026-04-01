@@ -1,55 +1,143 @@
-#!/usr/bin/env bash
+#!/usr/bin/env python3
 # SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL
 # SPDX-FileCopyrightText: 2026 Hadi Chokr <hadichokr@icloud.com>
 
-export TEXTDOMAIN=kde-linux
-. gettext.sh
+import sys
+import gettext
+import subprocess
+import os
+import re
+from PySide6.QtWidgets import (QApplication, QMessageBox, QProgressDialog)
+from PySide6.QtCore import QProcess, QObject, Signal
 
-mask() {
-    update-desktop-database ~/.local/share/flatpak/exports/share/applications/
-    flatpak run org.kde.kjar --generate-wrappers
-}
+# Initialize gettext
+gettext.install("kde-linux")
 
-if flatpak list --app --user | grep -q org.kde.kjar; then
-    notify-send -a "$(gettext "Java Support")" -i application-x-java-archive \
-        "$(gettext "Java Support")" "$(gettext "Java is already installed and ready to use.")"
-    mask
-    exit 0
-fi
+FLATPAK_APP_ID = "org.kde.kjar"
+REMOTE_NAME = "kjar-nightly"
+REMOTE_URL = "https://cdn.kde.org/flatpak/kjar-nightly/kjar-nightly.flatpakrepo"
 
-if ! kdialog --title "$(gettext "Java Required")" \
-             --yesno "$(gettext "This file requires Java, but it is not installed.\n\nDownload and install it now?")"; then
-    exit 1
-fi
+def flatpak_installed():
+    """Check if the Flatpak is installed."""
+    result = subprocess.run(
+        ["flatpak", "list", "--app"],
+        capture_output=True,
+        text=True
+    )
+    return FLATPAK_APP_ID in result.stdout
 
-flatpak remote-add --if-not-exists --user kjar-nightly \
-    https://cdn.kde.org/flatpak/kjar-nightly/kjar-nightly.flatpakrepo
+def notify_already_installed():
+    """Show a notification that Java is already installed."""
+    subprocess.run([
+        "notify-send", "-a", gettext.gettext("Java Support"), "-i", "application-x-java-archive",
+        gettext.gettext("Java Support"), gettext.gettext("Java is already installed and ready to use.")
+    ])
 
-NOTIF_ID=$(notify-send --print-id \
-    -a "$(gettext "Java Support")" \
-    -i application-x-java-archive \
-    -u low \
-    -t 0 \
-    -h int:value:0 \
-    "$(gettext "Installing Java Support")" "$(gettext "Starting…")")
+def ask_user():
+    """Show a message box asking for confirmation."""
+    app = QApplication.instance()
+    if app is None:
+        app = QApplication(sys.argv)
 
-flatpak install --user org.kde.kjar --assumeyes 2>&1 | \
-    stdbuf -oL grep -oP '\d+(?=%)' | \
-    while IFS= read -r pct; do
-        gdbus call --session \
-            --dest org.freedesktop.Notifications \
-            --object-path /org/freedesktop/Notifications \
-            --method org.freedesktop.Notifications.Notify \
-            "Java Support" "$NOTIF_ID" "application-x-java-archive" \
-            "$(gettext "Installing Java Support")" "${pct}%" \
-            "[]" "{'value': <int32 $pct>, 'urgency': <byte 0>, 'suppress-popup': <true>}" \
-            "int32 0" > /dev/null 2>&1
-    done
+    msg = QMessageBox()
+    msg.setWindowTitle(gettext.gettext("Java Required"))
+    msg.setText(gettext.gettext("This file requires Java, but it is not installed.\n\nDownload and install it now?"))
+    msg.setIcon(QMessageBox.Question)
+    msg.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
+    return msg.exec() == QMessageBox.Yes
 
-notify-send \
-    -a "$(gettext "Java Support")" \
-    -i application-x-java-archive \
-    -r "$NOTIF_ID" \
-    "$(gettext "Java Support Ready")" "$(gettext "Installation complete.")"
+def add_remote():
+    """Add the Flatpak remote if not already present."""
+    subprocess.run([
+        "flatpak", "remote-add", "--if-not-exists", "--user",
+        REMOTE_NAME, REMOTE_URL
+    ], check=True)
 
-mask
+def run_mask():
+    """Run the mask commands."""
+    home = os.environ.get("HOME", "")
+    desktop_db_path = os.path.join(home, ".local/share/flatpak/exports/share/applications/")
+    subprocess.run(["update-desktop-database", desktop_db_path], check=False)
+    subprocess.run(["flatpak", "run", FLATPAK_APP_ID, "--generate-wrappers"], check=False)
+
+class FlatpakInstaller(QObject):
+    """Flatpak installation process with a progress dialog."""
+    progress_updated = Signal(int)
+    finished = Signal(bool)
+
+    def __init__(self):
+        super().__init__()
+        self.process = QProcess()
+        self.process.readyReadStandardOutput.connect(self._handle_stdout)
+        self.process.finished.connect(self._on_finished)
+
+    def start(self):
+        self.process.start("flatpak", ["install", "--user", FLATPAK_APP_ID, "--assumeyes"])
+
+    def _handle_stdout(self):
+        """Extract percentages and emit progress."""
+        data = self.process.readAllStandardOutput().data().decode()
+        for line in data.splitlines():
+            match = re.search(r'\b(\d+)%', line)
+            if match:
+                percent = int(match.group(1))
+                self.progress_updated.emit(percent)
+
+    def _on_finished(self, exit_code, exit_status):
+        success = (exit_code == 0 and exit_status == QProcess.NormalExit)
+        self.finished.emit(success)
+
+def install_with_progress_dialog(parent=None):
+    """Run the installation."""
+    dialog = QProgressDialog(
+        gettext.gettext("Installing Java Support..."), gettext.gettext("Cancel"),
+        0, 100, parent
+    )
+    dialog.setWindowTitle(gettext.gettext("Java Support"))
+    dialog.setMinimumDuration(0)
+    dialog.setAutoClose(True)
+    dialog.setAutoReset(True)
+
+    installer = FlatpakInstaller()
+    installer.progress_updated.connect(dialog.setValue)
+    installer.finished.connect(dialog.cancel)  # close on finish
+
+    # If user clicks Cancel, kill the process
+    dialog.canceled.connect(installer.process.kill)
+
+    installer.start()
+    dialog.exec()  # blocks until dialog closed
+
+    # Wait for the process to finish completely before destroying installer
+    installer.process.waitForFinished(-1)
+
+    # Return True if installation succeeded
+    return installer.process.exitCode() == 0 and installer.process.exitStatus() == QProcess.NormalExit
+
+def main():
+    if flatpak_installed():
+        notify_already_installed()
+        run_mask()
+        return
+
+    if not ask_user():
+        sys.exit(0)   # user cancelled
+
+    add_remote()
+
+    # Show progress dialog
+    success = install_with_progress_dialog()
+
+    if success:
+        # Show a simple notification that installation is complete
+        subprocess.run([
+            "notify-send", "-a", gettext.gettext("Java Support"), "-i", "application-x-java-archive",
+            gettext.gettext("Java Support Ready"), gettext.gettext("Installation complete.")
+        ])
+        run_mask()
+    else:
+        QMessageBox.critical(None, gettext.gettext("Installation Failed"),
+                             gettext.gettext("The installation of Java Support was cancelled or failed."))
+
+if __name__ == "__main__":
+    main()
