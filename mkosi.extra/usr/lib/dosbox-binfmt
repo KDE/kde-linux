@@ -21,7 +21,7 @@ def ensure_flatpak_installed():
 
     # Install the Flatpak interactively; let its output go to the user
     install_result = subprocess.run(
-        ["flatpak", "install", "--user", FLATPAK_REMOTE, FLATPAK_APP_ID]
+        ["flatpak", "install", FLATPAK_REMOTE, FLATPAK_APP_ID]
     )
     return install_result.returncode == 0
 
