@@ -92,6 +92,11 @@ alias la='ls -A'
 alias ll='ls -l'
 alias lla='ls -lA'
 
+# Ask to make an unexecutable file executable before running it.
+function auto_chmod() { /usr/lib/auto-chmod "$1" }
+autoload -Uz add-zsh-hook
+add-zsh-hook preexec auto_chmod
+
 # Wrap journal logs viewed in terminal rather than truncating; friendlier for reading
 # and copying
 export SYSTEMD_LESS=FRXMK
