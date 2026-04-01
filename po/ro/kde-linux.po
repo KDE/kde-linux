@@ -1,0 +1,66 @@
+# Copyright (C) 2026 This file is copyright:
+# This file is distributed under the same license as the kde-linux package.
+# SPDX-FileCopyrightText: 2026 Sergiu Bivol <sergiu@cip.md>
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: kde-linux\n"
+"Report-Msgid-Bugs-To: https://bugs.kde.org\n"
+"POT-Creation-Date: 2026-03-18 00:43+0000\n"
+"PO-Revision-Date: 2026-03-31 13:06+0100\n"
+"Last-Translator: Sergiu Bivol <sergiu@cip.md>\n"
+"Language-Team: Romanian <kde-i18n-ro@kde.org>\n"
+"Language: ro\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=n==1 ? 0 : (n==0 || (n%100 > 0 && n%100 < "
+"20)) ? 1 : 2;\n"
+"X-Generator: Lokalize 25.12.3\n"
+
+#: mkosi.extra/usr/lib/command-not-found-handler.py:72
+msgid ""
+"KDE Linux does not include the “{}” tool.\n"
+"\n"
+"Instead, try using “{}”."
+msgstr ""
+"KDE Linux nu include unealta „{}”.\n"
+"\n"
+"Încercați să folosiți „{}” în loc."
+
+#: mkosi.extra/usr/lib/command-not-found-handler.py:74
+msgid ""
+"KDE Linux does not include the “{}” package manager.\n"
+"\n"
+"Graphical software is available using the Discover app center. To learn how "
+"to install software that’s not available in Discover, see {}"
+msgstr ""
+"KDE Linux nu include gestionarul de pachete „{}”.\n"
+"\n"
+"Aplicațiile grafice sunt disponibile folosind centrul de aplicații Discover. "
+"Pentru a învăța despre cum să instalați programe ce nu sunt disponibile în "
+"Discover, vedeți {}"
+
+#: mkosi.extra/usr/lib/command-not-found-handler.py:76
+msgid ""
+"KDE Linux does not pre-install the “{}” package manager, but it can be added "
+"manually.\n"
+"\n"
+"To do so, follow the instructions at {}"
+msgstr ""
+"KDE Linux nu preinstalează gestionarul de pachete „{}”, dar acesta poate fi "
+"adăugat manual.\n"
+"\n"
+"Pentru a face aceasta, urmați instrucțiunile de la {}"
+
+#: mkosi.extra/usr/lib/command-not-found-handler.py:78
+msgid ""
+"KDE Linux does not include the “{}” command.\n"
+"\n"
+"If you know it exists, and it’s important for your workflow, learn about "
+"options for getting it at {}"
+msgstr ""
+"KDE Linux nu include comanda „{}”.\n"
+"\n"
+"Dacă știți că aceasta există și e importantă pentru lucrul dumneavoastră, "
+"aflați despre opțiunile pentru obținerea acesteia la {}"
