@@ -18,7 +18,7 @@ cp /usr/share/edk2-shell/x64/Shell.efi "$SYSTEMD_ESP_PATH/shellx64.efi"
 ## Unnecessary for us
 pacman --remove --noconfirm qt6-doc qt6-examples || true
 ## Rust gets static compiled anyway. No need to have it in the image
-pacman --remove --noconfirm corrosion rust || true
+pacman --remove --noconfirm rust || true
 
 # No packagekit support or AppStream metadata in discover please! We don't want discover talking about pacman things.
 pacman --remove --noconfirm packagekit libpackagekit-glib archlinux-appstream-data || true
