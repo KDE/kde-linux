@@ -12,23 +12,24 @@ set -ex
 # Creates an archive containing the data from just the kde-linux-debug repository packages,
 # essentially the debug symbols for KDE apps, to be used as a sysext.
 make_debug_archive () {
-  # Create an empty directory at /tmp/debugroot to install the packages to before compressing.
-  rm --recursive --force /tmp/debugroot
-  mkdir --parents /tmp/debugroot
+  # Create an empty directory at /var/tmp/debugroot to install the packages to before compressing.
+  rm --recursive --force /var/tmp/debugroot
+  mkdir --parents /var/tmp/debugroot
 
-  # Install all packages in the kde-linux-debug repository to /tmp/debugroot.
-  pacstrap -c /tmp/debugroot $(pacman --sync --list --quiet kde-linux-debug)
+  # Install all packages in the kde-linux-debug repository to /var/tmp/debugroot.
+  pacstrap -c /var/tmp/debugroot $(pacman --sync --list --quiet kde-linux-debug)
 
   # systemd-sysext uses the os-release in extension-release.d to verify the sysext matches the base OS,
   # and can therefore be safely installed. Copy the base OS' os-release there.
-  mkdir --parents /tmp/debugroot/usr/lib/extension-release.d/
-  cp "${OUTPUT}/usr/lib/os-release" /tmp/debugroot/usr/lib/extension-release.d/extension-release.debug
+  mkdir --parents /var/tmp/debugroot/usr/lib/extension-release.d/
+  cp "${OUTPUT}/usr/lib/os-release" /var/tmp/debugroot/usr/lib/extension-release.d/extension-release.debug
 
-  # Finally compress /tmp/debugroot/usr into a zstd tarball at $DEBUG_TAR.
+  # Finally compress /var/tmp/debugroot/usr into a zstd tarball at $DEBUG_TAR.
   # We actually only need usr because that's where all the relevant stuff lays anyways.
   # TODO: needs really moving to erofs instead of tar
-  tar --directory=/tmp/debugroot --create --file="$DEBUG_TAR" usr
+  tar --directory=/var/tmp/debugroot --create --file="$DEBUG_TAR" usr
   zstd --threads=0 --rm "$DEBUG_TAR" # --threads=0 automatically uses the optimal number
+  rm --recursive --force /var/tmp/debugroot
 }
 
 EPOCH=$(date --utc +%s) # The epoch (only used to then construct the various date strings)
@@ -169,7 +170,7 @@ cd .. # and back to root
 # Drop flatpak data from erofs. They are in the usr/share/factory and deployed from there.
 rm -rf "$OUTPUT/var/lib/flatpak"
 mkdir "$OUTPUT/var/lib/flatpak" # but keep a mountpoint around for the live session
-df -h # Show the free space of all mounted devices
+
 time mkfs.erofs -zzstd -C 65536 --chunksize 65536 "$ROOTFS_EROFS" "$OUTPUT" > erofs.log 2>&1
 cp --reflink=auto "$ROOTFS_EROFS" kde-linux.cache/root.raw
 
