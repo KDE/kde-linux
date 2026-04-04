@@ -79,6 +79,9 @@ compinit
 # Disable tab cycling through completions.
 zstyle ':completion:*' menu no
 
+# Make completions case-insensitive.
+zstyle ':completion:*' matcher-list 'm:{a-z}={A-Z}'
+
 # Add colored output for various commands.
 alias ls='ls --color=auto'
 alias grep='grep --color=auto'
@@ -100,3 +103,12 @@ add-zsh-hook preexec auto_chmod
 # Wrap journal logs viewed in terminal rather than truncating; friendlier for reading
 # and copying
 export SYSTEMD_LESS=FRXMK
+
+# Add autosuggestions, substring history search and syntax highlighting.
+source /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh
+source /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+source /usr/share/zsh/plugins/zsh-history-substring-search/zsh-history-substring-search.zsh
+
+# Bind Ctrl+↑ and Ctrl+↓ keybinds to substring history search.
+bindkey '^[[1;5A' history-substring-search-up # Ctrl+↑
+bindkey '^[[1;5B' history-substring-search-down # Ctrl+↓
