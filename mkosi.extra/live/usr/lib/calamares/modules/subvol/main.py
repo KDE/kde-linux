@@ -253,7 +253,10 @@ def _create_subvolumes(state: InstallState) -> None:
     _run(["btrfs", "quota", "enable", "--simple", tmp])
     _run(["btrfs", "subvolume", "create", f"{tmp}/@system"])
     _run(["btrfs", "subvolume", "create", f"{tmp}/@system/etc"])
-    for sub in ("boot", "proc", "sys", "dev", "run", "usr"):
+    # A leftover @system/home subvolume would make the mkdir below a no-op and
+    # leave the old contents in place, so get rid of it first.
+    _run(["btrfs", "subvolume", "delete", f"{tmp}/@system/home"], check=False)
+    for sub in ("boot", "proc", "sys", "dev", "run", "usr", "home"):
         (state.tmpdir / "@system" / sub).mkdir(parents=True, exist_ok=True)
 
 

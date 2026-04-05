@@ -24,8 +24,14 @@ mount -o rw,subvol=/ /dev/gpt-auto-root /run/kde-linux-rootfs-transition
 # In a way we could think about moving the mounts into a generator TBH. Then we can do proper condition management on
 # the systemd side. Question is if they get correctly unmounted automatically.
 if [ -e /run/kde-linux-rootfs-transition/@system ]; then
-    cd /
-    umount --recursive --lazy /run/kde-linux-rootfs-transition
+    # v2->v3: @system/home is a btrfs subvolume but should be a regular directory.
+    if btrfs subvolume show /run/kde-linux-rootfs-transition/@system/home >/dev/null 2>&1; then
+        /usr/lib/btrfs-migrator /run/kde-linux-rootfs-transition
+        umount --recursive --lazy /run/kde-linux-rootfs-transition
+    else
+        cd /
+        umount --recursive --lazy /run/kde-linux-rootfs-transition
+    fi
     exit 0
 fi
 

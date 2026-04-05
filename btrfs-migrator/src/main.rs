@@ -122,7 +122,7 @@ fn run(root: &Path) -> Result<(), Box<dyn Error>> {
 
         println!(
             "Found {concerning_fstab_entries} concerning fstab entries. This suggests you have a more complicated fstab setup that we cannot auto-migrate. \
-            If nothing critically important is managed by fstab you can let the auto-migration run. If you have entries that are required for the system to boot you should manually migrate to @system."
+If nothing critically important is managed by fstab you can let the auto-migration run. If you have entries that are required for the system to boot you should manually migrate to @system."
         );
         io::stdout().flush().unwrap();
 
@@ -170,9 +170,9 @@ fn run(root: &Path) -> Result<(), Box<dyn Error>> {
         defer! {
             println!("Unmounting overlay for {}", dir);
             Command::new("umount")
-                .arg(&compose_dir)
-                .status()
-                .expect("Failed to unmount overlay for etc/var");
+            .arg(&compose_dir)
+            .status()
+            .expect("Failed to unmount overlay for etc/var");
         }
 
         println!(
@@ -237,6 +237,55 @@ fn run(root: &Path) -> Result<(), Box<dyn Error>> {
     return Ok(());
 }
 
+fn run_v3(root: &Path) -> Result<(), Box<dyn Error>> {
+    let system_home = root.join("@system/home");
+    let system_home_tmp = root.join("@system/home.v3tmp");
+
+    let _ = Command::new("plymouth")
+        .arg("display-message")
+        .arg("--text=Migrating to v3 rootfs. Can take a while.")
+        .status();
+
+    println!("Migrating @system/home from subvolume to regular directory with per-user subvolumes");
+
+    // Stage into a sibling directory so that if we crash mid-way, @system/home is still a subvolume
+    // and the next boot will retry the migration cleanly.
+    fs::create_dir(&system_home_tmp)?;
+
+    for entry in fs::read_dir(&system_home)? {
+        let entry = entry?;
+        let src = entry.path();
+        if !src.is_dir() {
+            continue;
+        }
+        let dst = system_home_tmp.join(entry.file_name());
+        println!("Creating user subvolume at {dst:?}");
+        CreateSubvolumeOptions::new()
+            .create(&dst)
+            .map_err(|e| format!("Failed to create subvolume {dst:?}: {e:?}"))?;
+        let cp_result = Command::new("cp")
+            .arg("--recursive")
+            .arg("--archive")
+            .arg("--reflink=auto")
+            .arg(format!("{}/.", src.display()))
+            .arg(format!("{}/.", dst.display()))
+            .status()
+            .expect("Failed to copy user home");
+        if !cp_result.success() {
+            return Err(format!("Failed to copy {src:?} to {dst:?}").into());
+        }
+    }
+
+    DeleteSubvolumeOptions::new()
+        .delete(&system_home)
+        .map_err(|e| format!("Failed to delete @system/home subvolume: {e:?}"))?;
+
+    println!("Renaming {system_home_tmp:?} to {system_home:?}");
+    fs::rename(&system_home_tmp, &system_home)?; // fatal problem
+
+    return Ok(());
+}
+
 fn main() -> Result<(), Box<dyn Error>> {
     let args: Vec<String> = env::args().collect();
     if args.len() < 2 {
@@ -245,11 +294,22 @@ fn main() -> Result<(), Box<dyn Error>> {
         return Err("Not enough arguments".into());
     }
 
-    println!("Migrating to v2 rootfs. This will take a while.");
-
     let root = Path::new(&args[1]);
+    let system_path = root.join("@system");
 
-    match run(root) {
+    let (msg, result) = if system_path.exists() {
+        println!("Migrating to v3 rootfs.");
+        (
+            "Migrating to v3 rootfs. This will take a while.",
+            run_v3(root),
+        )
+    } else {
+        println!("Migrating to v2 rootfs. This will take a while.");
+        ("Migrating to v2 rootfs. This will take a while.", run(root))
+    };
+    let _ = msg; // used for context above
+
+    match result {
         Ok(_) => {
             // Reactivate in case we deactivated it earlier
             let _ = Command::new("plymouth").arg("show-splash").status();
