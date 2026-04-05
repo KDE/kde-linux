@@ -90,7 +90,8 @@ btrfs subvolume sync . || true
 btrfs quota enable --simple .
 btrfs subvolume create @system
 btrfs subvolume create @system/etc
-mkdir @system/boot @system/proc @system/sys @system/dev @system/run @system/usr
+btrfs subvolume delete @system/home || true
+mkdir @system/boot @system/proc @system/sys @system/dev @system/run @system/usr @system/home
 cp /dev/gpt-auto-root kde-linux_$IMAGE_VERSION.erofs
 
 # Overmount calamares' mount with the subvol mount
