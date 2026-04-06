@@ -192,17 +192,3 @@ rm -rf \
 rm -rf \
     /buildroot \
     /.cache \
-
-# Custom Plasma Setup
-git clone https://invent.kde.org/plasma/plasma-setup.git
-cd plasma-setup
-git checkout work/hadi/btrfs
-
-mkdir build && cd build
-cmake .. -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=Release
-make
-make install
-
-cd ../
-cd ../
-rm -rf plasma-setup
