@@ -126,8 +126,6 @@ systemd-nspawn -D "$ROOT" "true" || true
 
 # Initialize systemd stuff
 systemd-sysusers --root="$ROOT"
-# exclude /usr because some tmpfiles are rubbish and assume /usr is writable...
-systemd-tmpfiles --root="$ROOT" --exclude-prefix=/usr --create
 
 # Add a marker file to indicate this install included plasma-setup.
 # This ensures plasma-setup won't run for existing installations.
@@ -137,3 +135,7 @@ install -m 0644 /dev/null "$ROOT/var/lib/kde-linux/installed-with-plasma-setup"
 # Make sure presets are applied
 systemctl --root="$ROOT" preset-all
 systemctl --root="$ROOT" preset-all --global
+
+# tmpfiles are final and should come at last
+# exclude /usr because some tmpfiles are rubbish and assume /usr is writable...
+systemd-tmpfiles --root="$ROOT" --exclude-prefix=/usr --create

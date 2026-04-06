@@ -48,6 +48,9 @@ enable kde-linux-volatile-var-lib-flatpak.service
 enable kde-linux-sysupdated.socket
 enable plasma-setup-live-system.service
 
+# KMSCON
+enable kmsconvt@
+enable kmsconvt@tty1.service
 
 # Disable stuff we don't want
 # ===========================
