@@ -1,10 +1,15 @@
 #!/bin/sh
 # SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL
 # SPDX-FileCopyrightText: 2023 Harald Sitter <sitter@kde.org>
+# SPDX-FileCopyrightText: 2026 Thomas Duckworth <tduck@filotimoproject.org>
 
 if [ "$(id -u)" != "0" ]; then
     exec pkexec /usr/local/bin/calamares "$@"
 fi
+
+# Find the user's AT-SPI bus and export it here for Calamares to use.
+# Unfortunately, Calamares has to run entirely as root, UI and all, so we have to do this.
+export AT_SPI_BUS_ADDRESS="$(busctl --machine="$PKEXEC_UID"@.host --user call org.a11y.Bus /org/a11y/bus org.a11y.Bus GetAddress --json=short | jq -r '.data[0]')"
 
 export KDE_FULL_SESSION=TRUE
 export KDE_SESSION_VERSION=6
