@@ -1,0 +1,65 @@
+# Slovak translations for kde-linux package.
+# Copyright (C) 2026 This file is copyright:
+# This file is distributed under the same license as the kde-linux package.
+# Automatically generated, 2026.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: kde-linux\n"
+"Report-Msgid-Bugs-To: https://bugs.kde.org\n"
+"POT-Creation-Date: 2026-03-18 00:43+0000\n"
+"PO-Revision-Date: 2026-03-18 00:43+0000\n"
+"Last-Translator: Automatically generated\n"
+"Language-Team: none\n"
+"Language: sk\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;\n"
+
+#: mkosi.extra/usr/lib/command-not-found-handler.py:72
+msgid ""
+"KDE Linux does not include the “{}” tool.\n"
+"\n"
+"Instead, try using “{}”."
+msgstr ""
+"KDE Linux neobsahuje nástroj „{}“.\n"
+"\n"
+"Skúste namiesto toho použiť „{}“."
+
+#: mkosi.extra/usr/lib/command-not-found-handler.py:74
+msgid ""
+"KDE Linux does not include the “{}” package manager.\n"
+"\n"
+"Graphical software is available using the Discover app center. To learn how "
+"to install software that’s not available in Discover, see {}"
+msgstr ""
+"KDE Linux neobsahuje správcu balíkov „{}“.\n"
+"\n"
+"Grafický softvér je dostupný pomocou centra aplikácií Discover. Ak sa chcete "
+"dozvedieť, ako nainštalovať softvér, ktorý nie je dostupný v Discoveri, "
+"pozrite {}"
+
+#: mkosi.extra/usr/lib/command-not-found-handler.py:76
+msgid ""
+"KDE Linux does not pre-install the “{}” package manager, but it can be added "
+"manually.\n"
+"\n"
+"To do so, follow the instructions at {}"
+msgstr ""
+"KDE Linux nepredinštalováva správcu balíkov „{}“, ale je možné ho pridať "
+"manuálne.\n"
+"\n"
+"Ak to chcete urobiť, postupujte podľa pokynov na {}"
+
+#: mkosi.extra/usr/lib/command-not-found-handler.py:78
+msgid ""
+"KDE Linux does not include the “{}” command.\n"
+"\n"
+"If you know it exists, and it’s important for your workflow, learn about "
+"options for getting it at {}"
+msgstr ""
+"KDE Linux neobsahuje príkaz „{}“.\n"
+"\n"
+"Ak viete, že existuje a je dôležitý pre váš pracovný postup, dozviete sa o "
+"možnostiach jeho získania na {}"
