@@ -86,8 +86,7 @@ pacman --sync --refresh --refresh --noconfirm --sysupgrade \
     transmission-cli \
     tree \
     ukify \
-    wget \
-    xorriso
+    wget
 
 # Use mkosi from Git so we don't have to wait for releases when things break.
 # OTOH, things may break in Git. Therefore, which version is used may change over time.
