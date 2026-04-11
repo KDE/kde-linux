@@ -49,15 +49,16 @@ DEBUG_TAR=${OUTPUT}_debug-x86-64.tar # Output debug archive path (.zst will be a
 ROOTFS_CAIBX=${OUTPUT}_root-x86-64.caibx
 ROOTFS_EROFS=${OUTPUT}_root-x86-64.erofs # Output erofs image path
 IMG=${OUTPUT}.raw                    # Output raw image path
+ISO=${OUTPUT}.iso                    # Output ISO image path
 
 EFI_BASE=kde-linux_${VERSION} # Base name of the UKI in the image's ESP (exported so it can be used in basic-test-efi-addon.sh)
 EFI=${EFI_BASE}+3.efi # Name of primary UKI in the image's ESP
 
 # Clean up old build artifacts.
-rm --recursive --force kde-linux.cache/*.raw kde-linux.cache/*.mnt
+rm --recursive --force kde-linux.cache/*.raw kde-linux.cache/*.mnt kde-linux.cache/iso-stage
 
 # FIXME: temporary hack to work around repo priorities being off in the CI image
-cat <<- EOF > mkosi.sandbox/etc/pacman.conf
+cat <<- PACMAN > mkosi.sandbox/etc/pacman.conf
 [kde-linux]
 # Signature checking is not needed because the packages are served over HTTPS and we have no mirrors
 SigLevel = Never
@@ -66,14 +67,14 @@ Server = https://storage.kde.org/kde-linux-packages/testing/repo/packages/
 [kde-linux-debug]
 SigLevel = Never
 Server = https://storage.kde.org/kde-linux-packages/testing/repo/packages-debug/
-EOF
+PACMAN
 cat /etc/pacman.conf.nolinux >> mkosi.sandbox/etc/pacman.conf
 
 # Enable multilib; we need it later for steam-devices
-cat <<EOF >> mkosi.sandbox/etc/pacman.conf
+cat <<MULTILIB >> mkosi.sandbox/etc/pacman.conf
 [multilib]
 Include = /etc/pacman.d/mirrorlist
-EOF
+MULTILIB
 
 mkdir --parents mkosi.sandbox/etc/pacman.d
 # Ensure the packages repo and the base image do not go out of sync
@@ -178,6 +179,19 @@ cp --reflink=auto "$ROOTFS_EROFS" kde-linux.cache/root.raw
 touch "$IMG"
 systemd-repart --no-pager --empty=allow --size=auto --dry-run=no --root=kde-linux.cache --definitions=mkosi.repart "$IMG"
 
+# Build a bootable ISO alongside the raw image.
+# iso-stage holds the EFI tree (from esp.raw) + esp.raw itself (El Torito boot image) + the erofs root.
+mkdir -p kde-linux.cache/iso-stage kde-linux.cache/esp.raw.mnt
+mount -o ro kde-linux.cache/esp.raw kde-linux.cache/esp.raw.mnt
+cp -a kde-linux.cache/esp.raw.mnt/. kde-linux.cache/iso-stage/
+umount kde-linux.cache/esp.raw.mnt
+cp --reflink=auto kde-linux.cache/esp.raw kde-linux.cache/iso-stage/
+cp --reflink=auto "$ROOTFS_EROFS" kde-linux.cache/iso-stage/
+xorriso -as mkisofs -r \
+    -e esp.raw -no-emul-boot -isohybrid-gpt-basdat \
+    -o "$ISO" \
+    kde-linux.cache/iso-stage
+
 # Incase the owner is root
 chown -R user:user mkosi.output
 
@@ -201,5 +215,5 @@ zstd --threads=0 --rm ${OUTPUT}_root-x86-64.tar
 # TODO before accepting new uploads perform sanity checks on the artifacts (e.g. the tar being well formed)
 
 # efi images and torrents are 700, make them readable so the server can serve them
-chmod go+r "$OUTPUT".* ./mkosi.output/*.efi ./mkosi.output/*.torrent
+chmod go+r "$OUTPUT".* ./mkosi.output/*.efi ./mkosi.output/*.torrent "$ISO"
 ls -lah
