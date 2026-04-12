@@ -58,8 +58,6 @@ echo "Server = https://archive.archlinux.org/repos/${BUILD_DATE}/\$repo/os/\$arc
 # so no need to uncomment or manually set it unless we want to change the value.
 
 # Update the system and install packages we'll need for building KDE Linux.
-# Even though we use mkosi from Git, we'll grab the package,
-# to make sure all the dependencies are properly pulled.
 #  --refresh twice to force a refresh
 pacman --sync --refresh --refresh --noconfirm --sysupgrade \
     mkosi \
@@ -75,6 +73,7 @@ pacman --sync --refresh --refresh --noconfirm --sysupgrade \
     flatpak \
     git \
     go \
+    libisoburn \
     openssh \
     qemu-base \
     qemu-img \
@@ -87,8 +86,3 @@ pacman --sync --refresh --refresh --noconfirm --sysupgrade \
     tree \
     ukify \
     wget
-
-# Use mkosi from Git so we don't have to wait for releases when things break.
-# OTOH, things may break in Git. Therefore, which version is used may change over time.
-git clone https://github.com/systemd/mkosi.git /opt/mkosi
-ln --symbolic /opt/mkosi/bin/mkosi /usr/local/bin/mkosi
