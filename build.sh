@@ -102,6 +102,7 @@ rm --recursive --force etc-factory
 git clone https://invent.kde.org/kde-linux/etc-factory
 DESTDIR=$PWD/mkosi.extra make --directory=etc-factory install
 
+mkdir -p mkosi.output
 chown root:root mkosi.output
 
 mkosi \
