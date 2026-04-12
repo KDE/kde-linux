@@ -24,7 +24,7 @@ rm --recursive --force /usr/share/factory/etc/pam.d
 
 # Copy all of etc into factory dir for tmpfiles.d (see tmpfiles.d docs).
 [ -d /usr/share/factory ] || mkdir /usr/share/factory
-cp -r --preserve=mode,timestamps,links --no-target-directory --update=all /etc /usr/share/factory/etc
+cp --archive --no-target-directory --update=all /etc /usr/share/factory/etc
 
 # Clean up factory content that we absolutely do not want because it is machine/installation dependent.
 cd /usr/share/factory/etc

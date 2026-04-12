@@ -9,23 +9,16 @@ passwd --delete root
 passwd --lock root
 
 if [ -f "$SRCDIR/.secure_files/gpg.public.key" ]; then # only useful and available for publishing branches
-    # Create a temporary, writable GNUPGHOME
-    GNUPGHOME=$(mktemp -d)
     # Put our key into the systemd keyring
-    export GNUPGHOME
+    export GNUPGHOME="$SRCDIR/.secure_files/gpg"
     KEYRING=/usr/lib/systemd/import-pubring.pgp
-
+    rm -rf "$GNUPGHOME"
+    mkdir "$GNUPGHOME"
     rm -f "$KEYRING"
-    gpg --no-options --no-default-keyring \
-        --keyring="$KEYRING" \
-        --homedir="$GNUPGHOME" \
-        --import "$SRCDIR/.secure_files/gpg.public.key"
+    gpg --no-options --no-default-keyring --keyring="$KEYRING" --homedir="$GNUPGHOME" --import "$SRCDIR/.secure_files/gpg.public.key"
 
     # TODO: Make sure the keyring is actually used. This notably broke in the past because of an upstream change.
     # https://invent.kde.org/kde-linux/kde-linux/-/issues/199
-
-    # Clean up the temporary directory
-    rm -rf "$GNUPGHOME"
 fi
 
 # Uninstall solaar and sane, but keep their udev rules.

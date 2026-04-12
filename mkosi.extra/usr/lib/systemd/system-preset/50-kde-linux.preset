@@ -54,11 +54,6 @@ enable kmsconvt@tty1.service
 
 # Disable stuff we don't want
 # ===========================
-# getty - we use kmscon
-disable autovt@.service
-disable getty@.service
-disable getty@tty1.service
-
 # networkd - we use networkmanager
 disable systemd-networkd.service
 disable systemd-networkd-wait-online.service
