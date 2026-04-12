@@ -32,6 +32,8 @@ make_debug_archive () {
   rm --recursive --force /var/tmp/debugroot
 }
 
+rm -rf /usr/local/bin/mkosi
+
 EPOCH=$(date --utc +%s) # The epoch (only used to then construct the various date strings)
 VERSION_DATE=$(date --utc --date="@$EPOCH" --rfc-3339=seconds)
 VERSION=$(date --utc --date="@$EPOCH" +%Y%m%d%H%M)
