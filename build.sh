@@ -102,6 +102,9 @@ rm --recursive --force etc-factory
 git clone https://invent.kde.org/kde-linux/etc-factory
 DESTDIR=$PWD/mkosi.extra make --directory=etc-factory install
 
+mkdir -p mkosi.output mkosi.cache
+chown root:root mkosi.output mkosi.cache
+
 mkosi \
     --environment="CI_COMMIT_SHORT_SHA=${CI_COMMIT_SHORT_SHA:-unknownSHA}" \
     --environment="CI_COMMIT_SHA=${CI_COMMIT_SHA:-unknownSHA}" \
