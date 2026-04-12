@@ -57,7 +57,7 @@ enable kmsconvt@tty1.service
 # getty - we use kmscon
 disable autovt@.service
 disable getty@.service
-mask getty@tty1.service
+disable getty@tty1.service
 
 # networkd - we use networkmanager
 disable systemd-networkd.service
