@@ -105,13 +105,13 @@ DESTDIR=$PWD/mkosi.extra make --directory=etc-factory install
 mkdir -p mkosi.output mkosi.cache
 chown root:root mkosi.output mkosi.cache
 
-mkosi \
-    --environment="CI_COMMIT_SHORT_SHA=${CI_COMMIT_SHORT_SHA:-unknownSHA}" \
-    --environment="CI_COMMIT_SHA=${CI_COMMIT_SHA:-unknownSHA}" \
-    --environment="CI_PIPELINE_URL=${CI_PIPELINE_URL:-https://invent.kde.org}" \
-    --environment="VERSION_DATE=${VERSION_DATE}" \
-    --image-version="$VERSION" \
-    "$@"
+sudo mkosi \
+              --environment="CI_COMMIT_SHORT_SHA=${CI_COMMIT_SHORT_SHA:-unknownSHA}" \
+              --environment="CI_COMMIT_SHA=${CI_COMMIT_SHA:-unknownSHA}" \
+              --environment="CI_PIPELINE_URL=${CI_PIPELINE_URL:-https://invent.kde.org}" \
+              --environment="VERSION_DATE=${VERSION_DATE}" \
+              --image-version="$VERSION" \
+              "$@"
 
 # Adjust mtime to reduce unnecessary churn between images caused by us rebuilding repos that have possible not changed in source or binary interfaces.
 if [ -f "$PWD/.secure_files/ssh.key" ]; then
