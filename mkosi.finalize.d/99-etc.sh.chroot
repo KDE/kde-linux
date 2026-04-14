@@ -19,11 +19,11 @@ echo "# Default of 3 is way too harsh" >> /etc/security/faillock.conf
 echo "deny = 12" >> /etc/security/faillock.conf
 
 # Set BTRFS_SUBVOLUME_HOME for new users
-if grep -q '^BTRFS_SUBVOLUME_HOME=' /etc/default/useradd; then
-    sed -i 's%^BTRFS_SUBVOLUME_HOME=.*%BTRFS_SUBVOLUME_HOME=yes%' /etc/default/useradd
-else
-    echo 'BTRFS_SUBVOLUME_HOME=yes' >> /etc/default/useradd
-fi
+# if grep -q '^BTRFS_SUBVOLUME_HOME=' /etc/default/useradd; then
+#     sed -i 's%^BTRFS_SUBVOLUME_HOME=.*%BTRFS_SUBVOLUME_HOME=yes%' /etc/default/useradd
+# else
+#     echo 'BTRFS_SUBVOLUME_HOME=yes' >> /etc/default/useradd
+# fi
 
 # Make double sure we don't seed random pam.d files from factory etc!
 # https://invent.kde.org/kde-linux/kde-linux/-/issues/165
