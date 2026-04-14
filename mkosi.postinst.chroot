@@ -127,13 +127,6 @@ sed -i 's%^SHELL=/usr/bin/bash%SHELL=/usr/bin/zsh%' /etc/default/useradd
 # Put new users in sambashare group
 sed -i 's%^GROUP=users%GROUP=users\nGROUPS=sambashare%' /etc/default/useradd
 
-# Set BTRFS_SUBVOLUME_HOME for new users
-if grep -q '^BTRFS_SUBVOLUME_HOME=' /etc/default/useradd; then
-    sed -i 's%^BTRFS_SUBVOLUME_HOME=.*%BTRFS_SUBVOLUME_HOME=yes%' /etc/default/useradd
-else
-    echo 'BTRFS_SUBVOLUME_HOME=yes' >> /etc/default/useradd
-fi
-
 # Our Plymouth Theme
 KEEP_THEME="breeze-bgrt"
 
