@@ -66,11 +66,23 @@ go -C ../token-redeemer/ run .
 ## Prepare the image upload tree
 cd ..
 rm -rf upload-tree
-mkdir -p upload-tree/sysupdate/v2
+V2_TREE="upload-tree/sysupdate/v2"
+mkdir -p "$V2_TREE"
 
 mv "$OUTDIR"/*.raw "$OUTDIR"/*.torrent upload-tree/
-mv "$OUTDIR"/*.efi "$OUTDIR"/*.tar.zst "$OUTDIR"/*.erofs "$OUTDIR"/*.caibx "$OUTDIR"/SHA256SUMS "$OUTDIR"/SHA256SUMS.gpg upload-tree/sysupdate/v2/
+mv "$OUTDIR"/*.efi "$OUTDIR"/*.tar.zst "$OUTDIR"/*.erofs "$OUTDIR"/*.caibx "$V2_TREE/"
 
 ### Upload
+go -C ./token-redeemer/ run .
+go -C ./uploader/ run . --remote "$S3_TARGET"
+
+### Clean up previous images (this replaces the upload-tree with only SHA256SUMS!)
+go -C ./upload-vacuum-v3/ build -o upload-vacuum-v3 .
+./upload-vacuum-v3/upload-vacuum-v3
+
+#### Sign SHA256SUMS
+gpg --homedir="$GNUPGHOME" --output "$V2_TREE/SHA256SUMS.gpg" --detach-sign "$V2_TREE/SHA256SUMS"
+
+#### Upload SHA256SUMS
 go -C ./token-redeemer/ run .
 go -C ./uploader/ run . --remote "$S3_TARGET"
