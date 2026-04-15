@@ -73,7 +73,6 @@ pacman --sync --refresh --refresh --noconfirm --sysupgrade \
     flatpak \
     git \
     go \
-    libisoburn \
     openssh \
     qemu-base \
     qemu-img \
