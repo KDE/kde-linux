@@ -51,6 +51,7 @@ scp -i "$SSH_IDENTITY" SHA256SUMS SHA256SUMS.gpg "$REMOTE_PATH" # upload as last
 
 # The new s3 based upload system
 
+export VACUUM_REALLY_DELETE=1
 S3_STORE="s3+https://storage.kde.org/kde-linux/sysupdate/store/"
 S3_TARGET="s3+https://storage.kde.org/kde-linux/testing/"
 
