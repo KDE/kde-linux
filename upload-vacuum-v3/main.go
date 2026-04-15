@@ -28,27 +28,39 @@ type release struct {
 
 func connectToMinIO() *minio.Client {
 	endpoint := "storage.kde.org"
+
+	// Below is a huge code dupe from uploader/main.go, should be shared somehow
 	awsSection, err := readConfigAWS("default")
 	if err != nil {
 		log.Fatalln("Failed to read AWS config:", err)
 	}
 	accessKeyID := awsSection.AccessKeyId
+	if accessKeyID == "" {
+		log.Fatalln("AWS access key ID is empty")
+	}
 	secretAccessKey := awsSection.SecretKey
+	if secretAccessKey == "" {
+		log.Fatalln("AWS secret access key is empty")
+	}
+	sessionToken := awsSection.SessionToken
+	if secretAccessKey == "" {
+		log.Fatalln("AWS session token is empty")
+	}
 	useSSL := true
 
 	// Initialize minio client object.
 	minioClient, err := minio.New(endpoint, &minio.Options{
-		Creds:           credentials.NewStaticV4(accessKeyID, secretAccessKey, ""),
+		Creds:           credentials.NewStaticV4(accessKeyID, secretAccessKey, sessionToken),
 		Secure:          useSSL,
 		TrailingHeaders: true,
 	})
 	if err != nil {
-		log.Fatalln(err)
+		log.Fatalln("Failed to create MinIO client:", err)
 	}
 
 	buckets, err := minioClient.ListBuckets(context.Background())
 	if err != nil {
-		log.Fatalln(err)
+		log.Fatalln("Failed to list buckets:", err)
 	}
 	for _, bucket := range buckets {
 		log.Println(bucket)
