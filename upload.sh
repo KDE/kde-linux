@@ -6,6 +6,7 @@
 set -eux
 
 OUTDIR=mkosi.output
+MAX_IMAGES=12
 
 # For the vacuum helper and this script
 export SSH_IDENTITY="$PWD/.secure_files/ssh.key"
@@ -49,6 +50,37 @@ scp -i "$SSH_IDENTITY" ./*.raw ./*.torrent "$REMOTE_ROOT"
 scp -i "$SSH_IDENTITY" ./*.efi ./*.tar.zst ./*.erofs ./*.caibx "$REMOTE_PATH"
 scp -i "$SSH_IDENTITY" SHA256SUMS SHA256SUMS.gpg "$REMOTE_PATH" # upload as last artifact to finalize the upload
 
+# Cleanup: keep only latest $MAX_IMAGES images on SSH
+cleanup_ssh() {
+    versions=$(ssh -i "$SSH_IDENTITY" "$SSH_USER@$SSH_HOST" "
+        find '$SSH_ROOT_PATH' '$SSH_PATH' -type f \( -name '*.efi' -o -name '*.tar.zst' -o -name '*.erofs' -o -name '*.caibx' -o -name '*.raw' -o -name '*.torrent' \) |
+        grep -oE 'kde-linux_[0-9]{14}' | sort -u
+    ")
+    total=$(echo "$versions" | wc -l)
+    [ "$total" -le "$MAX_IMAGES" ] && return
+    delete_versions=$(echo "$versions" | head -n $((total - MAX_IMAGES)))
+    for ver in $delete_versions; do
+        ssh -i "$SSH_IDENTITY" "$SSH_USER@$SSH_HOST" "
+            find '$SSH_ROOT_PATH' '$SSH_PATH' -type f -name '*${ver}*' -delete
+        "
+    done
+}
+
+# Cleanup S3 similarly
+cleanup_s3() {
+    S3_BUCKET="s3://storage.kde.org/kde-linux/"
+    aws s3 ls "$S3_BUCKET" --recursive | awk '{print $4}' | grep -oE 'kde-linux_[0-9]{14}' | sort -u > /tmp/versions.txt
+    total=$(wc -l < /tmp/versions.txt)
+    [ "$total" -le "$MAX_IMAGES" ] && return
+    delete=$(head -n $((total - MAX_IMAGES)) /tmp/versions.txt)
+    for ver in $delete; do
+        aws s3 rm "$S3_BUCKET" --recursive --exclude "*" --include "*${ver}*"
+    done
+}
+
+cleanup_ssh
+cleanup_s3
+
 # The new s3 based upload system
 
 S3_STORE="s3+https://storage.kde.org/kde-linux/sysupdate/store/"
@@ -74,3 +106,6 @@ mv "$OUTDIR"/*.efi "$OUTDIR"/*.tar.zst "$OUTDIR"/*.erofs "$OUTDIR"/*.caibx "$OUT
 ### Upload
 go -C ./token-redeemer/ run .
 go -C ./uploader/ run . --remote "$S3_TARGET"
+
+# Final cleanup on S3 after uploader finishes
+cleanup_s3
