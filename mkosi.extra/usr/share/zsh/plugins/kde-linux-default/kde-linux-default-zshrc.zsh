@@ -95,7 +95,7 @@ alias grep='grep --color=auto'
 
 # Preserve metadata by default; match the behavior of `mv`.
 alias cp='cp --preserve=all'
-alias rsync='rsync --perms --xattrs --acls --times --atimes --crtimes'
+alias rsync='rsync --perms --xattrs --acls --times --atimes'
 
 # Add various useful aliases.
 alias la='ls -A'
