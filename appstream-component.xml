@@ -22,9 +22,9 @@ SPDX-License-Identifier: CC0-1.0
       <li>User-friendly installation process</li>
     </ul>
   </description>
-  <url type="homepage">https://kdelinux.org</url>
-  <url type="bugtracker">https://bugs.kdelinux.org</url>
-  <url type="help">https://docs.kdelinux.org</url>
+  <url type="homepage">https://kde.org/linux</url>
+  <url type="bugtracker">https://invent.kde.org/kde-linux/kde-linux/-/issues/</url>
+  <url type="help">https://kde.org/linux/docs/</url>
   <developer_name>KDE Linux Team</developer_name>
   <project_group>KDE</project_group>
   <provides>
