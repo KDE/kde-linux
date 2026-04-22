@@ -347,7 +347,8 @@ func main() {
 			log.Fatal(err)
 		}
 
-		args := []string{"prune", "--yes", "--store", "s3+https://storage.kde.org/kde-linux/sysupdate/store"}
+		log.Println("Pruning desync store with caibx files", caibxFiles)
+		args := []string{"prune", "--yes", "--error-retry-base-interval=8s", "--store", "s3+https://storage.kde.org/kde-linux/sysupdate/store"}
 		args = append(args, caibxFiles...)
 		cmd := exec.Command("desync", args...)
 		cmd.Stdout = os.Stdout
