@@ -160,6 +160,22 @@ fi
 # enabled by default and requires authentication to manually enable.
 mv /usr/lib/systemd/user/ydotool.service /usr/lib/systemd/system/ydotool.service
 
+
+# Custom Plasma Setup
+git clone https://invent.kde.org/plasma/plasma-setup.git
+cd plasma-setup
+git checkout work/hadi/btrfs
+
+mkdir build && cd build
+cmake .. -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=Release
+make
+make install
+
+cd ../
+cd ../
+rm -rf plasma-setup
+
+
 # Clean up final remnants of the build process
 rm -rf \
     /buildroot \
