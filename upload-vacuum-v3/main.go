@@ -108,25 +108,43 @@ func downloadCaibxFiles(client *minio.Client) (caibxFiles []string, err error) {
 	log.Println("Downloading caibx files from", bucketName)
 
 	os.RemoveAll("caibx-files")
-	objects := client.ListObjects(ctx, bucketName, minio.ListObjectsOptions{
-		Recursive: true,
-	})
-	for object := range objects {
+	for object := range client.ListObjects(ctx, bucketName, minio.ListObjectsOptions{
+		Recursive: false,
+	}) {
 		if object.Err != nil {
 			log.Fatalln(object.Err)
 		}
 
-		if !strings.HasSuffix(object.Key, ".caibx") {
+		if !strings.HasSuffix(object.Key, "/") {
+			// Not a dir.
 			continue
 		}
 
-		log.Println("Downloading caibx", object.Key)
-		path := filepath.Join("caibx-files", object.Key)
-		err := client.FGetObject(ctx, bucketName, object.Key, path, minio.GetObjectOptions{})
-		if err != nil {
-			log.Fatalln(errors.New("Failed to download caibx " + object.Key + ": " + err.Error()))
+		if object.Key == "sysupdate/" {
+			// The store itself wont contain any caibx files.
+			continue
 		}
-		caibxFiles = append(caibxFiles, path)
+
+		for object := range client.ListObjects(ctx, bucketName, minio.ListObjectsOptions{
+			Prefix:    object.Key,
+			Recursive: true,
+		}) {
+			if object.Err != nil {
+				log.Fatalln(object.Err)
+			}
+
+			if !strings.HasSuffix(object.Key, ".erofs.caibx") {
+				continue
+			}
+
+			log.Println("Downloading caibx", object.Key)
+			path := filepath.Join("caibx-files", object.Key)
+			err := client.FGetObject(ctx, bucketName, object.Key, path, minio.GetObjectOptions{})
+			if err != nil {
+				log.Fatalln(errors.New("Failed to download caibx " + object.Key + ": " + err.Error()))
+			}
+			caibxFiles = append(caibxFiles, path)
+		}
 	}
 
 	return
