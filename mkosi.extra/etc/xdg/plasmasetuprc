@@ -1,0 +1,28 @@
+# -*- mode: ini -*-
+
+# SPDX-FileCopyrightText: 2025 Kristen McWilliam <kristen@kde.org>
+#
+# SPDX-License-Identifier: LGPL-2.1-or-later
+
+# Plasma Setup configuration file.
+#
+# Usually installed to /etc/xdg/plasmasetuprc.
+#
+# Distributions and administrators can edit it to customize various aspects of
+# how Plasma Setup works.
+
+[Accounts]
+# Additional groups (comma-separated) that the user created by Plasma
+# Setup should join. The default is "wheel" so the user has administrative
+# privileges.
+#
+# Example: UserGroups=wheel,lp,kvm
+#
+# NOTE: Leaving this key empty results in the hard-coded default of "wheel".
+UserGroups=wheel
+
+# Plasma Setup will pass the arguments defined below to useradd(8).
+#
+# Default: ""
+# Example: UserArgs="--btrfs-subvolume-home -d /koolhome"
+UserArgs=""
