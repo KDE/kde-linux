@@ -79,8 +79,7 @@ go -C ./uploader/ run . --remote "$S3_TARGET"
 
 ### Clean up previous images (this replaces the upload-tree with only SHA256SUMS!)
 go -C ./token-redeemer/ run .
-go -C ./upload-vacuum-v3/ build -o upload-vacuum-v3 .
-./upload-vacuum-v3/upload-vacuum-v3
+go -C ./upload-vacuum-v3/ run .
 
 #### Sign SHA256SUMS
 gpg --homedir="$GNUPGHOME" --output "$V2_TREE/SHA256SUMS.gpg" --detach-sign "$V2_TREE/SHA256SUMS"
