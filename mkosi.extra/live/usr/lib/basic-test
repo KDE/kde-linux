@@ -1,11 +1,18 @@
 #!/bin/env python3
 # SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL
 # SPDX-FileCopyrightText: 2025 Harald Sitter <sitter@kde.org>
+# SPDX-FileCopyrightText: 2026 Hadi Chokr <hadichokr@icloud.com>
 
 import subprocess
 import time
 from pathlib import Path
 import json
+
+# Units that are known to fail on a read-only ISO (e.g., /boot is not writable)
+IGNORED_FAILED_UNITS = {
+    "systemd-boot-update.service",
+    "systemd-boot-random-seed.service",
+}
 
 callback = None
 with open('/proc/cmdline') as cmdline:
@@ -28,14 +35,16 @@ while True:
     # 1000 is the uid of the live user. always.
     if Path('/run/user/1000/kde-linux-bless-session').is_file():
         failed = json.loads(subprocess.check_output(["systemctl", "--failed", "--output=json"]))
-        if len(failed) > 0:
+        # Filter out ignored units
+        relevant_failed = [unit for unit in failed if unit['unit'] not in IGNORED_FAILED_UNITS]
+        if len(relevant_failed) > 0:
             with open('data.file', 'w') as f:
-                for unit in failed:
+                for unit in relevant_failed:
                     f.write("\n")
                     f.write(json.dumps(unit))
                     f.write("\n")
                     try:
-                        f.write(subprocess.check_output(['journalctl', '--no-pager', f'_SYSTEMD_UNIT={unit['unit']}']).decode('utf-8'))
+                        f.write(subprocess.check_output(['journalctl', '--no-pager', f'_SYSTEMD_UNIT={unit["unit"]}']).decode('utf-8'))
                     except Exception as e:
                         f.write(f"Failed to get journal for {unit['unit']}: {e}\n")
                 f.write("\n") # make sure we have a final newline
