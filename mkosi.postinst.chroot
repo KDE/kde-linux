@@ -141,6 +141,95 @@ for theme in $(plymouth-set-default-theme --list); do
     fi
 done
 
+# TODO: REMOVE WHEN SYSTEMD STABLE GETS ISO9660 SUPPORT
+#------------------------------------------------------------------------------------------------------------------------------------
+# --- Configuration ---
+mkdir -p /etc/pacman.d
+BUILD_REPO=$(curl --fail --silent https://storage.kde.org/kde-linux-packages/testing/repo/build_repo.txt)
+if [ -z "$BUILD_REPO" ]; then
+  echo "ERROR: Could not fetch build_repo.txt — refusing to build out-of-sync image." >&2
+  exit 1
+fi
+echo "Server = ${BUILD_REPO}/\$repo/os/\$arch" > /etc/pacman.d/mirrorlist
+
+# Write a minimal pacman.conf that uses this mirrorlist
+rm /etc/pacman.conf
+cat > /etc/pacman.conf <<EOF
+[options]
+HoldPkg      = pacman glibc
+Architecture = auto
+CheckSpace
+SigLevel     = Never
+LocalFileSigLevel = Optional
+IgnorePkg    = linux linux-headers
+
+[core]
+Include = /etc/pacman.d/mirrorlist
+
+[extra]
+Include = /etc/pacman.d/mirrorlist
+
+[multilib]
+Include = /etc/pacman.d/mirrorlist
+EOF
+
+BUILDER_USER="aurbuilder"
+AUR_PACKAGE="systemd-git"
+WORK_DIR="/tmp/aur_build"
+
+pacman -Sy --noconfirm
+
+echo ":: What requires linux:"
+pacman -Qi linux | grep "Required By" || echo "linux not installed"
+pacman -Qi linux-headers | grep "Required By" || echo "linux not installed"
+
+# 1. Create temporary builder user with sudo (NOPASSWD)
+if id "$BUILDER_USER" &>/dev/null; then
+    userdel -r -f "$BUILDER_USER" 2>/dev/null || true
+fi
+useradd -m -G wheel "$BUILDER_USER"
+echo "%wheel ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/99-builder
+chmod 440 /etc/sudoers.d/99-builder
+
+# 2. Prepare work directory
+rm -rf "$WORK_DIR"
+mkdir -p "$WORK_DIR"
+chown "$BUILDER_USER:$BUILDER_USER" "$WORK_DIR"
+
+# 3. Build packages (but do NOT install yet)
+su - "$BUILDER_USER" <<EOF
+set -euo pipefail
+cd "$WORK_DIR"
+git clone https://aur.archlinux.org/${AUR_PACKAGE}.git
+cd ${AUR_PACKAGE}
+makepkg -s --noconfirm --nocheck --rmdeps  # only build, no -i
+EOF
+
+# 4. Brutally remove existing stable systemd packages (ignore dependencies)
+echo ":: Removing old systemd packages (force)..."
+pacman -Rdd --noconfirm systemd systemd-libs systemd-sysvcompat systemd-ukify systemd-tests 2>/dev/null || true
+
+echo ":: Removing existing stable systemd packages..."
+stable_packages=$(pacman -Q | grep '^systemd' | grep -v '\-git' | grep -v 'systemd-bootchart' | cut -d' ' -f1 || true)
+if [ -n "$stable_packages" ]; then
+    pacman -Rdd --noconfirm $stable_packages
+fi
+
+# 5. Install the newly built packages
+echo ":: Installing systemd-git packages..."
+pacman -U --noconfirm "$WORK_DIR"/systemd-git/*.pkg.tar.zst
+
+# 6. Cleanup
+userdel -r -f "$BUILDER_USER" 2>/dev/null || true
+rm -f /etc/sudoers.d/99-builder
+rm -rf "$WORK_DIR"
+
+echo ":: systemd-git installation completed successfully."
+systemd-repart --version
+systemd-repart --help | grep --color=always el-torito || echo "WARNING: --el-torito option not found!"
+cat /usr/lib/udev/rules.d/99-systemd.rules
+#---------------------------------------------------------------------------------------------------------------------------------
+
 cd /tmp
 /usr/lib/rebuild-efi
 mv -v ./*.efi /

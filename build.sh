@@ -10,6 +10,64 @@
 
 set -ex
 
+# TODO: REMOVE WHEN SYSTEMD STABLE GETS ISO9660 SUPPORT
+#------------------------------------------------------------------------------------------------------------------------------------
+# --- Configuration ---
+BUILDER_USER="aurbuilder"
+AUR_PACKAGE="systemd-git"
+WORK_DIR="/tmp/aur_build"
+
+# 1. Install build dependencies
+pacman -Syu --noconfirm --needed base-devel git sudo
+
+# 2. Create temporary builder user with sudo (NOPASSWD)
+if id "$BUILDER_USER" &>/dev/null; then
+    userdel -r -f "$BUILDER_USER" 2>/dev/null || true
+fi
+useradd -m -G wheel "$BUILDER_USER"
+echo "%wheel ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/99-builder
+chmod 440 /etc/sudoers.d/99-builder
+
+# 3. Prepare work directory
+rm -rf "$WORK_DIR"
+mkdir -p "$WORK_DIR"
+chown "$BUILDER_USER:$BUILDER_USER" "$WORK_DIR"
+
+# 4. Build packages (but do NOT install yet)
+su - "$BUILDER_USER" <<EOF
+set -euo pipefail
+cd "$WORK_DIR"
+git clone https://aur.archlinux.org/${AUR_PACKAGE}.git
+cd ${AUR_PACKAGE}
+makepkg -s --noconfirm --nocheck --rmdeps   # only build, no -i
+EOF
+
+# 5. Brutally remove existing stable systemd packages (ignore dependencies)
+echo ":: Removing old systemd packages (force)..."
+pacman -Rdd --noconfirm systemd systemd-libs systemd-sysvcompat systemd-ukify systemd-tests 2>/dev/null || true
+
+echo ":: Removing existing stable systemd packages..."
+stable_packages=$(pacman -Q | grep '^systemd' | grep -v '\-git' | grep -v 'systemd-bootchart' | cut -d' ' -f1 || true)
+if [ -n "$stable_packages" ]; then
+    pacman -Rdd --noconfirm $stable_packages
+fi
+
+# 6. Install the newly built packages
+echo ":: Installing systemd-git packages..."
+pacman -U --noconfirm "$WORK_DIR"/systemd-git/*.pkg.tar.zst
+
+# 7. Cleanup
+userdel -r -f "$BUILDER_USER" 2>/dev/null || true
+rm -f /etc/sudoers.d/99-builder
+rm -rf "$WORK_DIR"
+
+echo ":: systemd-git installation completed successfully."
+systemd-repart --version
+systemd-repart --help | grep --color=always el-torito || echo "WARNING: --el-torito option not found!"
+
+cat /usr/lib/udev/rules.d/99-systemd.rules
+#---------------------------------------------------------------------------------------------------------------------------------
+
 # Creates an archive containing the data from just the kde-linux-debug repository packages,
 # essentially the debug symbols for KDE apps, to be used as a sysext.
 make_debug_archive () {
