@@ -13,7 +13,9 @@ use std::{
 extern crate scopeguard;
 use dialoguer::{self, Confirm};
 use fstab::FsTab;
-use libbtrfsutil::{CreateSnapshotOptions, CreateSubvolumeOptions, DeleteSubvolumeOptions, is_subvolume};
+use libbtrfsutil::{
+    CreateSnapshotOptions, CreateSubvolumeOptions, DeleteSubvolumeOptions, is_subvolume,
+};
 
 fn find_rootfs_v1(root: &Path) -> Option<PathBuf> {
     let subvols = fs::read_dir(root).ok()?;
@@ -246,6 +248,20 @@ fn run_v3(root: &Path) -> Result<(), Box<dyn Error>> {
         .arg("--text=Migrating to v3 rootfs. Can take a while.")
         .status();
     println!("Migrating @system/home from subvolume to regular directory with per-user subvolumes");
+
+    // Clean up any leftover staging dirs from a previous failed run
+    if system_home_tmp.exists() {
+        println!("Cleaning up leftover {system_home_tmp:?} from previous run");
+        fs::remove_dir_all(&system_home_tmp)?;
+    }
+    if system_home_old.exists() {
+        println!("Cleaning up leftover {system_home_old:?} from previous run");
+        DeleteSubvolumeOptions::new()
+            .recursive(true)
+            .delete(&system_home_old)
+            .map_err(|e| format!("Failed to delete leftover {system_home_old:?}: {e:?}"))?;
+    }
+
     // Stage into a sibling directory so that if we crash mid-way, @system/home is still a subvolume
     // and the next boot will retry the migration cleanly.
     fs::create_dir(&system_home_tmp)?;
@@ -261,7 +277,7 @@ fn run_v3(root: &Path) -> Result<(), Box<dyn Error>> {
             .create(&dst)
             .map_err(|e| format!("Failed to create subvolume {dst:?}: {e:?}"))?;
 
-        // Copy everything except nested subvolume contents (leaves empty dirs)
+        // Copy everything including nested subvolume dirs (we'll replace those with snapshots after)
         let cp_result = Command::new("cp")
             .arg("--recursive")
             .arg("--archive")
@@ -274,29 +290,29 @@ fn run_v3(root: &Path) -> Result<(), Box<dyn Error>> {
             return Err(format!("Failed to copy {src:?} to {dst:?}").into());
         }
 
-        // Snapshot any nested subvolumes into the placeholder dirs cp left behind
+        // Replace any nested subvolume dirs (which cp copied as plain dirs) with proper snapshots
         for nested in fs::read_dir(&src)? {
             let nested = nested?;
             let nested_src = nested.path();
             if is_subvolume(&nested_src)? {
                 let nested_dst = dst.join(nested.file_name());
                 println!("Snapshotting nested subvolume {nested_src:?} -> {nested_dst:?}");
-                fs::remove_dir(&nested_dst)?;
+                fs::remove_dir_all(&nested_dst)?;
                 CreateSnapshotOptions::new()
                     .recursive(true)
                     .create(&nested_src, &nested_dst)
-                    .map_err(|e| format!("Failed to snapshot {nested_src:?} to {nested_dst:?}: {e:?}"))?;
+                    .map_err(|e| {
+                        format!("Failed to snapshot {nested_src:?} to {nested_dst:?}: {e:?}")
+                    })?;
             }
         }
     }
 
-    // the original subvolume is still intact at home.v3old and can be recovered.
     println!("Renaming {system_home:?} to {system_home_old:?}");
     fs::rename(&system_home, &system_home_old)?;
 
     println!("Renaming {system_home_tmp:?} to {system_home:?}");
     if let Err(e) = fs::rename(&system_home_tmp, &system_home) {
-        // Rename failed
         eprintln!("Fatal: failed to rename {system_home_tmp:?} to {system_home:?}: {e}");
         eprintln!("Restoring original home subvolume from {system_home_old:?}");
         fs::rename(&system_home_old, &system_home)
@@ -304,6 +320,7 @@ fn run_v3(root: &Path) -> Result<(), Box<dyn Error>> {
         return Err(format!("Migration failed, original home restored: {e}").into());
     }
 
+    // Only delete the old subvolume once we know the new layout is in place
     println!("Deleting old home subvolume {system_home_old:?}");
     let _ = DeleteSubvolumeOptions::new()
         .recursive(true)
