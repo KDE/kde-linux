@@ -240,18 +240,14 @@ If nothing critically important is managed by fstab you can let the auto-migrati
 fn run_v3(root: &Path) -> Result<(), Box<dyn Error>> {
     let system_home = root.join("@system/home");
     let system_home_tmp = root.join("@system/home.v3tmp");
-
     let _ = Command::new("plymouth")
-        .arg("display-message")
-        .arg("--text=Migrating to v3 rootfs. Can take a while.")
-        .status();
-
+    .arg("display-message")
+    .arg("--text=Migrating to v3 rootfs. Can take a while.")
+    .status();
     println!("Migrating @system/home from subvolume to regular directory with per-user subvolumes");
-
     // Stage into a sibling directory so that if we crash mid-way, @system/home is still a subvolume
     // and the next boot will retry the migration cleanly.
     fs::create_dir(&system_home_tmp)?;
-
     for entry in fs::read_dir(&system_home)? {
         let entry = entry?;
         let src = entry.path();
@@ -261,29 +257,42 @@ fn run_v3(root: &Path) -> Result<(), Box<dyn Error>> {
         let dst = system_home_tmp.join(entry.file_name());
         println!("Creating user subvolume at {dst:?}");
         CreateSubvolumeOptions::new()
-            .create(&dst)
-            .map_err(|e| format!("Failed to create subvolume {dst:?}: {e:?}"))?;
+        .create(&dst)
+        .map_err(|e| format!("Failed to create subvolume {dst:?}: {e:?}"))?;
+
+        // Copy everything except nested subvolume contents (leaves empty placeholder dirs)
         let cp_result = Command::new("cp")
-            .arg("--recursive")
-            .arg("--archive")
-            .arg("--reflink=auto")
-            .arg(format!("{}/.", src.display()))
-            .arg(format!("{}/.", dst.display()))
-            .status()
-            .expect("Failed to copy user home");
+        .arg("--recursive")
+        .arg("--archive")
+        .arg("--reflink=auto")
+        .arg(format!("{}/.", src.display()))
+        .arg(format!("{}/.", dst.display()))
+        .status()
+        .expect("Failed to copy user home");
         if !cp_result.success() {
             return Err(format!("Failed to copy {src:?} to {dst:?}").into());
         }
+
+        // Snapshot any nested subvolumes into the placeholder dirs cp left behind
+        for nested in fs::read_dir(&src)? {
+            let nested = nested?;
+            let nested_src = nested.path();
+            if is_subvolume(&nested_src)? {
+                let nested_dst = dst.join(nested.file_name());
+                println!("Snapshotting nested subvolume {nested_src:?} -> {nested_dst:?}");
+                fs::remove_dir(&nested_dst)?;
+                CreateSnapshotOptions::new()
+                .snapshot(&nested_src, &nested_dst)
+                .map_err(|e| format!("Failed to snapshot {nested_src:?} to {nested_dst:?}: {e:?}"))?;
+            }
+        }
     }
-
     DeleteSubvolumeOptions::new()
-        .delete(&system_home)
-        .map_err(|e| format!("Failed to delete @system/home subvolume: {e:?}"))?;
-
+    .delete(&system_home)
+    .map_err(|e| format!("Failed to delete @system/home subvolume: {e:?}"))?;
     println!("Renaming {system_home_tmp:?} to {system_home:?}");
     fs::rename(&system_home_tmp, &system_home)?; // fatal problem
-
-    return Ok(());
+    Ok(())
 }
 
 fn main() -> Result<(), Box<dyn Error>> {
