@@ -13,7 +13,7 @@ use std::{
 extern crate scopeguard;
 use dialoguer::{self, Confirm};
 use fstab::FsTab;
-use libbtrfsutil::{CreateSnapshotOptions, CreateSubvolumeOptions, DeleteSubvolumeOptions};
+use libbtrfsutil::{CreateSnapshotOptions, CreateSubvolumeOptions, DeleteSubvolumeOptions, is_subvolume};
 
 fn find_rootfs_v1(root: &Path) -> Option<PathBuf> {
     let subvols = fs::read_dir(root).ok()?;
@@ -240,10 +240,11 @@ If nothing critically important is managed by fstab you can let the auto-migrati
 fn run_v3(root: &Path) -> Result<(), Box<dyn Error>> {
     let system_home = root.join("@system/home");
     let system_home_tmp = root.join("@system/home.v3tmp");
+    let system_home_old = root.join("@system/home.v3old");
     let _ = Command::new("plymouth")
-    .arg("display-message")
-    .arg("--text=Migrating to v3 rootfs. Can take a while.")
-    .status();
+        .arg("display-message")
+        .arg("--text=Migrating to v3 rootfs. Can take a while.")
+        .status();
     println!("Migrating @system/home from subvolume to regular directory with per-user subvolumes");
     // Stage into a sibling directory so that if we crash mid-way, @system/home is still a subvolume
     // and the next boot will retry the migration cleanly.
@@ -257,18 +258,18 @@ fn run_v3(root: &Path) -> Result<(), Box<dyn Error>> {
         let dst = system_home_tmp.join(entry.file_name());
         println!("Creating user subvolume at {dst:?}");
         CreateSubvolumeOptions::new()
-        .create(&dst)
-        .map_err(|e| format!("Failed to create subvolume {dst:?}: {e:?}"))?;
+            .create(&dst)
+            .map_err(|e| format!("Failed to create subvolume {dst:?}: {e:?}"))?;
 
-        // Copy everything except nested subvolume contents (leaves empty placeholder dirs)
+        // Copy everything except nested subvolume contents (leaves empty dirs)
         let cp_result = Command::new("cp")
-        .arg("--recursive")
-        .arg("--archive")
-        .arg("--reflink=auto")
-        .arg(format!("{}/.", src.display()))
-        .arg(format!("{}/.", dst.display()))
-        .status()
-        .expect("Failed to copy user home");
+            .arg("--recursive")
+            .arg("--archive")
+            .arg("--reflink=auto")
+            .arg(format!("{}/.", src.display()))
+            .arg(format!("{}/.", dst.display()))
+            .status()
+            .expect("Failed to copy user home");
         if !cp_result.success() {
             return Err(format!("Failed to copy {src:?} to {dst:?}").into());
         }
@@ -282,16 +283,36 @@ fn run_v3(root: &Path) -> Result<(), Box<dyn Error>> {
                 println!("Snapshotting nested subvolume {nested_src:?} -> {nested_dst:?}");
                 fs::remove_dir(&nested_dst)?;
                 CreateSnapshotOptions::new()
-                .snapshot(&nested_src, &nested_dst)
-                .map_err(|e| format!("Failed to snapshot {nested_src:?} to {nested_dst:?}: {e:?}"))?;
+                    .recursive(true)
+                    .create(&nested_src, &nested_dst)
+                    .map_err(|e| format!("Failed to snapshot {nested_src:?} to {nested_dst:?}: {e:?}"))?;
             }
         }
     }
-    DeleteSubvolumeOptions::new()
-    .delete(&system_home)
-    .map_err(|e| format!("Failed to delete @system/home subvolume: {e:?}"))?;
+
+    // the original subvolume is still intact at home.v3old and can be recovered.
+    println!("Renaming {system_home:?} to {system_home_old:?}");
+    fs::rename(&system_home, &system_home_old)?;
+
     println!("Renaming {system_home_tmp:?} to {system_home:?}");
-    fs::rename(&system_home_tmp, &system_home)?; // fatal problem
+    if let Err(e) = fs::rename(&system_home_tmp, &system_home) {
+        // Rename failed
+        eprintln!("Fatal: failed to rename {system_home_tmp:?} to {system_home:?}: {e}");
+        eprintln!("Restoring original home subvolume from {system_home_old:?}");
+        fs::rename(&system_home_old, &system_home)
+            .map_err(|re| format!("CRITICAL: failed to restore original home: {re}. System may be unbootable. Original home is at {system_home_old:?}"))?;
+        return Err(format!("Migration failed, original home restored: {e}").into());
+    }
+
+    println!("Deleting old home subvolume {system_home_old:?}");
+    let _ = DeleteSubvolumeOptions::new()
+        .recursive(true)
+        .delete(&system_home_old)
+        .map_err(|e| {
+            eprintln!("Warning: failed to delete old home subvolume {system_home_old:?}: {e}");
+            eprintln!("The migration succeeded but {system_home_old:?} can be manually deleted.");
+        });
+
     Ok(())
 }
 
