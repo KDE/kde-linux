@@ -12,7 +12,6 @@ export SYSTEMD_ESP_PATH="$BOOT_MNT"
 mkdir --mode 0700 "$SYSTEMD_ESP_PATH"
 bootctl install
 echo 'timeout 7' >> "$SYSTEMD_ESP_PATH/loader/loader.conf"
-cp /usr/share/edk2-shell/x64/Shell.efi "$SYSTEMD_ESP_PATH/shellx64.efi"
 
 # Meanwhile cleanup a bit
 ## Unnecessary for us
@@ -69,13 +68,6 @@ curl --output /usr/share/distrobox/distrobox.conf \
   'https://invent.kde.org/api/v4/projects/19899/repository/files/distrobox.conf/raw'
 
 # Enable samba usershare
-cat <<- EOF >> /etc/samba/smb.conf
-[global]
-  usershare path = /var/lib/samba/usershares
-  usershare max shares = 100
-  usershare allow guests = yes
-  usershare owner only = yes
-EOF
 
 # Set default shell as zsh for new users
 sed -i 's%^SHELL=/usr/bin/bash%SHELL=/usr/bin/zsh%' /etc/default/useradd
