@@ -156,7 +156,7 @@ chown "$BUILDER_USER:$BUILDER_USER" "$WORK_DIR"
 su - "$BUILDER_USER" <<EOF
 set -euo pipefail
 cd "$WORK_DIR"
-git clone https://aur.archlinux.org/${AUR_PACKAGE}.git
+git clone --branch ${AUR_PACKAGE} --single-branch https://github.com/archlinux/aur.git ${AUR_PACKAGE}
 cd ${AUR_PACKAGE}
 makepkg -s --noconfirm --nocheck --rmdeps  # only build, no -i
 EOF
