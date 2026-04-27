@@ -70,40 +70,6 @@ download_flatpaks() {
     flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
     # Do this separately, when used as part of remote-add it complains about GPG for unknown reasons
     flatpak remote-modify --collection-id=org.flathub.Stable flathub
-
-    # Setting "*" will let Flatpak download all languages at once
-    flatpak config --set languages "*"
-
-    kde_nightly=(
-        ark
-        gwenview
-        kcalc
-        haruna
-        okular
-        qrca
-    )
-
-    # Add Nightly repos
-    for app in "${kde_nightly[@]}"; do
-        flatpak remote-add --if-not-exists "${app}-nightly" \
-            "https://cdn.kde.org/flatpak/${app}-nightly/${app}-nightly.flatpakrepo"
-    done
-
-    # Flatpak ignores repo priorities, prompting for remote selection.
-    # Looping avoids this and keeps automation working.
-    # Issue: https://github.com/flatpak/flatpak/issues/5421
-    for app in "${kde_nightly[@]}"; do
-        flatpak install --or-update --noninteractive --assumeyes "${app}-nightly" "org.kde.${app}"
-    done
-
-    # Install KWrite from Flathub for now, until it has a nightly repo.
-    flatpak install --or-update --noninteractive --assumeyes flathub \
-        org.gtk.Gtk3theme.Breeze \
-        org.kde.kwrite \
-        org.mozilla.firefox
-
-    # And restore default
-    flatpak config --unset languages
 }
 download_flatpaks
 
