@@ -343,6 +343,7 @@ SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted
         <p xml:lang="is">Upphafleg útgáfa KDE Linux með:</p>
         <p xml:lang="it">Rilascio iniziale di KDE Linux con:</p>
         <p xml:lang="ka">KDE Linux-ის პირველი ვერსია, ფუნქციებით:</p>
+        <p xml:lang="ko">다음을 포함하는 KDE 리눅스의 첫 릴리스:</p>
         <p xml:lang="lt">Pradinė KDE Linux laida, kurioje yra:</p>
         <p xml:lang="nl">Eerste versie van KDE Linux met de volgende kenmerken:</p>
         <p xml:lang="nn">Første utgåve av KDE Linux har:</p>
@@ -371,6 +372,7 @@ SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted
           <li xml:lang="is">KDE Plasma</li>
           <li xml:lang="it">KDE Plasma</li>
           <li xml:lang="ka">KDE Plasma</li>
+          <li xml:lang="ko">KDE Plasma</li>
           <li xml:lang="lt">KDE Plasma</li>
           <li xml:lang="nl">KDE Plasma</li>
           <li xml:lang="nn">KDE Plasma</li>
@@ -398,6 +400,7 @@ SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted
           <li xml:lang="is">Linux-kjarni 6.7</li>
           <li xml:lang="it">Kernel Linux 6.7</li>
           <li xml:lang="ka">Linux kernel 6.7</li>
+          <li xml:lang="ko">리눅스 커널 6.7</li>
           <li xml:lang="lt">Linux branduolys 6.7</li>
           <li xml:lang="nl">Linux kernel 6.7</li>
           <li xml:lang="nn">Linux versjon 6.7</li>
@@ -425,6 +428,7 @@ SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted
           <li xml:lang="is">Uppfærður KDE-forritavöndull</li>
           <li xml:lang="it">La suite di applicazioni KDE aggiornata</li>
           <li xml:lang="ka">განახლებული KDE-ის აპლიკაციების ნაკრები</li>
+          <li xml:lang="ko">업데이트된 KDE 앱 모음</li>
           <li xml:lang="lt">Atnaujintas KDE programų rinkinys</li>
           <li xml:lang="nl">Bijgewerkte KDE-toepassingensuite</li>
           <li xml:lang="nn">Oppdaterte KDE-program</li>
@@ -452,6 +456,7 @@ SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted
           <li xml:lang="is">Nýtt kerfisuppsetningarforrit</li>
           <li xml:lang="it">Un nuovo installatore del sistema</li>
           <li xml:lang="ka">ახალი სისტემის დაყენების პროგრამა</li>
+          <li xml:lang="ko">새로운 시스템 설치 도구</li>
           <li xml:lang="lt">Nauja sistemos diegimo programa</li>
           <li xml:lang="nl">Nieuw systeeminstallatieprogramma</li>
           <li xml:lang="nn">Nytt installeringsprogram</li>
