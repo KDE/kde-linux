@@ -118,3 +118,7 @@ source /usr/share/zsh/plugins/zsh-history-substring-search/zsh-history-substring
 # Bind Ctrl+↑ and Ctrl+↓ keybinds to substring history search.
 bindkey '^[[1;5A' history-substring-search-up # Ctrl+↑
 bindkey '^[[1;5B' history-substring-search-down # Ctrl+↓
+
+# Set up auth sock for systemd-initiated ssh agent so the user doesn't
+# have to faff about with this
+export SSH_AUTH_SOCK="$XDG_RUNTIME_DIR/ssh-agent.socket"
