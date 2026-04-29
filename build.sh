@@ -188,7 +188,7 @@ rm ./mkosi.output/*.test.raw
 ./torrent-create.rb "$VERSION" "$OUTPUT" "$IMG"
 
 go install -v github.com/folbricht/desync/cmd/desync@latest
-~/go/bin/desync make -m 32:64:128 "$ROOTFS_CAIBX" "$ROOTFS_EROFS"
+~/go/bin/desync make -m 1024:2048:4096 "$ROOTFS_CAIBX" "$ROOTFS_EROFS"
 # Be very careful with this file. It is here for backwards compat. It must not appear in SHA256SUMS.
 # https://github.com/systemd/systemd/issues/38605
 cp "$ROOTFS_CAIBX" "$ROOTFS_EROFS.caibx"
