@@ -133,6 +133,13 @@ sed --in-place 's|^vm.swappiness.*||' /usr/lib/tuned/profiles/*/*
 # https://community.kde.org/Distributions/Packaging_Recommendations#KWin_package_configuration
 setcap 'cap_sys_nice=+ep' /usr/bin/kwin_wayland
 
+# Let System Monitor et al. monitor Intel GPUs; see
+# https://community.kde.org/Distributions/Packaging_Recommendations#Ksystemstats_package_configuration
+# Need to do it ourselves due to
+# https://gitlab.archlinux.org/pacman/pacman/-/work_items/320
+# TODO: remove once we stop outputting pkgbuilds in the packaging pipeline
+setcap 'cap_perfmon=+ep' /usr/lib/ksystemstats_intel_helper
+
 # Add a "command not found" handler for Bash. We have to modify the existing file because it
 # already exists, and we can't put this in /etc/profile or /etc/profile.d/ because for profile
 # items, only environment variables get inherited by non-login shells; shell functions don't.
