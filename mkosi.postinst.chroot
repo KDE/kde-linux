@@ -84,6 +84,7 @@ download_flatpaks() {
         ark
         gwenview
         kcalc
+        keepsecret
         haruna
         okular
         qrca
