@@ -31,6 +31,7 @@ imaging:
   variables: &variables
     RUNNER_AFTER_SCRIPT_TIMEOUT: 1h
   script:
+    - sudo ./bootstrap.sh
     - sudo ./build.sh --force --debug # bootstap.sh happens as part of CI image build
   after_script:
     - ./upload-to-storage.sh || true
@@ -54,6 +55,7 @@ imaging+publish:
   id_tokens: *tokens
   variables: *variables
   script:
+    - sudo ./bootstrap.sh
     - sudo pacman --sync --refresh --noconfirm curl which git
     - curl -s https://gitlab.com/gitlab-org/incubation-engineering/mobile-devops/download-secure-files/-/raw/main/installer | bash
     - sudo ./build.sh --force --debug # bootstap.sh happens as part of CI image build
