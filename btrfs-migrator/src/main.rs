@@ -327,7 +327,7 @@ fn run_v3(root: &Path) -> Result<(), Box<dyn Error>> {
         .delete(&system_home_old)
         .map_err(|e| {
             eprintln!("Warning: failed to delete old home subvolume {system_home_old:?}: {e}");
-            eprintln!("The migration succeeded but {system_home_old:?} can be manually deleted.");
+            eprintln!("The migration succeeded but deleting the old subvolume failed. {system_home_old:?} can be manually deleted.");
         });
 
     Ok(())
