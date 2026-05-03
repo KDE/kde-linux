@@ -28,6 +28,10 @@ https://discuss.kde.org/ and tag your post with “kde-linux”.
 ## Build it
 https://kde.org/linux/docs/kde-linux-dev/
 
+## Test it in a Virtual Machine
+If you want to boot the KDE Linux `.raw` image in a virtual machine (like QEMU/virt-manager or VirtualBox) for local testing, **ensure your VM is configured to use UEFI firmware** instead of the default Legacy BIOS. Without UEFI enabled, the image will fail to boot. 
+For detailed setup instructions, refer to the [Installing in a Virtual Machine Wiki Page](https://kde.org/linux/docs/install-vm/).
+
 
 ## Send a patch to it
 https://invent.kde.org/groups/kde-linux/-/merge_requests/
