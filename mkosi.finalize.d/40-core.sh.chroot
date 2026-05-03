@@ -160,6 +160,20 @@ fi
 # enabled by default and requires authentication to manually enable.
 mv /usr/lib/systemd/user/ydotool.service /usr/lib/systemd/system/ydotool.service
 
+# Delete af_alg et al. kernel modules; they're dangerous and unused by anything
+# relevant except for iwd and non-default cryptsetup algorithms, neither of which
+# are supported on KDE Linux.
+# See also:
+# - https://www.secwest.net/copyfail-mitigation
+# - https://news.ycombinator.com/item?id=47956312
+KERNEL_MODULES_DIR="/usr/lib/modules/$(uname -r)/kernel/crypto"
+rm -rf \
+    "$KERNEL_MODULES_DIR"/af_alg.ko.zst \
+    "$KERNEL_MODULES_DIR"/algif_aead.ko.zst \
+    "$KERNEL_MODULES_DIR"/algif_hash.ko.zst \
+    "$KERNEL_MODULES_DIR"/algif_rng.ko.zst \
+    "$KERNEL_MODULES_DIR"/algif_skcipher.ko.zst
+
 # Clean up final remnants of the build process
 rm -rf \
     /buildroot \
