@@ -245,7 +245,7 @@ fn run_v3(root: &Path) -> Result<(), Box<dyn Error>> {
     let system_home_old = root.join("@system/home.v3old");
     let _ = Command::new("plymouth")
         .arg("display-message")
-        .arg("--text=Migrating to v3 rootfs. Can take a while.")
+        .arg("--text=Migrating to v3 rootfs. This will take a while.")
         .status();
     println!("Migrating @system/home from subvolume to regular directory with per-user subvolumes");
 
