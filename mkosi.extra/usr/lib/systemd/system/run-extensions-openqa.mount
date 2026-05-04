@@ -1,0 +1,26 @@
+# SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL
+# SPDX-FileCopyrightText: 2026 Thomas Duckworth <tduck@filotimoproject.org>
+
+# Mounts the OpenQA bootstrapping sysext - an erofs-formatted disk labelled kde-openqa-ext.
+# This is attached as a hard disk in QEMU.
+# This is used in OpenQA testing to do some setup and provide tests that run on the System Under Test.
+
+[Unit]
+Description=OpenQA Bootstrapping Sysext
+# We don't want people using this to inject malware on some unwitting person's system with a pen drive.
+# Hence, such dangerous things should only be allowed in a VM.
+ConditionVirtualization=vm
+ConditionPathExists=/dev/disk/by-label/kde-openqa-ext
+DefaultDependencies=no
+Before=systemd-sysext.service
+After=dev-disk-by\x2dlabel-kde\x2dopenqa\x2dext.device
+BindsTo=dev-disk-by\x2dlabel-kde\x2dopenqa\x2dext.device
+
+[Mount]
+What=/dev/disk/by-label/kde-openqa-ext
+Where=/run/extensions/openqa
+Type=erofs
+Options=ro
+
+[Install]
+WantedBy=systemd-sysext.service
