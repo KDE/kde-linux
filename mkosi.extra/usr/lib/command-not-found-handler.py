@@ -7,7 +7,7 @@ import gettext
 
 gettext.install("kde-linux")
 
-moreSoftwareUrl = "https://kde.org/linux/docs/more-software"
+moreSoftwareUrl = "https://linux.kde.org/docs/more-software"
 moreSoftwareHomebrewUrl = moreSoftwareUrl + "/#homebrew"
 moreSoftwareNixUrl = moreSoftwareUrl + "/#nix"
 moreSoftwareOtherUrl = moreSoftwareUrl + "/#software-not-listed-above"

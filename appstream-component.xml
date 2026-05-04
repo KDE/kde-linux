@@ -22,9 +22,9 @@ SPDX-License-Identifier: CC0-1.0
       <li>User-friendly installation process</li>
     </ul>
   </description>
-  <url type="homepage">https://kde.org/linux</url>
+  <url type="homepage">https://linux.kde.org</url>
   <url type="bugtracker">https://invent.kde.org/kde-linux/kde-linux/-/issues/</url>
-  <url type="help">https://kde.org/linux/docs/</url>
+  <url type="help">https://linux.kde.org/docs/</url>
   <developer_name>KDE Linux Team</developer_name>
   <project_group>KDE</project_group>
   <provides>
@@ -46,7 +46,7 @@ SPDX-License-Identifier: CC0-1.0
   <screenshots>
     <screenshot type="default">
       <caption>KDE Linux desktop with Plasma 6.0</caption>
-      <image type="source" width="1920" height="1080">https://kde.org/linux/bannana_wallpaper.png</image>
+      <image type="source" width="1920" height="1080">https://linux.kde.org/linux/banana_wallpaper.png</image>
     </screenshot>
   </screenshots>
   <content_rating type="oars-1.1" />

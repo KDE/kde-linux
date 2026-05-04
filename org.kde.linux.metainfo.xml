@@ -285,9 +285,9 @@ SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted
       <li xml:lang="zh-TW">對於使用者友善的安裝流程</li>
     </ul>
   </description>
-  <url type="homepage">https://kde.org/linux</url>
+  <url type="homepage">https://linux.kde.org</url>
   <url type="bugtracker">https://invent.kde.org/kde-linux/kde-linux/-/issues/</url>
-  <url type="help">https://kde.org/linux/docs/</url>
+  <url type="help">https://linux.kde.org/docs/</url>
   <developer_name>KDE Linux Team</developer_name>
   <developer_name xml:lang="ar">فريق لينكس كيدي</developer_name>
   <developer_name xml:lang="ca">Equip de KDE Linux</developer_name>
@@ -509,7 +509,7 @@ SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted
       <caption xml:lang="uk">Стільниця KDE Linux з Плазмою</caption>
       <caption xml:lang="zh-CN">KDE Linux 桌面，预装 Plasma 桌面环境</caption>
       <caption xml:lang="zh-TW">使用 Plasma 的 KDE Linux 桌面</caption>
-      <image type="source" width="1920" height="1080">https://kde.org/linux/bannana_wallpaper.png</image>
+      <image type="source" width="1920" height="1080">https://linux.kde.org/linux/banana_wallpaper.png</image>
     </screenshot>
   </screenshots>
   <content_rating type="oars-1.1"/>

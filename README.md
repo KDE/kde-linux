@@ -9,11 +9,11 @@ This is the repository for the KDE Linux operating system. See the following lin
 
 
 ## Install it
-https://kde.org/linux/docs/install/
+https://linux.kde.org/docs/install/
 
 
 ## Use it
-https://kde.org/linux/docs/
+https://linux.kde.org/docs/
 
 
 ## Get help with it
@@ -26,11 +26,11 @@ https://discuss.kde.org/ and tag your post with “kde-linux”.
 
 
 ## Build it
-https://kde.org/linux/docs/kde-linux-dev/
+https://linux.kde.org/docs/kde-linux-dev/
 
 ## Test it in a Virtual Machine
 If you want to boot the KDE Linux `.raw` image in a virtual machine (like QEMU/virt-manager or VirtualBox) for local testing, **ensure your VM is configured to use UEFI firmware** instead of the default Legacy BIOS. Without UEFI enabled, the image will fail to boot. 
-For detailed setup instructions, refer to the [Installing in a Virtual Machine Wiki Page](https://kde.org/linux/docs/install-vm/).
+For detailed setup instructions, refer to the [Installing in a Virtual Machine Wiki Page](https://linux.kde.org/docs/install-vm/).
 
 
 ## Send a patch to it
