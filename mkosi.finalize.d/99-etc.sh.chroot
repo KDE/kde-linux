@@ -27,8 +27,6 @@ else
     echo 'BTRFS_SUBVOLUME_HOME=yes' >> /etc/default/useradd
 fi
 
-cat /etc/default/useradd
-
 # Make double sure we don't seed random pam.d files from factory etc!
 # https://invent.kde.org/kde-linux/kde-linux/-/issues/165
 rm --recursive --force /usr/share/factory/etc/pam.d
