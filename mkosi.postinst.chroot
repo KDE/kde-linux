@@ -141,6 +141,45 @@ for theme in $(plymouth-set-default-theme --list); do
     fi
 done
 
+#------------------------------------------------------------------------------------------------------------------------------------
+mkdir -p /etc/pacman.d
+BUILD_REPO=$(curl --fail --silent https://storage.kde.org/kde-linux-packages/testing/repo/build_repo.txt)
+if [ -z "$BUILD_REPO" ]; then
+  echo "ERROR: Could not fetch build_repo.txt — refusing to build out-of-sync image." >&2
+  exit 1
+fi
+echo "Server = ${BUILD_REPO}/\$repo/os/\$arch" > /etc/pacman.d/mirrorlist
+
+# Write a minimal pacman.conf that uses this mirrorlist
+rm /etc/pacman.conf
+cat > /etc/pacman.conf <<EOF
+[options]
+HoldPkg      = pacman glibc
+Architecture = auto
+CheckSpace
+SigLevel     = Never
+LocalFileSigLevel = Optional
+
+[core]
+Include = /etc/pacman.d/mirrorlist
+
+[extra]
+Include = /etc/pacman.d/mirrorlist
+
+[multilib]
+Include = /etc/pacman.d/mirrorlist
+EOF
+
+
+pacman -Sy --noconfirm
+
+echo ":: What requires linux-zen:"
+pacman -Qi linux-zen | grep "Required By" || echo "linux-zen not installed"
+pacman -Qi linux-zen-headers | grep "Required By" || echo "linux-zen-headers not installed"
+
+#---------------------------------------------------------------------------------------------------------------------------------
+
+
 cd /tmp
 /usr/lib/rebuild-efi
 mv -v ./*.efi /
