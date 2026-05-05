@@ -25,7 +25,12 @@ mount -o rw,subvol=/ /dev/gpt-auto-root /run/kde-linux-rootfs-transition
 # the systemd side. Question is if they get correctly unmounted automatically.
 if [ -e /run/kde-linux-rootfs-transition/@system ]; then
     # v2->v3: @system/home is a btrfs subvolume but should be a regular directory.
-    if btrfs subvolume show /run/kde-linux-rootfs-transition/@system/home >/dev/null 2>&1; then
+    # home.v3old or home.v3tmp mean an earlier attempt was interrupted. In the worst case
+    # @system/home no longer exists and home.v3old holds the only copy of the user data, so
+    # the migrator has to run to put it back.
+    if btrfs subvolume show /run/kde-linux-rootfs-transition/@system/home >/dev/null 2>&1 \
+        || [ -e /run/kde-linux-rootfs-transition/@system/home.v3old ] \
+        || [ -e /run/kde-linux-rootfs-transition/@system/home.v3tmp ]; then
         /usr/lib/btrfs-migrator /run/kde-linux-rootfs-transition
         umount --recursive --lazy /run/kde-linux-rootfs-transition
     else
