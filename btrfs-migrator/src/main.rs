@@ -273,17 +273,39 @@ fn run_v3(root: &Path) -> Result<(), Box<dyn Error>> {
         .status();
     println!("Migrating @system/home from subvolume to regular directory with per-user subvolumes");
 
-    // Clean up any leftover staging dirs from a previous failed run
+    // Clean up any leftover staging dirs from a previous failed run.
+    if system_home_old.exists() {
+        if !system_home.exists() {
+            // Crashed after rename(home→old) but before rename(tmp→home).
+            // home.v3old is the only surviving copy of user data so restore it.
+            eprintln!(
+                "Detected partial v3 migration: {system_home:?} is missing but \
+                 {system_home_old:?} exists. Restoring original home before retrying."
+            );
+            if system_home_tmp.exists() {
+                println!("Removing incomplete staging dir {system_home_tmp:?}");
+                fs::remove_dir_all(&system_home_tmp)?;
+            }
+            fs::rename(&system_home_old, &system_home).map_err(|e| {
+                format!(
+                    "CRITICAL: failed to restore home from {system_home_old:?}: {e}. \
+                     User data may still be in {system_home_old:?}."
+                )
+            })?;
+            println!("Restored {system_home_old:?} -> {system_home:?}. Retrying migration.");
+        } else {
+            // home exists, so home.v3old is a stale leftover from a previous run.
+            println!("Cleaning up leftover {system_home_old:?} from previous run");
+            DeleteSubvolumeOptions::new()
+                .recursive(true)
+                .delete(&system_home_old)
+                .map_err(|e| format!("Failed to delete leftover {system_home_old:?}: {e:?}"))?;
+        }
+    }
+
     if system_home_tmp.exists() {
         println!("Cleaning up leftover {system_home_tmp:?} from previous run");
         fs::remove_dir_all(&system_home_tmp)?;
-    }
-    if system_home_old.exists() {
-        println!("Cleaning up leftover {system_home_old:?} from previous run");
-        DeleteSubvolumeOptions::new()
-            .recursive(true)
-            .delete(&system_home_old)
-            .map_err(|e| format!("Failed to delete leftover {system_home_old:?}: {e:?}"))?;
     }
 
     // Stage into a sibling directory so that if we crash mid-way, @system/home is still a subvolume
@@ -327,19 +349,19 @@ fn run_v3(root: &Path) -> Result<(), Box<dyn Error>> {
         eprintln!("Fatal: failed to rename {system_home_tmp:?} to {system_home:?}: {e}");
         eprintln!("Restoring original home subvolume from {system_home_old:?}");
         fs::rename(&system_home_old, &system_home)
-        .map_err(|re| format!("CRITICAL: failed to restore original home: {re}. System may be unbootable. Original home is at {system_home_old:?}"))?;
+            .map_err(|re| format!("CRITICAL: failed to restore original home: {re}. System may be unbootable. Original home is at {system_home_old:?}"))?;
         return Err(format!("Migration failed, original home restored: {e}").into());
     }
 
     // Only delete the old subvolume once we know the new layout is in place
     println!("Deleting old home subvolume {system_home_old:?}");
     let _ = DeleteSubvolumeOptions::new()
-    .recursive(true)
-    .delete(&system_home_old)
-    .inspect_err(|e| {
-        eprintln!("Warning: failed to delete old home subvolume {system_home_old:?}: {e}");
-        eprintln!("The migration succeeded but deleting the old subvolume failed. {system_home_old:?} can be manually deleted.");
-    });
+        .recursive(true)
+        .delete(&system_home_old)
+        .inspect_err(|e| {
+            eprintln!("Warning: failed to delete old home subvolume {system_home_old:?}: {e}");
+            eprintln!("The migration succeeded but deleting the old subvolume failed. {system_home_old:?} can be manually deleted.");
+        });
 
     Ok(())
 }
