@@ -239,6 +239,30 @@ If nothing critically important is managed by fstab you can let the auto-migrati
     return Ok(());
 }
 
+// Recursively walk `src`, find any btrfs subvolumes, and replace the corresponding
+// plain-directory copies under `dst` with proper snapshots.
+fn snapshot_nested_subvolumes(src: &Path, dst: &Path) -> Result<(), Box<dyn Error>> {
+    for nested in fs::read_dir(src)? {
+        let nested = nested?;
+        let nested_src = nested.path();
+        let nested_dst = dst.join(nested.file_name());
+        if is_subvolume(&nested_src)? {
+            println!("Snapshotting nested subvolume {nested_src:?} -> {nested_dst:?}");
+            fs::remove_dir_all(&nested_dst)?;
+            CreateSnapshotOptions::new()
+                .recursive(true)
+                .create(&nested_src, &nested_dst)
+                .map_err(|e| {
+                    format!("Failed to snapshot {nested_src:?} to {nested_dst:?}: {e:?}")
+                })?;
+            // Don't descend further as recursive(true) already handled this subvolume's children.
+        } else if nested_src.is_dir() {
+            snapshot_nested_subvolumes(&nested_src, &nested_dst)?;
+        }
+    }
+    Ok(())
+}
+
 fn run_v3(root: &Path) -> Result<(), Box<dyn Error>> {
     let system_home = root.join("@system/home");
     let system_home_tmp = root.join("@system/home.v3tmp");
@@ -290,22 +314,9 @@ fn run_v3(root: &Path) -> Result<(), Box<dyn Error>> {
             return Err(format!("Failed to copy {src:?} to {dst:?}").into());
         }
 
-        // Replace any nested subvolume dirs (which cp copied as plain dirs) with proper snapshots
-        for nested in fs::read_dir(&src)? {
-            let nested = nested?;
-            let nested_src = nested.path();
-            if is_subvolume(&nested_src)? {
-                let nested_dst = dst.join(nested.file_name());
-                println!("Snapshotting nested subvolume {nested_src:?} -> {nested_dst:?}");
-                fs::remove_dir_all(&nested_dst)?;
-                CreateSnapshotOptions::new()
-                    .recursive(true)
-                    .create(&nested_src, &nested_dst)
-                    .map_err(|e| {
-                        format!("Failed to snapshot {nested_src:?} to {nested_dst:?}: {e:?}")
-                    })?;
-            }
-        }
+        // Recursively replace any nested subvolume dirs (which cp copied as plain dirs) with proper
+        // snapshots. This handles deeply nested cases.
+        snapshot_nested_subvolumes(&src, &dst)?;
     }
 
     println!("Renaming {system_home:?} to {system_home_old:?}");
@@ -316,19 +327,19 @@ fn run_v3(root: &Path) -> Result<(), Box<dyn Error>> {
         eprintln!("Fatal: failed to rename {system_home_tmp:?} to {system_home:?}: {e}");
         eprintln!("Restoring original home subvolume from {system_home_old:?}");
         fs::rename(&system_home_old, &system_home)
-            .map_err(|re| format!("CRITICAL: failed to restore original home: {re}. System may be unbootable. Original home is at {system_home_old:?}"))?;
+        .map_err(|re| format!("CRITICAL: failed to restore original home: {re}. System may be unbootable. Original home is at {system_home_old:?}"))?;
         return Err(format!("Migration failed, original home restored: {e}").into());
     }
 
     // Only delete the old subvolume once we know the new layout is in place
     println!("Deleting old home subvolume {system_home_old:?}");
     let _ = DeleteSubvolumeOptions::new()
-        .recursive(true)
-        .delete(&system_home_old)
-        .map_err(|e| {
-            eprintln!("Warning: failed to delete old home subvolume {system_home_old:?}: {e}");
-            eprintln!("The migration succeeded but deleting the old subvolume failed. {system_home_old:?} can be manually deleted.");
-        });
+    .recursive(true)
+    .delete(&system_home_old)
+    .inspect_err(|e| {
+        eprintln!("Warning: failed to delete old home subvolume {system_home_old:?}: {e}");
+        eprintln!("The migration succeeded but deleting the old subvolume failed. {system_home_old:?} can be manually deleted.");
+    });
 
     Ok(())
 }
