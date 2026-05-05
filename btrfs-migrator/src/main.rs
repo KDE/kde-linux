@@ -344,17 +344,13 @@ fn main() -> Result<(), Box<dyn Error>> {
     let root = Path::new(&args[1]);
     let system_path = root.join("@system");
 
-    let (msg, result) = if system_path.exists() {
-        println!("Migrating to v3 rootfs.");
-        (
-            "Migrating to v3 rootfs. This will take a while.",
-            run_v3(root),
-        )
+    let result = if system_path.exists() {
+        println!("Migrating to v3 rootfs. This will take a while.");
+        run_v3(root)
     } else {
         println!("Migrating to v2 rootfs. This will take a while.");
-        ("Migrating to v2 rootfs. This will take a while.", run(root))
+        run(root)
     };
-    let _ = msg; // used for context above
 
     match result {
         Ok(_) => {
