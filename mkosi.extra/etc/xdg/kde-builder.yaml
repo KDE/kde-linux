@@ -143,3 +143,7 @@ override plasma-workspace:
 
 override plasma-login-manager:
     cmake-options: -DPAM_OS_CONFIGURATION=kde-linux
+
+# This allows easy testing of the QtWidgets output of Union
+override union:
+    cmake-options: -DBUILD_OUTPUT_QTWIDGETS=ON
