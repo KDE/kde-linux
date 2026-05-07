@@ -3,23 +3,15 @@
 # SPDX-FileCopyrightText: 2024 Harald Sitter <sitter@kde.org>
 # SPDX-FileCopyrightText: 2024 Bruno Pajdek <brupaj@proton.me>
 
-# Something in GitLab causes bogus permissions to be set for mkosi stuff,
-# reset them to something sane.
+# Something in GitLab causes bogus permissions to be set for mkosi input
+# trees, reset them to something sane.
+#
+# Only touch the source directories mkosi consumes directly. In particular,
+# do not recurse into generated trees such as a stale mkosi.output because
+# that can make this step unexpectedly expensive.
 
-# Enable ** for recursive globbing and include hidden files when doing so.
-shopt -s globstar dotglob
+DIRS="mkosi.conf.d mkosi.extra mkosi.finalize.d mkosi.repart mkosi.sandbox mkosi.skeleton"
 
-# Loop through all mkosi files.
-for FILE in mkosi.*/**/*; do
-    # Skip symlinks.
-    if [ -L "$FILE" ]; then
-        continue
-    fi
-
-    # If the file is executable, reset permissions to 755, else to 644.
-    if [ -x "$FILE" ]; then
-        chmod 755 "$FILE"
-    else
-        chmod 644 "$FILE"
-    fi
-done
+find $DIRS -type d -exec chmod 755 {} + # ensure all directories are rwxr-xr-x
+find $DIRS -type f -perm /111 -exec chmod 755 {} + # ensure all executable files (-perm filters by permission) has rwxr-xr-x
+find $DIRS -type f ! -perm /111 -exec chmod 644 {} +
