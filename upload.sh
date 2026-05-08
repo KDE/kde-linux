@@ -53,7 +53,7 @@ scp -i "$SSH_IDENTITY" SHA256SUMS SHA256SUMS.gpg "$REMOTE_PATH" # upload as last
 
 export VACUUM_REALLY_DELETE=1
 S3_STORE="s3+https://storage.kde.org/kde-linux/sysupdate/store/"
-S3_TARGET="s3+https://storage.kde.org/kde-linux/testing/"
+S3_TARGET="s3+https://storage.kde.org/kde-linux/"
 
 ## Upload to the chunk store directly
 go install -v github.com/folbricht/desync/cmd/desync@latest
@@ -68,7 +68,7 @@ desync chop \
 ## Prepare the image upload tree
 cd ..
 rm -rf upload-tree
-V2_TREE="upload-tree/sysupdate/v2"
+V2_TREE="upload-tree/testing/sysupdate/v2"
 mkdir -p "$V2_TREE"
 
 mv "$OUTDIR"/*.raw "$OUTDIR"/*.torrent upload-tree/
