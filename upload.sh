@@ -71,7 +71,7 @@ rm -rf upload-tree
 V2_TREE="upload-tree/testing/sysupdate/v2"
 mkdir -p "$V2_TREE"
 
-mv "$OUTDIR"/*.raw "$OUTDIR"/*.torrent upload-tree/
+mv "$OUTDIR"/*.raw "$OUTDIR"/*.torrent upload-tree/testing/
 mv "$OUTDIR"/*.efi "$OUTDIR"/*.tar.zst "$OUTDIR"/*.erofs "$OUTDIR"/*.caibx "$V2_TREE/"
 
 ### Upload
