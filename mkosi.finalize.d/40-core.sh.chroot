@@ -74,13 +74,6 @@ rm -rf \
     /usr/share/locale/*/LC_MESSAGES/iconexplorer.mo \
     /usr/share/icons/hicolor/scalable/apps/org.kde.iconexplorer.svg
 
-## HP device management apps that are useless even for 99% of HP device owners, and we have our own better stuff
-rm -rf \
-    /usr/share/applications/hp-uiscan.desktop \
-    /usr/bin/hp-uiscan \
-    /usr/share/applications/hplip.desktop \
-    /usr/bin/hp-toolbox
-
 ## FFADO Mixer app that came along for the ride with FireWire audio support
 rm -rf \
     /usr/bin/ffado-mixer \
