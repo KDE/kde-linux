@@ -1,16 +1,13 @@
 # SPDX-License-Identifier: BSD-2-Clause
 # SPDX-FileCopyrightText: None
-
 include:
   - project: sysadmin/ci-utilities
     file:
       - /gitlab-templates/reuse-lint.yml
       - /gitlab-templates/blocks/workflow.yml
-
 stages:
   - validate
   - start
-
 imaging:
   stage: start
   tags:
@@ -31,7 +28,8 @@ imaging:
   variables: &variables
     RUNNER_AFTER_SCRIPT_TIMEOUT: 1h
   script:
-    - sudo ./build.sh --force --debug # bootstap.sh happens as part of CI image build
+    - sudo ./bootstrap.sh
+    - sudo ./build.sh --force --debug
   after_script:
     - ./upload-to-storage.sh || true
   artifacts: &artifacts
@@ -39,7 +37,6 @@ imaging:
     when: always
     paths:
       - "**/erofs.log"
-
 imaging+publish:
   stage: start
   tags:
@@ -54,11 +51,11 @@ imaging+publish:
   id_tokens: *tokens
   variables: *variables
   script:
-    - sudo pacman --sync --refresh --noconfirm curl which git
+    - sudo dnf install -y curl git
     - curl -s https://gitlab.com/gitlab-org/incubation-engineering/mobile-devops/download-secure-files/-/raw/main/installer | bash
-    - sudo ./build.sh --force --debug # bootstap.sh happens as part of CI image build
+    - sudo ./bootstrap-fedora.sh
+    - sudo ./build.sh --force --debug
     - ./upload.sh
   after_script:
-    # Upload broken images to Harald for inspection
     - "[ $CI_JOB_STATUS == 'success' ] || ./upload-to-storage.sh || true"
   artifacts: *artifacts

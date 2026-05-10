@@ -1,6 +1,7 @@
 #!/bin/bash
 # SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL
 # SPDX-FileCopyrightText: 2023 Harald Sitter <sitter@kde.org>
+# SPDX-FileCopyrightText: 2026 Hadi Chokr <hadichokr@icloud.com>
 
 set -ex
 
@@ -12,26 +13,24 @@ export SYSTEMD_ESP_PATH="$BOOT_MNT"
 mkdir --mode 0700 "$SYSTEMD_ESP_PATH"
 bootctl install
 echo 'timeout 7' >> "$SYSTEMD_ESP_PATH/loader/loader.conf"
-cp /usr/share/edk2-shell/x64/Shell.efi "$SYSTEMD_ESP_PATH/shellx64.efi"
+cp /usr/share/edk2/ovmf/Shell.efi "$SYSTEMD_ESP_PATH/shellx64.efi" || \
+    cp /usr/share/edk2-shell/x64/Shell.efi "$SYSTEMD_ESP_PATH/shellx64.efi" || true
 
 # Meanwhile cleanup a bit
-## Unnecessary for us
-pacman --remove --noconfirm qt6-doc qt6-examples || true
-# FIXME: needed by cxx-rust-cssparser; can't remove these for now
-# pacman --remove --noconfirm corrosion rust || true
+dnf remove -y qt6-doc qt6-examples || true
 
-# No packagekit support or AppStream metadata in discover please! We don't want discover talking about pacman things.
-pacman --remove --noconfirm packagekit libpackagekit-glib archlinux-appstream-data || true
+# No packagekit support or AppStream metadata in discover please!
+dnf remove -y PackageKit libpackagekit-glib2 || true
 rm -rf /usr/share/swcatalog
 
 # Calamares
 cd /tmp
-# We're building Calamares from master, due to https://codeberg.org/Calamares/calamares/pulls/2470 not being in a release yet.
-# It can be switched back to build from the latest release once a new release is cut that includes that PR.
-#LATEST_RELEASE=$(curl -s "https://codeberg.org/api/v1/repos/Calamares/calamares/releases" | jq -r '.[0].tag_name')
-#git clone --branch "$LATEST_RELEASE" --depth 1 https://codeberg.org/Calamares/calamares.git
 git clone --depth 1 https://codeberg.org/Calamares/calamares.git
-cmake -S calamares -B calamares/build -DCMAKE_BUILD_TYPE=MinSizeRel -DCMAKE_INSTALL_PREFIX=/usr -DBUILD_TESTING=OFF -DWITH_QT6=ON
+cmake -S calamares -B calamares/build \
+    -DCMAKE_BUILD_TYPE=MinSizeRel \
+    -DCMAKE_INSTALL_PREFIX=/usr \
+    -DBUILD_TESTING=OFF \
+    -DWITH_QT6=ON
 cmake --build calamares/build "-j$(nproc)"
 DESTDIR=/live/ cmake --install calamares/build
 
@@ -68,10 +67,8 @@ cat /usr/lib/os-release
 
 download_flatpaks() {
     flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
-    # Do this separately, when used as part of remote-add it complains about GPG for unknown reasons
     flatpak remote-modify --collection-id=org.flathub.Stable flathub
 
-    # Setting "*" will let Flatpak download all languages at once
     flatpak config --set languages "*"
 
     kde_nightly=(
@@ -83,34 +80,28 @@ download_flatpaks() {
         qrca
     )
 
-    # Add Nightly repos
     for app in "${kde_nightly[@]}"; do
         flatpak remote-add --if-not-exists "${app}-nightly" \
             "https://cdn.kde.org/flatpak/${app}-nightly/${app}-nightly.flatpakrepo"
     done
 
-    # Flatpak ignores repo priorities, prompting for remote selection.
-    # Looping avoids this and keeps automation working.
-    # Issue: https://github.com/flatpak/flatpak/issues/5421
     for app in "${kde_nightly[@]}"; do
         flatpak install --or-update --noninteractive --assumeyes "${app}-nightly" "org.kde.${app}"
     done
 
-    # Install KWrite from Flathub for now, until it has a nightly repo.
     flatpak install --or-update --noninteractive --assumeyes flathub \
         org.gtk.Gtk3theme.Breeze \
         org.kde.kwrite \
         org.mozilla.firefox
 
-    # And restore default
     flatpak config --unset languages
 }
 download_flatpaks
 
-# Fetch latest distrobox config from the kde-linux-containers repo
+# Fetch latest distrobox config
 mkdir -p /usr/share/distrobox
 curl --output /usr/share/distrobox/distrobox.conf \
-  'https://invent.kde.org/api/v4/projects/19899/repository/files/distrobox.conf/raw'
+    'https://invent.kde.org/api/v4/projects/19899/repository/files/distrobox.conf/raw'
 
 # Enable samba usershare
 cat <<- EOF >> /etc/samba/smb.conf
@@ -130,10 +121,8 @@ sed -i 's%^GROUP=users%GROUP=users\nGROUPS=sambashare%' /etc/default/useradd
 # Our Plymouth Theme
 KEEP_THEME="breeze-bgrt"
 
-# Set default Plymouth Theme
 plymouth-set-default-theme "$KEEP_THEME"
 
-# Remove all other themes except KEEP_THEME, text, and details
 for theme in $(plymouth-set-default-theme --list); do
     if [[ "$theme" != "$KEEP_THEME" && "$theme" != "text" && "$theme" != "details" ]]; then
         theme_dir="/usr/share/plymouth/themes/$theme"

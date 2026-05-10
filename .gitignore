@@ -31,6 +31,6 @@ mkosi.local.conf
 kde-linux_*
 /kde-linux.cache
 /kde-linux-sysupdated
-/mkosi.sandbox/etc/pacman.conf
+/mkosi.sandbox/etc/dnf/repos.d/*
 
 /etc-factory

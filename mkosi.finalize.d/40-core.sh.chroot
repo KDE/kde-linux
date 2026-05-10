@@ -1,6 +1,7 @@
 #!/bin/sh
 # SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL
 # SPDX-FileCopyrightText: 2023 Harald Sitter <sitter@kde.org>
+# SPDX-FileCopyrightText: 2026 Hadi Chokr <hadichokr@icloud.com>
 
 set -ex
 
@@ -8,95 +9,76 @@ userdel --remove --force builder || true
 passwd --delete root
 passwd --lock root
 
-if [ -f "$SRCDIR/.secure_files/gpg.public.key" ]; then # only useful and available for publishing branches
-    # Put our key into the systemd keyring
+if [ -f "$SRCDIR/.secure_files/gpg.public.key" ]; then
     export GNUPGHOME="$SRCDIR/.secure_files/gpg"
     KEYRING=/usr/lib/systemd/import-pubring.pgp
     rm -rf "$GNUPGHOME"
     mkdir "$GNUPGHOME"
     rm -f "$KEYRING"
     gpg --no-options --no-default-keyring --keyring="$KEYRING" --homedir="$GNUPGHOME" --import "$SRCDIR/.secure_files/gpg.public.key"
-
-    # TODO: Make sure the keyring is actually used. This notably broke in the past because of an upstream change.
-    # https://invent.kde.org/kde-linux/kde-linux/-/issues/199
 fi
 
 # Uninstall solaar and sane, but keep their udev rules.
-# This ensures that they stay up to date.
 UDEV_BACKUP_DIR=$(mktemp -d)
-pacman -Qlq solaar sane | grep '^/usr/lib/udev/' | xargs -r cp -a --parents -t "$UDEV_BACKUP_DIR"
-pacman -Rns --noconfirm solaar sane
-cp -a "$UDEV_BACKUP_DIR"/* /
+rpm -ql sane-backends 2>/dev/null | grep '^/usr/lib/udev/' | xargs -r cp -a --parents -t "$UDEV_BACKUP_DIR" || true
+dnf remove -y sane-backends || true
+cp -a "$UDEV_BACKUP_DIR"/* / || true
 rm -rf "$UDEV_BACKUP_DIR"
 
-# De-initialize pacman
+# De-initialize dnf and rpm databases
 rm -rf \
-    /etc/pacman.d/gnupg \
-    /.gnupg \
-    /var/cache/pacman \
-    /var/lib/pacman \
-    /var/log/pacman.log
-
-## Pacman being present confuses users into thinking they can use it to install packages.
-rm -f /usr/bin/pacman
+    /var/cache/dnf \
+    /var/lib/dnf \
+    /var/lib/rpm \
+    /var/log/dnf* \
+    /var/log/hawkey.log
 
 # Remove all excess things we don't want in the final image
-
-## locale-gen doesn't work because /usr is read-only. Removing it means calamares won't attempt to use it.
-rm -rf \
-    /etc/locale.gen \
-    /usr/bin/locale-gen
-
 ## Development tools that aren't useful even for the development edition
 rm -rf \
     /usr/bin/assistant \
-    /usr/bin/assistant-qt5 \
     /usr/share/applications/assistant.desktop \
     /usr/bin/designer \
-    /usr/bin/designer-qt5 \
     /usr/share/applications/designer.desktop \
     /usr/bin/linguist \
-    /usr/bin/linguist-qt5 \
     /usr/share/applications/linguist.desktop \
     /usr/bin/qdbusviewer \
-    /usr/bin/qdbusviewer-qt5 \
     /usr/share/applications/qdbusviewer.desktop \
     /usr/share/applications/qv4l2.desktop \
     /usr/bin/qvidcap \
-    /usr/share/applications/qvidcap.desktop \
+    /usr/share/applications/qvidcap.desktop
 
-# Parts of plasma-sdk that are on Flathub now, so you can just get them from there
-# (once everything is on Flathub, we can stop building plasma-sdk, and remove these lines)
+# Parts of plasma-sdk that are on Flathub now
 rm -rf \
     /usr/bin/iconexplorer \
-    /usr/lib/qt6/plugins/kf6/ktexteditor/iconexplorerplugin.so \
+    /usr/lib64/qt6/plugins/kf6/ktexteditor/iconexplorerplugin.so \
     /usr/share/applications/org.kde.iconexplorer.desktop \
     /usr/share/locale/*/LC_MESSAGES/iconexplorer.mo \
     /usr/share/icons/hicolor/scalable/apps/org.kde.iconexplorer.svg
 
-## HP device management apps that are useless even for 99% of HP device owners, and we have our own better stuff
+## HP device management apps
 rm -rf \
     /usr/share/applications/hp-uiscan.desktop \
     /usr/bin/hp-uiscan \
     /usr/share/applications/hplip.desktop \
     /usr/bin/hp-toolbox
 
-## FFADO Mixer app that came along for the ride with FireWire audio support
+## FFADO Mixer
 rm -rf \
     /usr/bin/ffado-mixer \
-    /usr/lib/python3.13/site-packages/ffado/mixer \
+    /usr/lib/python3*/site-packages/ffado/mixer \
     /usr/share/applications/org.ffado.FfadoMixer.desktop \
     /usr/share/icons/hicolor/64x64/apps/hi64-apps-ffado.png \
-    /usr/share/metainfo/org.ffado.FfadoMixer.metainfo.xml \
+    /usr/share/metainfo/org.ffado.FfadoMixer.metainfo.xml
 
-# LSHW GUI app that came along for the ride with the CLi tool
+# LSHW GUI
 rm -rf \
     /usr/share/applications/gtk-lshw.desktop \
     /usr/bin/gtk-lshw \
     /usr/share/lshw/artwork \
     /usr/share/lshw/ui
 
-## Miscellaneous application entries that have zero value because we either have better stuff or they're for terminal applications
+## Miscellaneous application entries
 rm -rf \
     /usr/share/applications/avahi-discover.desktop \
     /usr/share/applications/vim.desktop \
@@ -112,64 +94,48 @@ rm -rf \
     /usr/share/applications/stoken-gui-small.desktop \
     /usr/share/applications/stoken-gui.desktop \
     /usr/share/applications/cmake-gui.desktop \
-    /usr/share/applications/tuned-gui.desktop \
+    /usr/share/applications/tuned-gui.desktop
 
-## Remove local documentation for KDE apps; it's available online.
+## Remove local documentation for KDE apps
 rm -rf \
     /usr/share/doc/
 
-## /boot is now the preferred mount point for systemd and BLS:
-## https://uapi-group.org/specifications/specs/boot_loader_specification/#mount-points
-## However, its content are no longer necessary, since we've already created our initrd.
+## Clear boot contents
 # shellcheck disable=SC2114
 rm -rf /boot/*
 
-## Don't expose any X11 sessions; we're all-in on Wayland.
+## Don't expose any X11 sessions
 rm -rf /usr/share/xsessions/
 
-## Get rid of the beefy Kernel Headers as DKMS happens at build time and after that is useless
+## Get rid of Kernel Headers
 rm -rf \
-  /usr/lib/modules/*/build \
-  /usr/lib/modules/*/vdso \
-  /usr/src/*
+    /usr/lib/modules/*/build \
+    /usr/lib/modules/*/vdso \
+    /usr/src/*
 
-# Prevent tuned from messing with the vm.swappiness parameter we already set
-sed --in-place 's|^vm.swappiness.*||' /usr/lib/tuned/profiles/*/*
+# Prevent tuned from messing with vm.swappiness
+sed --in-place 's|^vm.swappiness.*||' /usr/lib/tuned/profiles/*/* || true
 
-# Give KWin phenomenal cosmic power so it can do its job better; see
-# https://community.kde.org/Distributions/Packaging_Recommendations#KWin_package_configuration
+# Give KWin phenomenal cosmic power
 setcap 'cap_sys_nice=+ep' /usr/bin/kwin_wayland
 
-# Add a "command not found" handler for Bash. We have to modify the existing file because it
-# already exists, and we can't put this in /etc/profile or /etc/profile.d/ because for profile
-# items, only environment variables get inherited by non-login shells; shell functions don't.
-cat <<- EOF >> /etc/bash.bashrc
+# Add a "command not found" handler for Bash
+cat <<- EOF >> /etc/bashrc
 
 command_not_found_handle () {
     python3 /usr/lib/command-not-found-handler.py "\$1"
 }
 EOF
 
-# Configure plocate to index bind mounts (needed on BTRFS)
-# See: https://wiki.archlinux.org/title/Locate#Btrfs
+# Configure plocate to index bind mounts
 if [ -f /etc/updatedb.conf ]; then
     sed -i 's/^PRUNE_BIND_MOUNTS = "yes"/PRUNE_BIND_MOUNTS = "no"/' /etc/updatedb.conf
 fi
 
-# ydotool can be an attack surface; make it a system-level service so it doesn't get
-# enabled by default and requires authentication to manually enable.
-mv /usr/lib/systemd/user/ydotool.service /usr/lib/systemd/system/ydotool.service
+# ydotool as system service
+mv /usr/lib/systemd/user/ydotool.service /usr/lib/systemd/system/ydotool.service || true
 
-# Delete af_alg et al. kernel modules; they're dangerous and unused by anything
-# relevant except for iwd and non-default cryptsetup algorithms, neither of which
-# are supported on KDE Linux. Also delete esp4, esp6, and rxrpc which are
-# exploitable via the dirtyfrag vulnerability and are only used for IPsec-in-IPv4, IPsec-in-IPv6, and the
-# AF_RXRPC socket protocol (used by AFS/kAFS clients) respectively as none of which
-# are used on KDE Linux.
-# See also:
-# - https://www.secwest.net/copyfail-mitigation
-# - https://news.ycombinator.com/item?id=47956312
-# - https://github.com/V4bel/dirtyfrag
+# Delete dangerous/unused kernel modules
 rm -rf \
     /usr/lib/modules/*/kernel/crypto/af_alg.ko.zst \
     /usr/lib/modules/*/kernel/crypto/algif_aead.ko.zst \
@@ -183,4 +149,4 @@ rm -rf \
 # Clean up final remnants of the build process
 rm -rf \
     /buildroot \
-    /.cache \
+    /.cache
