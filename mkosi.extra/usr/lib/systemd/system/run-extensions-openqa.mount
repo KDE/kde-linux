@@ -10,17 +10,9 @@ Description=OpenQA Bootstrapping Sysext
 # We don't want people using this to inject malware on some unwitting person's system with a pen drive.
 # Hence, such dangerous things should only be allowed in a VM.
 ConditionVirtualization=vm
-ConditionPathExists=/dev/disk/by-label/kde-openqa-ext
-DefaultDependencies=no
-Before=systemd-sysext.service
-After=dev-disk-by\x2dlabel-kde\x2dopenqa\x2dext.device
-BindsTo=dev-disk-by\x2dlabel-kde\x2dopenqa\x2dext.device
 
 [Mount]
 What=/dev/disk/by-label/kde-openqa-ext
 Where=/run/extensions/openqa
 Type=erofs
-Options=ro
-
-[Install]
-WantedBy=systemd-sysext.service
+Options=ro,nofail

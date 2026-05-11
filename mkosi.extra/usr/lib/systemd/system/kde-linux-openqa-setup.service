@@ -8,16 +8,18 @@ Description=Bootstrap OpenQA Testing Environment
 ConditionVirtualization=vm
 ConditionPathIsMountPoint=/run/extensions/openqa
 
-After=systemd-sysext.service
-After=local-fs.target network-online.target
+After=run-extensions-openqa.mount systemd-sysext.service network-online.target
 Before=display-manager.service
 Wants=network-online.target
 
 [Service]
 Type=oneshot
+# Ensure the sysext is actually merged before we try to run the executable, otherwise it won't be found.
+# In case the udev rule triggers too late.
+ExecStartPre=systemd-sysext refresh
 ExecStart=/usr/lib/openqa-bootstrap
 RemainAfterExit=yes
 TimeoutStartSec=300
 
 [Install]
-WantedBy=multi-user.target
+WantedBy=run-extensions-openqa.mount
