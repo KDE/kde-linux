@@ -38,6 +38,7 @@ dnf install -y \
     mkosi \
     systemd \
     btrfs-progs \
+    btrfs-progs-devel  \
     clang \
     compsize \
     cpio \

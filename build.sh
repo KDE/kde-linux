@@ -17,6 +17,7 @@ make_debug_archive () {
   rm --recursive --force /var/tmp/debugroot
 }
 
+# TODO: Remove if VM Image becomes Fedora
 if command -v pacman > /dev/null 2>&1; then
     echo "Arch-based VM detected, installing docker to run Fedora container"
     pacman --sync --refresh --noconfirm docker
