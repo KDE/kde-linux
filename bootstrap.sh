@@ -60,4 +60,5 @@ dnf install -y \
     transmission-cli \
     tree \
     systemd-ukify \
-    wget
+    wget \
+    python3-pyyaml

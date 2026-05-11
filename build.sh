@@ -126,13 +126,13 @@ fi
 
 # TODO: temporary install plasma from fedora
 dnf install -y \
-  --installroot="$PWD/mkosi.extra" \
-  --releasever=rawhide \
-  --best \
-  --allowerasing \
-   --skip-unavailable \
+    --installroot="$PWD/mkosi.extra" \
+    --releasever=rawhide \
+    --best \
+    --allowerasing \
+    --skip-unavailable \
     --skip-broken \
-    @kde-desktop-environment
+    @kde-desktop || true
 
 mkosi \
     --environment="CI_COMMIT_SHORT_SHA=${CI_COMMIT_SHORT_SHA:-unknownSHA}" \
