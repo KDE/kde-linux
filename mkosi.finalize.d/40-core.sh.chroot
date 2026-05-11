@@ -5,6 +5,10 @@
 
 set -ex
 
+# Rename the packaged kde-mimeapps.list to mimeapps.list
+# This allows our kde-mimeapps.list to take precedence.
+mv -v /usr/share/applications/kde-mimeapps.list /usr/share/applications/mimeapps.list
+
 userdel --remove --force builder || true
 passwd --delete root
 passwd --lock root

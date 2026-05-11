@@ -15,8 +15,4 @@ echo "$@"
 if [ "$1" = "final" ]; then
   env
   flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
-
-  # Rename the packaged kde-mimeapps.list to mimeapps.list
-  # This allows our kde-mimeapps.list to take precedence.
-  mv -v /usr/share/applications/kde-mimeapps.list /usr/share/applications/mimeapps.list
 fi
