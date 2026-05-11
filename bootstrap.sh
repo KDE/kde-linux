@@ -9,6 +9,14 @@
 # Exit immediately if any command fails and print all commands before they are executed.
 set -ex
 
+# TODO: Remove when the VM Image is on Fedora
+# If we're on an Arch-based VM that hasn't been ported to Fedora yet,
+# install docker and use it to run a Fedora container for the actual build.
+if command -v pacman > /dev/null 2>&1; then
+    echo "Arch-based VM detected"
+    exit 0
+fi
+
 # Pin to the same Koji compose used by the packages pipeline so the base OS
 # and KDE packages don't go out of sync.
 # TODO: Once the packages pipeline publishes compose_id.txt to storage.kde.org,
@@ -51,5 +59,4 @@ dnf install -y \
     transmission-cli \
     tree \
     systemd-ukify \
-    wget \
-    arch-install-scripts  # TODO: not available on Fedora, find alternative
+    wget

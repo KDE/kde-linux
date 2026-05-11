@@ -17,6 +17,21 @@ make_debug_archive () {
   rm --recursive --force /var/tmp/debugroot
 }
 
+if command -v pacman > /dev/null 2>&1; then
+    echo "Arch-based VM detected, installing docker to run Fedora container"
+    pacman --sync --refresh --noconfirm docker
+    systemctl start docker
+    docker pull fedora:rawhide
+    docker run --privileged --rm \
+        --volume "$PWD:/workspace" \
+        --volume "/var/cache/dnf:/var/cache/dnf" \
+        --volume "/dev:/dev" \
+        --workdir /workspace \
+        fedora:rawhide \
+        sh -c "/workspace/in_docker.sh"
+    exit $?
+fi
+
 EPOCH=$(date --utc +%s)
 VERSION_DATE=$(date --utc --date="@$EPOCH" --rfc-3339=seconds)
 VERSION=$(date --utc --date="@$EPOCH" +%Y%m%d%H%M)
@@ -107,6 +122,16 @@ if [ -n "$ALL_DEPS" ]; then
 else
     echo "WARNING: Could not fetch or parse Fedora deps from repo-metadata"
 fi
+
+# TODO: temporary install plasma from fedora
+dnf install -y \
+  --installroot="$PWD/mkosi.extra" \
+  --releasever=rawhide \
+  --best \
+  --allowerasing \
+   --skip-unavailable \
+    --skip-broken \
+    @kde-desktop-environment
 
 mkosi \
     --environment="CI_COMMIT_SHORT_SHA=${CI_COMMIT_SHORT_SHA:-unknownSHA}" \
