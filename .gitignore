@@ -24,6 +24,8 @@
 /mkosi.extra/usr/lib/systemd/system/kde-linux-sysupdated.service
 /mkosi.extra/usr/lib/systemd/system/kde-linux-sysupdated.socket
 
+/mkosi.conf.d/40-kde-packages.conf
+
 /mkosi.output/
 
 mkosi.local.conf
@@ -34,3 +36,7 @@ kde-linux_*
 /mkosi.sandbox/etc/pacman.conf
 
 /etc-factory
+
+install.tar.zst
+debug.tar.zst
+packages.txt

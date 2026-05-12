@@ -72,6 +72,10 @@ EOF
 [ -f /usr/lib/os-release ] || false
 cat /usr/lib/os-release
 
+# Rename the packaged kde-mimeapps.list to mimeapps.list
+# This allows our kde-mimeapps.list to take precedence.
+mv -v /usr/share/applications/kde-mimeapps.list /usr/share/applications/mimeapps.list
+
 download_flatpaks() {
     flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
     # Do this separately, when used as part of remote-add it complains about GPG for unknown reasons

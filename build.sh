@@ -9,24 +9,23 @@
 
 set -ex
 
-# Creates an archive containing the data from just the kde-linux-debug repository packages,
-# essentially the debug symbols for KDE apps, to be used as a sysext.
+# Creates a sysext containing the KDE debug symbols, downloaded from the packages pipeline.
 make_debug_archive () {
-  # Create an empty directory at /var/tmp/debugroot to install the packages to before compressing.
+  # Create an empty directory at /var/tmp/debugroot to extract the debug symbols into before compressing.
   rm --recursive --force /var/tmp/debugroot
   mkdir --parents /var/tmp/debugroot
 
-  # Install all packages in the kde-linux-debug repository to /var/tmp/debugroot.
-  pacstrap -c /var/tmp/debugroot $(pacman --sync --list --quiet kde-linux-debug)
+  # Download and extract debug symbols produced by the packages pipeline.
+  curl --fail https://storage.kde.org/kde-linux-packages/testing/debug.tar.zst \
+    | zstd --decompress | tar --extract --directory=/var/tmp/debugroot
 
   # systemd-sysext uses the os-release in extension-release.d to verify the sysext matches the base OS,
   # and can therefore be safely installed. Copy the base OS' os-release there.
   mkdir --parents /var/tmp/debugroot/usr/lib/extension-release.d/
   cp "${OUTPUT}/usr/lib/os-release" /var/tmp/debugroot/usr/lib/extension-release.d/extension-release.debug
 
-  # Finally compress /var/tmp/debugroot/usr into a zstd tarball at $DEBUG_TAR.
-  # We actually only need usr because that's where all the relevant stuff lays anyways.
-  # TODO: needs really moving to erofs instead of tar
+  # Compress /var/tmp/debugroot/usr into a zstd tarball at $DEBUG_TAR.
+  # We only need usr because that's where all the relevant stuff lives.
   tar --directory=/var/tmp/debugroot --create --file="$DEBUG_TAR" usr
   zstd --threads=0 --rm "$DEBUG_TAR" # --threads=0 automatically uses the optimal number
   rm --recursive --force /var/tmp/debugroot
@@ -56,17 +55,6 @@ EFI=${EFI_BASE}+3.efi # Name of primary UKI in the image's ESP
 # Clean up old build artifacts.
 rm --recursive --force kde-linux.cache/*.raw kde-linux.cache/*.mnt
 
-# FIXME: temporary hack to work around repo priorities being off in the CI image
-cat <<- EOF > mkosi.sandbox/etc/pacman.conf
-[kde-linux]
-# Signature checking is not needed because the packages are served over HTTPS and we have no mirrors
-SigLevel = Never
-Server = https://storage.kde.org/kde-linux-packages/testing/repo/packages/
-
-[kde-linux-debug]
-SigLevel = Never
-Server = https://storage.kde.org/kde-linux-packages/testing/repo/packages-debug/
-EOF
 cat /etc/pacman.conf.nolinux >> mkosi.sandbox/etc/pacman.conf
 
 # Enable multilib; we need it later for steam-devices
@@ -76,8 +64,7 @@ Include = /etc/pacman.d/mirrorlist
 EOF
 
 mkdir --parents mkosi.sandbox/etc/pacman.d
-# Ensure the packages repo and the base image do not go out of sync
-# by using the same snapshot date from BUILD_REPO.txt for both
+# Ensure the base image does not go out of sync with the Arch snapshot used to build packages.
 # WARNING: code copy in bootstrap.sh
 BUILD_REPO=$(curl --fail --silent https://storage.kde.org/kde-linux-packages/testing/repo/build_repo.txt)
 if [ -z "$BUILD_REPO" ]; then
@@ -102,15 +89,32 @@ rm --recursive --force etc-factory
 git clone https://invent.kde.org/kde-linux/etc-factory
 DESTDIR=$PWD/mkosi.extra make --directory=etc-factory install
 
+# Extract the KDE packages pipeline output into mkosi.extra so kde-builder built files
+# are baked directly into the image instead of going through the package repo.
+curl --fail https://storage.kde.org/kde-linux-packages/testing/install.tar.zst
+
+# Generate a mkosi dropin with the packages from the packages pipeline
+curl --fail https://storage.kde.org/kde-linux-packages/testing/packages.txt \
+    -o packages.txt
+
+mkdir -p mkosi.conf.d
+{
+    echo "[Content]"
+    while IFS= read -r pkg; do
+        echo "Packages=$pkg"
+    done < packages.txt
+} > mkosi.conf.d/40-kde-packages.conf
+
 mkosi \
     --environment="CI_COMMIT_SHORT_SHA=${CI_COMMIT_SHORT_SHA:-unknownSHA}" \
     --environment="CI_COMMIT_SHA=${CI_COMMIT_SHA:-unknownSHA}" \
     --environment="CI_PIPELINE_URL=${CI_PIPELINE_URL:-https://invent.kde.org}" \
     --environment="VERSION_DATE=${VERSION_DATE}" \
     --image-version="$VERSION" \
+    --extra-tree="$PWD/install.tar.zst" --extra-tree="$PWD/mkosi.extra" \
     "$@"
 
-# Adjust mtime to reduce unnecessary churn between images caused by us rebuilding repos that have possible not changed in source or binary interfaces.
+# Adjust mtime to reduce unnecessary churn between images caused by us rebuilding repos that have possibly not changed in source or binary interfaces.
 if [ -f "$PWD/.secure_files/ssh.key" ]; then
   # You can use `ssh-keyscan origin.files.kde.org` to get the host key
   echo "origin.files.kde.org ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILUjdH4S7otYIdLUkOZK+owIiByjNQPzGi7GQ5HOWjO6" >> ~/.ssh/known_hosts
