@@ -65,6 +65,9 @@ rm -rf \
     /usr/bin/qvidcap \
     /usr/share/applications/qvidcap.desktop \
 
+# Use the btrfs versions instead as in command_not_found_handle
+rm -rf du \
+
 # Parts of plasma-sdk that are on Flathub now, so you can just get them from there
 # (once everything is on Flathub, we can stop building plasma-sdk, and remove these lines)
 rm -rf \
