@@ -118,3 +118,9 @@ source /usr/share/zsh/plugins/zsh-history-substring-search/zsh-history-substring
 # Bind Ctrl+↑ and Ctrl+↓ keybinds to substring history search.
 bindkey '^[[1;5A' history-substring-search-up # Ctrl+↑
 bindkey '^[[1;5B' history-substring-search-down # Ctrl+↓
+
+# Source additional configuration files from this plugin directory.
+for f in /usr/share/zsh/plugins/kde-linux-default/*.zsh; do
+  [[ "$f" == "${(%):-%x}" ]] && continue
+  source "$f"
+done
