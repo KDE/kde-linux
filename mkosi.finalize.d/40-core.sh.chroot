@@ -131,6 +131,9 @@ sed --in-place 's|^vm.swappiness.*||' /usr/lib/tuned/profiles/*/*
 
 # Give KWin phenomenal cosmic power so it can do its job better; see
 # https://community.kde.org/Distributions/Packaging_Recommendations#KWin_package_configuration
+# Need to do it ourselves due to
+# https://gitlab.archlinux.org/pacman/pacman/-/work_items/320
+# TODO: remove once we stop outputting pkgbuilds in the packaging pipeline
 setcap 'cap_sys_nice=+ep' /usr/bin/kwin_wayland
 
 # Let System Monitor et al. monitor Intel GPUs; see
