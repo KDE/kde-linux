@@ -120,12 +120,6 @@ rm -rf /boot/*
 ## Don't expose any X11 sessions; we're all-in on Wayland.
 rm -rf /usr/share/xsessions/
 
-## Get rid of the beefy Kernel Headers as DKMS happens at build time and after that is useless
-rm -rf \
-  /usr/lib/modules/*/build \
-  /usr/lib/modules/*/vdso \
-  /usr/src/*
-
 # Prevent tuned from messing with the vm.swappiness parameter we already set
 sed --in-place 's|^vm.swappiness.*||' /usr/lib/tuned/profiles/*/*
 
