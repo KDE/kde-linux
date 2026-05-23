@@ -1,0 +1,44 @@
+#!/usr/bin/env bash
+# SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL
+# SPDX-FileCopyrightText: 2026 Nate Graham <nate@kde.org>
+
+set -eu
+
+FACTORY_DIR="/usr/share/factory/var/lib/flatpak/app"
+REPO_CONFIG="/usr/share/factory/var/lib/flatpak/repo/config"
+DEFAULT_REMOTE="flathub"
+INSTALLED_APPS=$(flatpak list --app --columns=application)
+CHANGE_HISTORY=$(flatpak history --columns=change,application)
+
+echo "Looking in $FACTORY_DIR for new pre-installed apps that need installing…"
+
+for APP in "$FACTORY_DIR"/*; do
+
+    # trim trailing slash
+    APP=$(basename "$APP")
+
+    # Skip if it's already installed
+    if [[ "$INSTALLED_APPS" == *"$APP"* ]]; then
+        echo "Skipping $APP (already installed)"
+        continue
+    fi
+
+    # Skip if the user uninstalled it
+    if rg "$APP" <<<"$CHANGE_HISTORY" | tail -n 1 | rg uninstall >/dev/null; then
+        echo "Skipping $APP (previously uninstalled by user)"
+        continue
+    fi
+
+    REMOTE="$DEFAULT_REMOTE"
+
+    # See if we have a special repo to install it from
+    NON_RDNS_NAME="${APP#*.*.}"
+    SPECIAL_APP_REMOTE=$(rg "$NON_RDNS_NAME" "$REPO_CONFIG" | head -n 1 | cut -d '"' -f 2 || true)
+    if [[ -n "$SPECIAL_APP_REMOTE" ]]; then
+        echo "$APP needs to be installed from a special repo: $SPECIAL_APP_REMOTE"
+        REMOTE="$SPECIAL_APP_REMOTE"
+    fi
+
+    echo "Installing $APP from $REMOTE…"
+    flatpak install --system --noninteractive --assumeyes --sideload-repo=/usr/share/factory/var/lib/flatpak/repo "$REMOTE" "$APP"
+done

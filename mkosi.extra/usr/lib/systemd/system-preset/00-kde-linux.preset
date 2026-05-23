@@ -44,6 +44,7 @@ enable switcheroo-control.service
 enable kde-linux-bootloader-visibility.service
 enable kde-linux-btrfs.service
 enable kde-linux-configure-firefox.path
+enable kde-linux-install-new-flatpak-apps.service
 enable kde-linux-iw-set-regdomain.path
 enable kde-linux-live-setup.service
 enable kde-linux-openqa-setup.service
