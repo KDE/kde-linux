@@ -10,7 +10,14 @@ if ! grep "kde-linux.live=1" /proc/cmdline; then
     exit 1
 fi
 
-if [ "$(readlink --canonicalize /dev/disk/by-partlabel/KDELinuxLive)" != "$(readlink --canonicalize /dev/gpt-auto-root)" ]; then
+# Resolve the canonical path of the device that actually booted
+BOOTED_ROOT=$(readlink --canonicalize /dev/gpt-auto-root)
+
+# Extract the partition label specifically from that booted device
+BOOTED_LABEL=$(lsblk -no PARTLABEL "$BOOTED_ROOT")
+
+# Verify if the booted device is indeed the KDE Linux Live medium
+if [ "$BOOTED_LABEL" != "KDELinuxLive" ]; then
     echo "gpt-auto-root is not KDELinuxLive"
     exit 1
 fi
