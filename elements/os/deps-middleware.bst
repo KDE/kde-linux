@@ -17,6 +17,9 @@ depends:
 # - gnome-build-meta.bst:gnomeos-deps/NetworkManager-openvpn.bst # networkmanager-vpn-plugin-openvpn
 # - gnome-build-meta.bst:gnomeos-deps/NetworkManager-vpnc.bst # networkmanager-vpn-plugin-vpnc
 - gnome-build-meta.bst:gnomeos-deps/nss-mdns.bst # nss-mdns: Needed for Avahi mDNS for local domain resolving etc.
+- components/libRaw.bst # libraw: kimageformats
+- components/lrzip.bst # lrzip: ark, for lzma, rzip, and zpaq compressed archives
+- components/lzop.bst # lzop: ark, for lzo compressed archives
 - components/samba.bst # samba: For sharing local folders via Samba
 # - gnome-build-meta.bst:gnomeos-deps/switcheroo-control.bst # switcheroo-control: kio, for launching apps on non-default GPU
 # - gnome-build-meta.bst:core/xdg-desktop-portal-gtk.bst # xdg-desktop-portal-gtk: GTK/Flatpak icon settings syncing

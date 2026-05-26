@@ -61,7 +61,13 @@ depends:
 - gnome-build-meta.bst:gnomeos-deps/swtpm.bst # swtpm: TPM emulator used by Incus VMs
 - gnome-build-meta.bst:gnomeos-deps/virtiofsd.bst # virtiofsd: Enables access to host folders from virt-manager and incus VMs
 - gnome-build-meta.bst:gnomeos-deps/zram-generator.bst # zram-generator: use compressed zram for swap
+- components/fatresize.bst # fatresize: Resizing FAT filesystems; used by kpmcore
+- components/gutenprint.bst # gutenprint: FOSS drivers for lots of pre-2012 printers
+- components/inotify-tools.bst # ; for kmscon-launch-gui waiting mechanism
+- components/ntfsprogs.bst # ntfsprogs: Manipulating ntfs filesystems; used by kpmcore
 - components/powertop.bst # powertop: Energy monitoring; also used in our energy tuning scripts
+- components/solaar-udev.bst # solaar: Logitech Unify receiver udev rules
+- components/tuned.bst # tuned-ppd: Power profiles
 - components/ydotool.bst # ydotool: Basic TUI and GUI app automation; needs low-level access to work
 - components/kmscon.bst # kmscon: modern userspace getty and virtual terminal replacement
 - components/acsccid.bst # ACS CCID smart card readers

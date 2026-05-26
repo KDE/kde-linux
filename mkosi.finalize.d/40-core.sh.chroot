@@ -116,8 +116,7 @@ rm -rf /usr/share/xsessions/
 rm -rf /usr/local
 
 # Prevent tuned from messing with the vm.swappiness parameter we already set
-# TODO: Aleix
-# sed --in-place 's|^vm.swappiness.*||' /usr/lib/tuned/profiles/*/*
+sed --in-place 's|^vm.swappiness.*||' /usr/lib/tuned/profiles/*/*
 
 # Give KWin phenomenal cosmic power so it can do its job better; see
 # https://community.kde.org/Distributions/Packaging_Recommendations#KWin_package_configuration

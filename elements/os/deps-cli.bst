@@ -36,6 +36,7 @@ depends:
 - freedesktop-sdk.bst:components/strace.bst # strace: instrument running executables
 - freedesktop-sdk.bst:components/vulkan-icd-loader.bst
 - freedesktop-sdk.bst:components/wget2.bst # wget
+- components/wireguard-tools.bst # wireguard-tools: CLI tools for controlling WireGuard VPNs
 - freedesktop-sdk.bst:components/xz.bst
 - freedesktop-sdk.bst:components/zip.bst # zip: the zip CLI archiving tool
 - gnome-build-meta.bst:boards/common/alsa-utils.bst # alsa-utils: alsamixer and other useful audio debugging tools
@@ -50,3 +51,9 @@ depends:
 - gnome-build-meta.bst:gnomeos-deps/wl-clipboard.bst
 - gnome-build-meta.bst:gnomeos-deps/words.bst # words: Dictionaries in /usr/share/dict
 - gnome-build-meta.bst:sdk-deps/sassc.bst # sassc: make dependency for breeze-gtk and kde-gtk-config
+- components/drm-info.bst # drm-info: for debugging KWin and other graphics issues
+- components/iotop-c.bst # iotop: Opinionated fancy top for disks
+- components/lsof.bst
+- components/nvtop.bst # nvtop: Fancy GPU monitoring
+- components/tree.bst
+- components/xerces-c.bst # xerces-c: optional make dependency for syntax-highlighting
