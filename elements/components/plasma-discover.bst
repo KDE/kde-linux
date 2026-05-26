@@ -11,6 +11,7 @@ build-depends:
 depends:
 - freedesktop-sdk.bst:public-stacks/runtime-minimal.bst
 - freedesktop-sdk.bst:components/flatpak.bst
+- freedesktop-sdk.bst:components/fwupd.bst
 - components/appstreamqt.bst
 
 variables:

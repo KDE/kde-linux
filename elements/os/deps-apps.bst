@@ -3,9 +3,7 @@
 
 kind: stack
 
-depends:
-- os/deps-core.bst
-- os/deps-middleware.bst
-- os/deps-kde.bst
-- os/deps-apps.bst
-- os/deps-cli.bst
+depends: []
+
+# gammaray # GUI debugging for Qt apps
+# orca # screen reader
