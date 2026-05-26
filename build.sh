@@ -181,6 +181,7 @@ ln -s ../run/systemd/resolve/stub-resolv.conf "${OUTPUT}/etc/resolv.conf"
 find "${OUTPUT}" -xdev -type f -name '*.a' -print -delete
 sudo chown -R 0:0 $OUTPUT
 sudo SOURCE_DATE_EPOCH=1320937200 $BUILDSTREAM_TOOLFS/usr/bin/prepare-image.sh --sysroot $OUTPUT --initscripts $OUTPUT/etc/fdsdk/initial_scripts --noroot --nodepmod --noboot
+bash -x check-fs.sh "${OUTPUT}"
 sudo install -D -m 0644 "$OUTPUT/etc/shells" "$OUTPUT/usr/share/factory/etc/shells"
 sudo time mkfs.erofs -zzstd -C 65536 --chunksize 65536 "$ROOTFS_EROFS" "$OUTPUT" > erofs.log 2>&1
 cp --reflink=auto "$ROOTFS_EROFS" kde-linux.cache/root.raw
