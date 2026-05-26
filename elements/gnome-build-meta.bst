@@ -9,7 +9,7 @@ kind: junction
 sources:
 - kind: git_repo
   url: https://gitlab.gnome.org/GNOME/gnome-build-meta.git
-  ref: 4c85f037bb88a769c5df9745eab0fe58415c4169
+  ref: e7b5e00f44b8ae532d33bcd7f1ca14c2c8dc0a87
 
 config:
   options:

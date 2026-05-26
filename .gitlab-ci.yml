@@ -44,12 +44,21 @@ imaging:
       aud: https://tokens.kde.org
   variables: &variables
     RUNNER_AFTER_SCRIPT_TIMEOUT: 1h
+  before_script: &before_script
+    - python3 -m venv .venv --system-site-packages
+    - . .venv/bin/activate
+    - python3 -m pip install --upgrade pip
+    - python3 -m pip install 'BuildStream>=2.7' dulwich tomlkit
+    - sudo ln -sf "$PWD/.venv/bin/bst" /usr/bin/bst
+    - sudo pacman --sync --noconfirm lzip # needed by gettext apparently
   script:
     - if [ "$IMAGING_MODE" = stage ]; then curl -s https://gitlab.com/gitlab-org/incubation-engineering/mobile-devops/download-secure-files/-/raw/main/installer | bash; fi
     - sudo ./build.sh --force --debug
     - if [ "$IMAGING_MODE" = stage ]; then ./upload.sh --stage; fi
     - if [ "$IMAGING_MODE" = test ]; then ./upload-to-storage.sh; fi # Need this to have something to pass to OpenQA.
   after_script:
+    - sudo cp --archive /root/.cache/buildstream/logs buildstream-logs || true
+    - sudo chown --recursive "$(id --user):$(id --group)" buildstream-logs || true
     - if [ "$IMAGING_MODE" = stage ] && [ "$CI_JOB_STATUS" = success ]; then exit 0; fi
     - if [ "$IMAGING_MODE" = test ]; then exit 0; fi
     - ./upload-to-storage.sh || true
@@ -113,6 +122,9 @@ publish:
     when: always
     paths:
       - "**/erofs.log"
+      - "buildstream-logs/**/*.log"
+    reports:
+      dotenv: build.env
 
 # Manual override for publishing a staged image when OpenQA breaks.
 publish-manual:
@@ -132,11 +144,13 @@ publish-manual:
   id_tokens: *tokens
   variables: *variables
   resource_group: kde-linux-publish
+  before_script: *before_script
   script:
     - curl -s https://gitlab.com/gitlab-org/incubation-engineering/mobile-devops/download-secure-files/-/raw/main/installer | bash
     - ./upload.sh --publish
-  artifacts:
-    expire_in: 4 weeks
-    when: always
-    paths:
-      - "**/erofs.log"
+  after_script:
+    - sudo cp --archive /root/.cache/buildstream/logs buildstream-logs || true
+    - sudo chown --recursive "$(id --user):$(id --group)" buildstream-logs || true
+    # Upload broken images to Harald for inspection
+    - "[ $CI_JOB_STATUS == 'success' ] || ./upload-to-storage.sh || true"
+  artifacts: *artifacts
