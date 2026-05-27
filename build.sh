@@ -16,7 +16,7 @@ make_debug_archive () {
   mkdir --parents /var/tmp/debugroot
 
   # Download and extract debug symbols produced by the packages pipeline.
-  curl --fail https://storage.kde.org/kde-linux-packages/testing/debug.tar.zst \
+  curl --fail https://storage.kde.org/kde-linux-packages/testing/artifacts/debug.tar.zst \
     | zstd --decompress | tar --extract --directory=/var/tmp/debugroot
 
   # systemd-sysext uses the os-release in extension-release.d to verify the sysext matches the base OS,
@@ -91,10 +91,10 @@ DESTDIR=$PWD/mkosi.extra make --directory=etc-factory install
 
 # Extract the KDE packages pipeline output into mkosi.extra so kde-builder built files
 # are baked directly into the image instead of going through the package repo.
-curl --fail https://storage.kde.org/kde-linux-packages/testing/install.tar.zst
+curl --fail https://storage.kde.org/kde-linux-packages/testing/artifacts/install.tar.zst
 
 # Generate a mkosi dropin with the packages from the packages pipeline
-curl --fail https://storage.kde.org/kde-linux-packages/testing/packages.txt \
+curl --fail https://storage.kde.org/kde-linux-packages/testing/artifacts/packages.txt \
     -o packages.txt
 
 mkdir -p mkosi.conf.d
