@@ -106,6 +106,8 @@ rm -rf \
     /usr/share/applications/stoken-gui.desktop \
     /usr/share/applications/cmake-gui.desktop \
     /usr/share/applications/tuned-gui.desktop \
+    /usr/share/applications/xgps.desktop \
+    /usr/share/applications/xgpsspeed.desktop \
 
 ## Remove local documentation for KDE apps; it's available online.
 rm -rf \
