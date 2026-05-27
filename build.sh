@@ -91,7 +91,8 @@ DESTDIR=$PWD/mkosi.extra make --directory=etc-factory install
 
 # Extract the KDE packages pipeline output into mkosi.extra so kde-builder built files
 # are baked directly into the image instead of going through the package repo.
-curl --fail https://storage.kde.org/kde-linux-packages/testing/artifacts/install.tar.zst
+curl --fail https://storage.kde.org/kde-linux-packages/testing/artifacts/install.tar.zst \
+    -o install.tar.zst
 
 # Generate a mkosi dropin with the packages from the packages pipeline
 curl --fail https://storage.kde.org/kde-linux-packages/testing/artifacts/packages.txt \
