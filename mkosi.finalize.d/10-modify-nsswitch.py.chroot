@@ -8,7 +8,7 @@ import sys
 
 def replace_lines_in_place(lines):
     for i, line in enumerate(lines):
-        if not line.startswith("hosts: mymachines resolve"):
+        if not line.startswith("hosts: "):
             continue
 
         lines[i] = line.replace("mymachines", "mymachines mdns_minimal [NOTFOUND=return]", 1)
@@ -16,13 +16,11 @@ def replace_lines_in_place(lines):
     raise RuntimeError("Expected modification but no changes were made.")
 
 def modify_nsswitch():
-    with open("/etc/nsswitch.conf", "r+") as file:
+    with open("/usr/share/factory/etc/nsswitch.conf", "r+") as file:
         lines = file.readlines()
         replace_lines_in_place(lines)
         file.seek(0)
         file.writelines(lines)
 
 if __name__ == "__main__":
-#     TODO: Aleix
-    # modify_nsswitch()
-    pass
+    modify_nsswitch()
