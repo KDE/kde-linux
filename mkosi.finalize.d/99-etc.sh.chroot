@@ -23,32 +23,20 @@ echo "deny = 12" >> /etc/security/faillock.conf
 rm --recursive --force /usr/share/factory/etc/pam.d
 
 # Copy all of etc into factory dir for tmpfiles.d (see tmpfiles.d docs).
+# Exclude the content that we absolutely do not want because it is machine/installation dependent.
 [ -d /usr/share/factory ] || mkdir /usr/share/factory
-find /etc -mindepth 1 ! -path /etc/resolv.conf -exec cp --archive --parents --target-directory=/usr/share/factory/ {} +
-
-# Clean up factory content that we absolutely do not want because it is machine/installation dependent.
-cd /usr/share/factory/etc
-rm --force \
-    .pwd.lock \
-    passwd \
-    passwd- \
-    shadow \
-    shadow- \
-    gshadow \
-    gshadow- \
-    group \
-    group- \
-    localtime \
-    machine-id \
-    crypttab \
-    resolv.conf \
-    vconsole.conf \
-    hostname \
-    locale.conf
-
-    # These are actually needed and must be copied from the factory onto the host. If they are missing useradd will
-    # not configure subuids, breaking podman for instance.
-    # subuid \
-    # subgid- \
-    # subgid \
-    # subgid- \
+cd /etc
+rsync --archive --update \
+    --exclude='.pwd.lock' \
+    --exclude='passwd*' \
+    --exclude='shadow*' \
+    --exclude='gshadow*' \
+    --exclude='group*' \
+    --exclude='localtime' \
+    --exclude='machine-id' \
+    --exclude='crypttab' \
+    --exclude='resolv.conf' \
+    --exclude='vconsole.conf' \
+    --exclude='hostname' \
+    --exclude='locale.conf' \
+    /etc/ /usr/share/factory/etc/

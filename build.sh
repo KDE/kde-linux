@@ -93,8 +93,6 @@ BST="bst"
 rm -rf "$BUILDSTREAM_ROOTFS" "$BUILDSTREAM_BOOTFS" "$BUILDSTREAM_TOOLFS" "$BUILDSTREAM_EFI"
 $BST build os/filesystem.bst
 $BST artifact checkout os/filesystem.bst --directory $BUILDSTREAM_ROOTFS
-[ -d "$BUILDSTREAM_ROOTFS/etc" ] || mkdir -p "$BUILDSTREAM_ROOTFS/etc"
-: > "$BUILDSTREAM_ROOTFS/etc/resolv.conf"
 $BST build components/calamares.bst \
       os/initrd.bst \
       freedesktop-sdk.bst:components/ovmf-maybe.bst \
