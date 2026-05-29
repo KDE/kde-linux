@@ -25,6 +25,8 @@ cp /usr/share/edk2-shell/x64/Shell.efi "$SYSTEMD_ESP_PATH/shellx64.efi"
 pacman --remove --noconfirm qt6-doc qt6-examples || true
 # FIXME: needed by cxx-rust-cssparser; can't remove these for now
 # pacman --remove --noconfirm corrosion rust || true
+# FIXME: pulled in as a secret service provider
+pacman --remove --noconfirm gnome-keyring
 
 # No packagekit support or AppStream metadata in discover please! We don't want discover talking about pacman things.
 pacman --remove --noconfirm packagekit libpackagekit-glib archlinux-appstream-data || true
