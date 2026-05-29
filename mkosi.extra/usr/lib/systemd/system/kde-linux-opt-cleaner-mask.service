@@ -1,0 +1,16 @@
+# SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL
+# SPDX-FileCopyrightText: 2026 Hadi Chokr <hadichokr@icloud.com>
+
+[Unit]
+Description=Mask /opt/local with tmpfs when kde-linux.mask_local=1 is set
+DefaultDependencies=no
+ConditionKernelCommandLine=kde-linux.mask_local=1
+Before=local-fs.target sysinit.target
+After=systemd-remount-fs.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/lib/opt-masker
+
+[Install]
+WantedBy=local-fs.target

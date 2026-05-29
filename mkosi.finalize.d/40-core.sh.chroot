@@ -120,6 +120,9 @@ rm -rf /boot/*
 ## Don't expose any X11 sessions; we're all-in on Wayland.
 rm -rf /usr/share/xsessions/
 
+## Get rid of /usr/local for /opt/local
+rm -rf /usr/local
+
 # Prevent tuned from messing with the vm.swappiness parameter we already set
 sed --in-place 's|^vm.swappiness.*||' /usr/lib/tuned/profiles/*/*
 

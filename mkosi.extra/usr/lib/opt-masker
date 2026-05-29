@@ -1,0 +1,8 @@
+#!/usr/bin/bash
+# SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL
+# SPDX-FileCopyrightText: 2026 Hadi Chokr <hadichokr@icloud.com>
+
+mkdir -p /var/opt/local
+mount --bind /opt/local /var/opt/local
+mount --make-private /var/opt/local
+mount -t tmpfs tmpfs /opt/local

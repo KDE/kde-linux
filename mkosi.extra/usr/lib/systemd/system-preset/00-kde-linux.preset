@@ -51,6 +51,7 @@ enable kde-linux-openqa-setup.service
 enable kde-linux-powertop.service
 enable kde-linux-volatile-var-lib-flatpak.service
 enable kde-linux-sysupdated.socket
+enable kde-linux-opt-cleaner-mask.service
 enable plasma-setup-live-system.service
 
 # KMSCON
