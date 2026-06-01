@@ -3,3 +3,6 @@
 
 # Screen reading is opt-in
 disable orca.service
+
+# ydotoold is too dangerous to run by default
+disable ydotool.service
