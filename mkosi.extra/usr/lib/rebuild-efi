@@ -36,6 +36,36 @@ echo "rw \
   amdgpu.dcdebugmask=0x10 \
   vt.global_cursor_default=0 quiet splash loglevel=3" > cmdline
 mkinitcpio --config mkinitcpio.conf --generate initrd --kernel "$kernel_version"
+
+# Delete af_alg et al. kernel modules; they're dangerous and unused by anything
+# relevant except for iwd and non-default cryptsetup algorithms, neither of which
+# are supported on KDE Linux.
+#
+# Also delete esp4, esp6, and rxrpc, which are exploitable via the dirtyfrag
+# vulnerability and are only used for IPsec-in-IPv4, IPsec-in-IPv6, and the
+# AF_RXRPC socket protocol (used by AFS/kAFS clients) respectively, none of which
+# are used on KDE Linux.
+#
+# Also delete kafs because it requires rxrpc, and it's of very very very very
+# limited utility.
+#
+# See also:
+# - https://www.secwest.net/copyfail-mitigation
+# - https://news.ycombinator.com/item?id=47956312
+# - https://github.com/V4bel/dirtyfrag
+#
+# We have to do this here before we create the UKI or else they get pulled in by accident!
+rm -rf \
+    /usr/lib/modules/$kernel_version/kernel/crypto/af_alg.ko.zst \
+    /usr/lib/modules/$kernel_version/kernel/crypto/algif_aead.ko.zst \
+    /usr/lib/modules/$kernel_version/kernel/crypto/algif_hash.ko.zst \
+    /usr/lib/modules/$kernel_version/kernel/crypto/algif_rng.ko.zst \
+    /usr/lib/modules/$kernel_version/kernel/crypto/algif_skcipher.ko.zst \
+    /usr/lib/modules/$kernel_version/kernel/net/ipv4/esp4.ko.zst \
+    /usr/lib/modules/$kernel_version/kernel/net/ipv6/esp6.ko.zst \
+    /usr/lib/modules/$kernel_version/kernel/net/rxrpc/ \
+    /usr/lib/modules/$kernel_version/kernel/fs/afs/
+
 ukify build \
   --linux /usr/lib/modules/$kernel_version/vmlinuz \
   --initrd initrd \
