@@ -44,17 +44,12 @@ config:
     mkdir -p /tmp/initrd-overlay/usr/lib/udev/rules.d
     cp /usr/lib/kde-linux/os-release /tmp/initrd-overlay/usr/lib/os-release
     cp /usr/lib/kde-linux/os-release /tmp/initrd-overlay/usr/lib/initrd-release
-    cp /usr/lib/rootfs-transition /tmp/initrd-overlay/usr/lib/rootfs-transition
-    cp /usr/lib/systemd/system-generators/kde-linux-live-generator /tmp/initrd-overlay/usr/lib/systemd/system-generators/kde-linux-live-generator
-    cp /usr/lib/systemd/system-generators/kde-linux-mount-generator /tmp/initrd-overlay/usr/lib/systemd/system-generators/kde-linux-mount-generator
     cp /usr/lib/udev/rules.d/90-image-dissect.rules /tmp/initrd-overlay/usr/lib/udev/rules.d/90-image-dissect.rules
-    cp /usr/lib/systemd/system/etc-factory.service /tmp/initrd-overlay/usr/lib/systemd/system/etc-factory.service
-    cp -P /usr/lib/systemd/system/local-fs-pre.target.wants/etc-factory.service /tmp/initrd-overlay/usr/lib/systemd/system/local-fs-pre.target.wants/etc-factory.service
     dracut -v --xz --reproducible --fstab \
       --no-machineid \
       --kernel-image "/lib/modules/${version}/vmlinuz" \
       --kver "${version}" \
       --kernel-cmdline "rw console=tty0 console=ttyS0 quiet" \
       --filesystems "ext4 btrfs erofs" \
-      --install 'basename grep fsck.ext4 /usr/lib/btrfs-migrator /usr/lib/etc-factory' \
+      --install 'basename grep fsck.ext4 /usr/lib/btrfs-migrator /usr/lib/etc-factory /usr/lib/rootfs-transition /usr/lib/systemd/system-generators/kde-linux-live-generator /usr/lib/systemd/system-generators/kde-linux-mount-generator /usr/lib/systemd/system/etc-factory.service /usr/lib/systemd/system/local-fs-pre.target.wants/etc-factory.service' \
       --include /tmp/initrd-overlay /

@@ -130,7 +130,7 @@ setcap 'cap_sys_nice=+ep' /usr/bin/kwin_wayland
 # Need to do it ourselves due to
 # https://gitlab.archlinux.org/pacman/pacman/-/work_items/320
 # TODO: remove once we stop outputting pkgbuilds in the packaging pipeline
-setcap 'cap_perfmon=+ep' /usr/lib/*/libexec/ksystemstats_intel_helper
+setcap 'cap_perfmon=+ep' /usr/lib/ksystemstats_intel_helper
 
 # Add a "command not found" handler for Bash. We have to modify the existing file because it
 # already exists, and we can't put this in /etc/profile or /etc/profile.d/ because for profile

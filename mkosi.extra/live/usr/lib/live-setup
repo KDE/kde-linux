@@ -32,9 +32,6 @@ useradd --create-home --comment "Live User" live
 usermod --append --groups wheel live
 passwd --delete live
 
-# systemd is a bit unreliable with creating the file if the timezone is UTC, so make sure it's in place
-ln -s ../usr/share/zoneinfo/UTC /etc/localtime
-
 timedatectl set-timezone UTC
 localectl set-locale C.UTF-8
 

@@ -42,9 +42,4 @@ install.tar.zst
 debug.tar.zst
 packages.txt
 /.bst/
-/elements/org.kde.*
-/flatpak-kde-runtime/
-/freedesktop-sdk/
-/gnome-build-meta/
-/org.kde.plasma/
 /po/

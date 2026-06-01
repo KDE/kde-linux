@@ -4,8 +4,9 @@
 
 kind: cmake
 build-depends:
+- freedesktop-sdk.bst:public-stacks/buildsystem-cmake.bst
 - freedesktop-sdk.bst:sdk.bst
-- org.kde.Sdk/qtbase.bst
+- qt/qtbase.bst
 - freedesktop-sdk.bst:components/polkit.bst
 - freedesktop-sdk.bst:components/polkit-gobject.bst
 

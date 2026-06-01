@@ -7,14 +7,20 @@ kind: cmake
 description: Calamares system installer
 
 build-depends:
-- org.kde.Sdk.bst
+- freedesktop-sdk.bst:public-stacks/buildsystem-cmake.bst
+- freedesktop-sdk.bst:sdk.bst
+- freedesktop-sdk.bst:components/mesa-headers.bst
+- components/extra-cmake-modules.bst
 
 depends:
 - freedesktop-sdk.bst:public-stacks/runtime-minimal.bst
-- freedesktop-sdk.bst:components/polkit.bst
+- qt.bst
 - components/polkit-qt-1.bst
 - components/yamlcpp.bst
+- components/kcoreaddons.bst
+- components/ki18n.bst
 - components/kpmcore.bst
+- components/kwidgetsaddons.bst
 
 variables:
   cmake-local: >-

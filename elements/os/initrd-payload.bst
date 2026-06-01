@@ -30,8 +30,5 @@ config:
 
 sources:
 - kind: local
-  path: files/os/initrd-payload
-  directory: payload-src
-- kind: local
   path: mkosi.extra
   directory: mkosi-extra-src

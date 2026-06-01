@@ -62,7 +62,6 @@ BUILDSTREAM_BOOTFS="buildstream-bootfs"
 BUILDSTREAM_TOOLFS="buildstream-toolfs"
 BUILDSTREAM_EFI="buildstream-efi"
 
-make bst
 cat <<EOF > "include/kde-linux-image.yml"
 # SPDX-FileCopyrightText: 2026 KDE Linux Contributors
 # SPDX-License-Identifier: BSD-2-Clause
@@ -202,7 +201,7 @@ systemd-repart \
     "$ISO"
 
 # Incase the owner is root
-chown -R `whoami`:`whoami` mkosi.output
+sudo chown -R `whoami`:`whoami` mkosi.output
 
 # Create a torrent for the image
 ./torrent-create.rb "$VERSION" "$OUTPUT" "$ISO"

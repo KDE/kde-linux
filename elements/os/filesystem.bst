@@ -6,6 +6,7 @@ kind: compose
 build-depends:
 - os/deps.bst
 - os/initial-scripts.bst
+- os/os-release.bst
 
 config:
   exclude:

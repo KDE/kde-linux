@@ -5,6 +5,19 @@
 runtime:
   - "%{libdir}/lib*.so*"
 
+cleanup:
+  - "%{prefix}/include"
+  - "%{prefix}/include/**"
+  - "%{prefix}/lib/cmake"
+  - "%{prefix}/lib/cmake/**"
+  - "%{prefix}/lib/systemd"
+  - "%{prefix}/lib/systemd/**"
+  - "%{prefix}/mkspecs"
+  - "%{prefix}/mkspecs/**"
+  - "%{prefix}/share/qlogging-categories5"
+  - "%{prefix}/share/qlogging-categories5/**"
+  - "**/*.la"
+
 devel:
   - "**/*.a"
   - "%{includedir}"
@@ -39,3 +52,7 @@ devel:
   - "**/*.prl"
   - "**/*.qmltypes"
   - "**/kde-qmlmodule.version"
+
+docs:
+  - "%{prefix}/share/runtime/docs"
+  - "%{prefix}/share/runtime/docs/**"
