@@ -9,15 +9,16 @@ image/x-xcf=org.gimp.GIMP.desktop;org.kde.gwenview.desktop
 
 # Discover
 x-scheme-handler/appstream=org.kde.discover.urlhandler.desktop
-application/vnd.debian.binary-package=org.kde.package-compatibility-helper.desktop
 
 # Package Compatibility Helper
+# This is KDE Linux specific
 application/x-ms-dos-executable=org.kde.package-compatibility-helper.desktop
 application/x-msi=org.kde.package-compatibility-helper.desktop
 application/x-ms-shortcut=org.kde.package-compatibility-helper.desktop
 application/vnd.microsoft.portable-executable=org.kde.package-compatibility-helper.desktop
 application/x-msdownload=org.kde.package-compatibility-helper.desktop
 application/x-rpm=org.kde.package-compatibility-helper.desktop
+application/vnd.debian.binary-package=org.kde.package-compatibility-helper.desktop
 
 # Archive Manager
 application/x-tar=org.kde.ark.desktop
@@ -55,6 +56,7 @@ application/zstd=org.kde.ark.desktop
 application/x-lha=org.kde.ark.desktop
 
 # Browser
+# Firefox is not the default in plasma-desktop but in KDE Linux
 x-scheme-handler/http=org.mozilla.firefox.desktop
 x-scheme-handler/https=org.mozilla.firefox.desktop
 
