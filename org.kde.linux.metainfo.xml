@@ -37,6 +37,7 @@ SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted
   <name xml:lang="sq">KDE Linux</name>
   <name xml:lang="sv">KDE Linux</name>
   <name xml:lang="tr">KDE Linux</name>
+  <name xml:lang="ug">KDE Linux</name>
   <name xml:lang="uk">KDE Linux</name>
   <name xml:lang="zh-CN">KDE Linux</name>
   <name xml:lang="zh-TW">KDE Linux</name>
@@ -71,6 +72,7 @@ SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted
   <summary xml:lang="sq">Një distribucion modern Linux-i i fokusuar në mjedisin e desktopit KDE Plasma.</summary>
   <summary xml:lang="sv">En modern Linux-distribution fokuserad på skrivbordsmiljön KDE Plasma</summary>
   <summary xml:lang="tr">KDE Plasma masaüstü ortamına odaklanan, çağdaş bir Linux dağtımı</summary>
+  <summary xml:lang="ug">KDE Plasma ئۈستەلئۈستى مۇھىتى ئاساسىدىكى زامانىۋى Linux تارقىتىش نەشرى</summary>
   <summary xml:lang="uk">Сучасний дистрибутив Linux з акцентом на стільничному середовищі Плазми KDE</summary>
   <summary xml:lang="zh-CN">一款专注于 KDE Plasma 桌面环境的现代 Linux 发行版</summary>
   <summary xml:lang="zh-TW">一個注重於 KDE Plasma 桌面環境的現代 Linux 發行版</summary>
@@ -319,6 +321,7 @@ SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted
   <developer_name xml:lang="sq">Skuadra e KDE Linux</developer_name>
   <developer_name xml:lang="sv">KDE Linux-gruppen</developer_name>
   <developer_name xml:lang="tr">KDE Linux Takımı</developer_name>
+  <developer_name xml:lang="ug">KDE Linux قوشۇنى</developer_name>
   <developer_name xml:lang="uk">Команда KDE Linux</developer_name>
   <developer_name xml:lang="zh-CN">KDE Linux 团队</developer_name>
   <developer_name xml:lang="zh-TW">KDE Linux 團隊</developer_name>
@@ -383,6 +386,7 @@ SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted
           <li xml:lang="sk">KDE Plasma</li>
           <li xml:lang="sl">KDE Plasma</li>
           <li xml:lang="tr">KDE Plasma</li>
+          <li xml:lang="ug">KDE Plasma</li>
           <li xml:lang="uk">Плазма KDE</li>
           <li xml:lang="zh-CN">KDE Plasma 桌面环境</li>
           <li xml:lang="zh-TW">KDE Plasma</li>
@@ -411,6 +415,7 @@ SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted
           <li xml:lang="sk">Linux kernel 6.7</li>
           <li xml:lang="sl">Linux kernel 6.7</li>
           <li xml:lang="tr">Linux 6.7</li>
+          <li xml:lang="ug">Linux kernel 6.7</li>
           <li xml:lang="uk">Ядро Linux 6.7</li>
           <li xml:lang="zh-CN">Linux 内核 6.7</li>
           <li xml:lang="zh-TW">Linux 核心 6.7</li>
@@ -467,6 +472,7 @@ SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted
           <li xml:lang="sk">Nový systémový inštalátor</li>
           <li xml:lang="sl">Nov namestitveni program sistema</li>
           <li xml:lang="tr">Yeni sistem kurucusu</li>
+          <li xml:lang="ug">يېڭى سىستېما ئورناتقۇچ</li>
           <li xml:lang="uk">Новий засіб встановлення системи</li>
           <li xml:lang="zh-CN">新版系统安装程序</li>
           <li xml:lang="zh-TW">新的系統安裝器</li>
