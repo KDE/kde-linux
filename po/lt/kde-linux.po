@@ -1,22 +1,22 @@
-# Uyghur translation for kde-linux.
-# Copyright (C) YEAR This file is copyright:
+# Lithuanian translations for kde-linux package.
+# Copyright (C) 2026 This file is copyright:
 # This file is distributed under the same license as the kde-linux package.
-# Abduqadir Abliz <sahranbay@gmail.com>, 2026., YEAR.
+# Automatically generated, 2026.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: kde-linux\n"
 "Report-Msgid-Bugs-To: https://bugs.kde.org\n"
 "POT-Creation-Date: 2026-03-18 00:43+0000\n"
-"PO-Revision-Date: 2026-05-30 17:21-0400\n"
-"Last-Translator: Abduqadir Abliz <sahranbay@gmail.com>\n"
-"Language-Team: Uyghur <kde-i18n-doc@kde.org>\n"
-"Language: ug\n"
+"PO-Revision-Date: 2026-06-03 12:55+0300\n"
+"Last-Translator: Automatically generated\n"
+"Language-Team: none\n"
+"Language: kde\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 3.9\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: Poedit 3.9\n"
 
 #: mkosi.extra/usr/lib/command-not-found-handler.py:72
 msgid ""
@@ -24,9 +24,9 @@ msgid ""
 "\n"
 "Instead, try using “{}”."
 msgstr ""
-"KDE Linux تا «{}» قورالى يوق.\n"
+"KDE Linux platinamajame pakete nėra „{}“ įrankio.\n"
 "\n"
-"«{}» نىڭ ئورنىغا ئىشلىتىڭ."
+"Vietoj jo, pabandykite naudoti „{}“."
 
 #: mkosi.extra/usr/lib/command-not-found-handler.py:74
 msgid ""
@@ -35,6 +35,11 @@ msgid ""
 "Graphical software is available using the Discover app center. To learn how "
 "to install software that’s not available in Discover, see {}"
 msgstr ""
+"KDE Linux platinamajame pakete nėra „{}“ paketų tvarkytuvės.\n"
+"\n"
+"Grafinė programinė įranga yra prieinama naudojant Discover programų centrą. "
+"Norėdami sužinoti daugiau apie tai, kaip įsidiegti programinę įrangą, kurios "
+"nėra Discover programų centre, žiūrėkite {}"
 
 #: mkosi.extra/usr/lib/command-not-found-handler.py:76
 msgid ""
@@ -43,6 +48,10 @@ msgid ""
 "\n"
 "To do so, follow the instructions at {}"
 msgstr ""
+"KDE Linux platinamajame pakete nėra iš anksto įdiegtos „{}“ paketų "
+"tvarkytuvės, bet ji gali būti pridėta rankiniu būdu.\n"
+"\n"
+"Norėdami tai atlikti, sekite nurodymus, esančius {}"
 
 #: mkosi.extra/usr/lib/command-not-found-handler.py:78
 msgid ""
@@ -51,3 +60,7 @@ msgid ""
 "If you know it exists, and it’s important for your workflow, learn about "
 "options for getting it at {}"
 msgstr ""
+"KDE Linux platinamajame pakete nėra „{}“ komandos.\n"
+"\n"
+"Jei esate tikri, kad ji yra ir ji svarbi jūsų darbo eigai, tada sužinokite "
+"apie variantus, kaip galite ją gauti, perėję į {}"
