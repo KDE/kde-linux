@@ -63,6 +63,12 @@ zstyle ':completion:*' menu no
 # Make completions case-insensitive.
 zstyle ':completion:*' matcher-list 'm:{a-z}={A-Z}'
 
+# Completions for kde-builder
+# The folder needs to be added before `compinit`
+if [[ -f $HOME/.local/bin/kde-builder ]];then
+  FPATH="$HOME/.local/share/kde-builder/data/completions/zsh:$FPATH"
+fi
+
 # Turn on completions.
 autoload -U compinit
 compinit
