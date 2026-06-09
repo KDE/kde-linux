@@ -1,0 +1,64 @@
+# Copyright (C) 2026 This file is copyright:
+# This file is distributed under the same license as the kde-linux package.
+# SPDX-FileCopyrightText: 2026 Shinjo Park <kde@peremen.name>
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: kde-linux\n"
+"Report-Msgid-Bugs-To: https://bugs.kde.org\n"
+"POT-Creation-Date: 2026-03-18 00:43+0000\n"
+"PO-Revision-Date: 2026-06-09 01:19+0200\n"
+"Last-Translator: Shinjo Park <kde@peremen.name>\n"
+"Language-Team: Korean <kde-kr@kde.org>\n"
+"Language: ko\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: Lokalize 25.12.3\n"
+
+#: mkosi.extra/usr/lib/command-not-found-handler.py:72
+msgid ""
+"KDE Linux does not include the “{}” tool.\n"
+"\n"
+"Instead, try using “{}”."
+msgstr ""
+"KDE 리눅스에는 \"{}\" 도구가 포함되어 있지 않습니다.\n"
+"\n"
+"대신 \"{}\" 도구를 사용하십시오."
+
+#: mkosi.extra/usr/lib/command-not-found-handler.py:74
+msgid ""
+"KDE Linux does not include the “{}” package manager.\n"
+"\n"
+"Graphical software is available using the Discover app center. To learn how "
+"to install software that’s not available in Discover, see {}"
+msgstr ""
+"KDE 리눅스에는 \"{}\" 패키지 관리자가 포함되어 있지 않습니다.\n"
+"\n"
+"그래픽 소프트웨어로 Discover 앱 센터를 사용할 수 있습니다. Discover에 없는 소"
+"프트웨어를 설치하려면 {} 문서를 참조하십시오"
+
+#: mkosi.extra/usr/lib/command-not-found-handler.py:76
+msgid ""
+"KDE Linux does not pre-install the “{}” package manager, but it can be added "
+"manually.\n"
+"\n"
+"To do so, follow the instructions at {}"
+msgstr ""
+"KDE 리눅스에서는 \"{}\" 패키지 관리자를 사전 설치하지 않지만 수동으로 추가할 "
+"수 있습니다.\n"
+"\n"
+"직접 추가하려면 {} 문서를 참조하십시오"
+
+#: mkosi.extra/usr/lib/command-not-found-handler.py:78
+msgid ""
+"KDE Linux does not include the “{}” command.\n"
+"\n"
+"If you know it exists, and it’s important for your workflow, learn about "
+"options for getting it at {}"
+msgstr ""
+"KDE 리눅스에는 \"{}\" 명령이 포함되어 있지 않습니다.\n"
+"\n"
+"이 명령이 존재한다는 것을 알고 있고, 작업에 중요한 명령이라면, 해당 명령을 설"
+"치하는 방법은 {} 문서를 참조하십시오"
