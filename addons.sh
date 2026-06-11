@@ -7,7 +7,7 @@ set -ex
 rm -vf ./*.addon.efi
 rm -rfv /boot/EFI/Linux/kde-linux_*.efi.extra.d
 
-if [ "$@" != "" ]; then
+if [ "$*" != "" ]; then
   # any argument de-addons
   exit 0
 fi
