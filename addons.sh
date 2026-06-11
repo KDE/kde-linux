@@ -5,7 +5,7 @@
 set -ex
 
 rm -vf ./*.addon.efi
-rm -rfv /efi/EFI/Linux/kde-linux_*.efi.extra.d
+rm -rfv /boot/EFI/Linux/kde-linux_*.efi.extra.d
 
 if [ "$@" != "" ]; then
   # any argument de-addons
@@ -22,8 +22,8 @@ ukify build \
   --cmdline 'init=/usr/lib/systemd/systemd-bootchart' \
   --output bootchart.addon.efi
 
-efis=(/efi/EFI/Linux/kde-linux_*.efi)
+efis=(/boot/EFI/Linux/kde-linux_*.efi)
 efi=${efis[-1]}
 name=$(basename "$efi")
-mkdir "/efi/EFI/Linux/$name.extra.d"
-cp -v ./*.addon.efi "/efi/EFI/Linux/$name.extra.d"
+mkdir "/boot/EFI/Linux/$name.extra.d"
+cp -v ./*.addon.efi "/boot/EFI/Linux/$name.extra.d"
