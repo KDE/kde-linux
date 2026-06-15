@@ -33,10 +33,15 @@ for APP in "$FACTORY_DIR"/*; do
 
     # See if we have a special repo to install it from
     NON_RDNS_NAME="${APP#*.*.}"
-    SPECIAL_APP_REMOTE=$(rg "$NON_RDNS_NAME" "$REPO_CONFIG" | head -n 1 | cut -d '"' -f 2 || true)
-    if [[ -n "$SPECIAL_APP_REMOTE" ]]; then
-        echo "$APP needs to be installed from a special repo: $SPECIAL_APP_REMOTE"
-        REMOTE="$SPECIAL_APP_REMOTE"
+    SPECIAL_APP_REMOTE_NAME=$(rg "$NON_RDNS_NAME" "$REPO_CONFIG" | head -n 1 | cut -d '"' -f 2 || true)
+    if [[ -n "$SPECIAL_APP_REMOTE_NAME" ]]; then
+        echo "$APP needs to be installed from a special repo: $SPECIAL_APP_REMOTE_NAME"
+        REMOTE="$SPECIAL_APP_REMOTE_NAME"
+        SPECIAL_APP_REMOTE_URL=$(rg -A 1 "$SPECIAL_APP_REMOTE_NAME" "$REPO_CONFIG" | rg url | cut -d "=" -f 2 || true)
+        SPECIAL_APP_REMOTE_FLATPAK_REPO="${SPECIAL_APP_REMOTE_URL}${SPECIAL_APP_REMOTE_NAME}.flatpakrepo"
+        echo "Adding its repository from $SPECIAL_APP_REMOTE_FLATPAK_REPO"
+        flatpak remote-modify --gpg-verify "$SPECIAL_APP_REMOTE_NAME"
+        flatpak remote-add --if-not-exists "$SPECIAL_APP_REMOTE_NAME" "$SPECIAL_APP_REMOTE_FLATPAK_REPO"
     fi
 
     echo "Installing $APP from $REMOTE…"
