@@ -5,11 +5,8 @@
 Description=Install any new Flatpak apps added to booted OS version
 ConditionPathIsReadWrite=/etc
 ConditionKernelCommandLine=!kde-linux.live=1
-DefaultDependencies=no
 Wants=network-online.target
 After=network-online.target
-Conflicts=shutdown.target
-Before=shutdown.target
 
 [Service]
 Type=oneshot
