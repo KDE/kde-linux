@@ -49,6 +49,6 @@ for APP in "$FACTORY_DIR"/*; do
     echo "Installing $APP from $REMOTE…"
     # If the app is successfully installed, record that we preinstalled it,
     # so that we know not to reverse a future uninstall by the user.
-    flatpak install --system --noninteractive --assumeyes --sideload-repo=/usr/share/factory/var/lib/flatpak/repo "$REMOTE" "$APP" &&
+    flatpak install --system --noninteractive --assumeyes "$REMOTE" "$APP" &&
         echo $APP >> $EVER_PREINSTALLED_APPS_FILE
 done

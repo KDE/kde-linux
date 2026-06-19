@@ -4,10 +4,10 @@
 [Unit]
 Description=Install any new Flatpak apps added to booted OS version
 ConditionPathIsReadWrite=/etc
-ConditionNeedsUpdate=|/etc
+ConditionKernelCommandLine=!kde-linux.live=1
 DefaultDependencies=no
-After=local-fs.target
-Before=sysinit.target systemd-update-done.service
+Wants=network-online.target
+After=network-online.target
 Conflicts=shutdown.target
 Before=shutdown.target
 
