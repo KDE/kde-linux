@@ -1,0 +1,16 @@
+# SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL
+# SPDX-FileCopyrightText: 2026 Philip Grant <pg_kde_invent@runbox.com>
+
+[Unit]
+Description=Write the initial list of ever preinstalled Flatpaks on older systems
+ConditionPathExists=!/var/lib/kde-linux/ever-preinstalled-flatpak-apps
+ConditionKernelCommandLine=!kde-linux.live=1
+DefaultDependencies=no
+After=local-fs.target
+Before=kde-linux-install-new-flatpak-apps.service plasma-setup.service
+Conflicts=shutdown.target
+Before=shutdown.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/lib/seed-preinstalled-flatpak-list

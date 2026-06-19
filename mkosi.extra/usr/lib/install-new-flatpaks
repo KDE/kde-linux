@@ -7,8 +7,9 @@ set -eu
 FACTORY_DIR="/usr/share/factory/var/lib/flatpak/app"
 REPO_CONFIG="/usr/share/factory/var/lib/flatpak/repo/config"
 DEFAULT_REMOTE="flathub"
-INSTALLED_APPS=$(flatpak list --app --columns=application)
-CHANGE_HISTORY=$(flatpak history --columns=change,application)
+INSTALLED_APPS=$(tr '\n' ' ' <<< $(flatpak list --app --columns=application))
+EVER_PREINSTALLED_APPS_FILE="/var/lib/kde-linux/ever-preinstalled-flatpak-apps"
+EVER_PREINSTALLED_APPS=$(tr '\n' ' ' < $EVER_PREINSTALLED_APPS_FILE)
 
 echo "Looking in $FACTORY_DIR for new pre-installed apps that need installing…"
 
@@ -18,14 +19,15 @@ for APP in "$FACTORY_DIR"/*; do
     APP=$(basename "$APP")
 
     # Skip if it's already installed
-    if [[ "$INSTALLED_APPS" == *"$APP"* ]]; then
+    if [[ " $INSTALLED_APPS " == *" $APP "* ]]; then
         echo "Skipping $APP (already installed)"
         continue
     fi
 
-    # Skip if the user uninstalled it
-    if rg "$APP" <<<"$CHANGE_HISTORY" | tail -n 1 | rg uninstall >/dev/null; then
-        echo "Skipping $APP (previously uninstalled by user)"
+    # Skip it if it was ever preinstalled. (If so, then the user must have chosen
+    # to uninstall it, so we don't want to reinstall it.)
+    if [[ " $EVER_PREINSTALLED_APPS " == *" $APP "* ]]; then
+        echo "Skipping $APP (was preinstalled, but then uninstalled by user)"
         continue
     fi
 
@@ -45,5 +47,8 @@ for APP in "$FACTORY_DIR"/*; do
     fi
 
     echo "Installing $APP from $REMOTE…"
-    flatpak install --system --noninteractive --assumeyes --sideload-repo=/usr/share/factory/var/lib/flatpak/repo "$REMOTE" "$APP"
+    # If the app is successfully installed, record that we preinstalled it,
+    # so that we know not to reverse a future uninstall by the user.
+    flatpak install --system --noninteractive --assumeyes --sideload-repo=/usr/share/factory/var/lib/flatpak/repo "$REMOTE" "$APP" &&
+        echo $APP >> $EVER_PREINSTALLED_APPS_FILE
 done

@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+# SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL
+# SPDX-FileCopyrightText: 2026 Philip Grant <pg_kde_invent@runbox.com>
+
+set -eu
+
+EVER_PREINSTALLED_APPS_FILE="/var/lib/kde-linux/ever-preinstalled-flatpak-apps"
+
+if [[ -f /etc/plasma-setup-done ]]; then
+    # This is an "old" system that was installed without the "ever-preinstalled-flatpak-apps"
+    # file being created at first boot, We create it with a hardcoded list of the apps
+    # that were preinstalled before Nov 2025. (We exclude qrca and keepsecret, which
+    # should have been preinstalled before the "ever-preinstalled-flatpak-apps" file
+    # was created, but on many systems weren't, because the "kde-linux-install-new-flatpak-apps"
+    # service wasn't enabled.)
+    echo "Pre-existing KDE Linux install: using preinstalled app list as of Nov 2025"
+    cat <<EOF > $EVER_PREINSTALLED_APPS_FILE
+org.kde.gwenview
+org.kde.okular
+org.kde.kwrite
+org.kde.haruna
+org.kde.ark
+org.kde.kcalc
+org.mozilla.firefox
+EOF
+else
+    # This is a brand new system. The set of apps that have ever been preinstalled on the system
+    # is exactly those in /usr/share/factory/var/lib/flatpak/app
+    echo "New KDE Linux install: using preinstalled app list from factory directory"
+    ls /usr/share/factory/var/lib/flatpak/app > $EVER_PREINSTALLED_APPS_FILE
+fi
