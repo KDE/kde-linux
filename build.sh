@@ -204,4 +204,4 @@ zstd --threads=0 --rm ${OUTPUT}_root-x86-64.tar
 
 # efi images and torrents are 700, make them readable so the server can serve them
 chmod go+r "$OUTPUT".* ./mkosi.output/*.efi ./mkosi.output/*.torrent
-ls -lah
+ls -lahtr "${OUTPUT}"*
