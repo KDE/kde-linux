@@ -33,6 +33,13 @@ If you want to boot the KDE Linux `.raw` image in a virtual machine (like QEMU/v
 For detailed setup instructions, refer to the [Installing in a Virtual Machine Wiki Page](https://linux.kde.org/docs/install-vm/).
 
 
+## Test changes with OpenQA
+KDE Linux is automatically tested through [OpenQA](https://invent.kde.org/kde-linux/os-autoinst-distri-kdelinux). The OpenQA web UI is located [here](https://openqa.kde-linux.haraldsitter.eu/tests).
+Every image built from the protected default branch is staged to storage before it goes live, then handed to [OpenQA](https://invent.kde.org/kde-linux/os-autoinst-distri-kdelinux) for automated boot and desktop testing. Only once those tests pass does the publish stage merge the staged image into the public update channel. Open an MR to see the same machinery run against your changes. 
+Alternatively, go to the [OpenQA testing repository](https://invent.kde.org/kde-linux/os-autoinst-distri-kdelinux) and follow the instructions to test an image on a local OpenQA instance.
+Note that due to the way testing is implemented, restarting tests and downloading assets from the web UI is not supported - this is to be done through restarting the relevant CI job. 
+
+
 ## Send a patch to it
 https://invent.kde.org/groups/kde-linux/-/merge_requests/
 
