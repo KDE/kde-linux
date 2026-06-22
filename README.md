@@ -49,5 +49,7 @@ Not sure what to work on?
 
 
 ## Learn more about it
+- https://linux.kde.org/docs/roadmap
+- https://linux.kde.org/docs/governance
 - https://linux.kde.org/docs/background
 - https://community.kde.org/KDE_Linux/Background_information
