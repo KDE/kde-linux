@@ -49,7 +49,7 @@ ROOTFS_CAIBX=${OUTPUT}_root-x86-64.caibx
 ROOTFS_EROFS=${OUTPUT}_root-x86-64.erofs # Output erofs image path
 IMG=${OUTPUT}.raw                    # Output raw image path
 
-EFI_BASE=kde-linux_${VERSION} # Base name of the UKI in the image's ESP
+EFI_BASE=kde-linux_${VERSION} # Base name of the UKI in the image's ESP (exported so it can be used in basic-test-efi-addon.sh)
 EFI=${EFI_BASE}+3.efi # Name of primary UKI in the image's ESP
 
 # Clean up old build artifacts.
@@ -185,6 +185,9 @@ systemd-repart --no-pager --empty=allow --size=auto --dry-run=no --root=kde-linu
 
 # Incase the owner is root
 chown -R user:user mkosi.output
+
+./basic-test.py "$IMG" "$EFI_BASE.efi" || exit 1
+rm ./mkosi.output/*.test.raw
 
 # Create a torrent for the image
 ./torrent-create.rb "$VERSION" "$OUTPUT" "$IMG"
