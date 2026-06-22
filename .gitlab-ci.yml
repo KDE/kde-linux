@@ -62,10 +62,11 @@ trigger-openqa:
       artifacts: true
   trigger:
     project: kde-linux/os-autoinst-distri-kdelinux
-    branch: master
+    branch: $OPENQA_BRANCH
     strategy: depend
   variables:
     IMAGE_URL: $IMAGE_URL
+    OPENQA_BRANCH: master
 
 # Build and stage to storage.
 imaging+stage:
@@ -130,3 +131,4 @@ publish:
     - curl -s https://gitlab.com/gitlab-org/incubation-engineering/mobile-devops/download-secure-files/-/raw/main/installer | bash
     - ./upload.sh --publish
   artifacts: *artifacts
+  
