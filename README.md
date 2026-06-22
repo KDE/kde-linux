@@ -13,7 +13,7 @@ The goal of KDE Linux is to create a bulletproof OS suitable for normal people, 
 
 
 ## Current state
-KDE Linux has released the *Testing Edition*, which provides built-from-git-master versions of Plasma and KDE apps. General daily driving should be usable for adventurous people, but not regular people. See https://linux.kde.org for more details.
+KDE Linux has released the *Testing Edition*, which provides built-from-git-master versions of Plasma and KDE apps. **General daily driving should be usable for adventurous people with backups, but not yet for regular people.** See https://linux.kde.org for more details.
 
 Note that the [QA & testing infrastructure](https://invent.kde.org/kde-linux/os-autoinst-distri-kdelinux/-/work_items/2) needs more thoroughness and automation, so expect some bad builds from time to time that you'll need to roll back.
 
