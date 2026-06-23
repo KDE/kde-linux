@@ -13,16 +13,16 @@ mv upload-tree upload-tree-old || true
 if [ ! -d upload-tree ]; then
     mkdir upload-tree
     for f in "$OUTDIR"/*.iso "$OUTDIR"/*.erofs "$OUTDIR"/*.efi; do
-        if [[ $f == *.test.iso ]]; then
-            # Skip test images
-            continue
-        fi
         mv "$f" upload-tree/
     done
 fi
 
 go -C ./token-redeemer/ run .
 go -C ./uploader/ run . --remote "s3+https://storage.kde.org/ci-artifacts/$CI_PROJECT_PATH/j/$CI_JOB_ID"
+
+# Point OpenQA at the image we just uploaded.
+ISO_FILE=$(find upload-tree -maxdepth 1 -name '*.iso' | head -1 | xargs -r basename)
+echo "IMAGE_URL=https://storage.kde.org/ci-artifacts/$CI_PROJECT_PATH/j/$CI_JOB_ID/$ISO_FILE" >> build.env
 
 echo "𓃀𓂝𓏏𓃀𓂝𓏏𓃀𓂝𓏏𓃀𓂝𓏏𓃀𓂝𓏏𓃀𓂝𓏏𓃀𓂝𓏏𓃀𓂝𓏏𓃀𓂝𓏏𓃀𓂝𓏏𓃀𓂝𓏏𓃀𓂝𓏏𓃀𓂝𓏏𓃀𓂝𓏏"
 echo "You can find the raw disk images at:"

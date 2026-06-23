@@ -10,19 +10,33 @@ include:
 stages:
   - validate
   - start
+  - test
+  - publish
 
 imaging:
   stage: start
   tags:
     - VM
     - amd64
+  # IMAGING_MODE selects what we do with the built image:
+  #   test  - throwaway image, uploaded to ci-artifacts and given to OpenQA for testing.
+  #   stage - signed and staged to storage for publishing, gated on OpenQA tests.
   rules:
     - if: $CI_MERGE_REQUEST_DRAFT == "true"
       when: manual
+      variables:
+        IMAGING_MODE: test
     - if: $CI_COMMIT_BRANCH =~ /^work\//
       when: manual
-    - if: $CI_COMMIT_REF_PROTECTED != 'true' || $CI_DEFAULT_BRANCH != $CI_COMMIT_REF_NAME || $CI_PROJECT_PATH != 'kde-linux/kde-linux'
+      variables:
+        IMAGING_MODE: test
+    - if: $CI_COMMIT_REF_PROTECTED == 'true' && $CI_DEFAULT_BRANCH == $CI_COMMIT_REF_NAME && $CI_PROJECT_PATH == 'kde-linux/kde-linux'
       when: always
+      variables:
+        IMAGING_MODE: stage
+    - when: always
+      variables:
+        IMAGING_MODE: test
   allow_failure: false
   image: storage.kde.org/vm-images/kde-linux-builder
   id_tokens: &tokens
@@ -33,34 +47,59 @@ imaging:
   script:
     - sudo cp /etc/pacman.conf.nolinux /etc/pacman.conf # can be dropped once an image rebuild has happened after 2026-05-27
     - sudo ./build.sh --force --debug # bootstap.sh happens as part of CI image build
+    - if [ "$IMAGING_MODE" = stage ]; then ./upload.sh --stage; fi
   after_script:
+    - if [ "$IMAGING_MODE" = stage ] && [ "$CI_JOB_STATUS" = success ]; then exit 0; fi
     - ./upload-to-storage.sh || true
   artifacts: &artifacts
     expire_in: 4 weeks
     when: always
     paths:
       - "**/erofs.log"
+    reports:
+      dotenv: build.env
 
-imaging+publish:
-  stage: start
+# Run OpenQA testing on the built image.
+trigger-openqa:
+  stage: test
+  rules:
+    - if: $CI_PROJECT_PATH != 'kde-linux/kde-linux'
+      when: never
+    - if: $CI_MERGE_REQUEST_DRAFT == "true"
+      when: manual
+    - if: $CI_COMMIT_BRANCH =~ /^work\//
+      when: manual
+    - when: on_success
+  needs:
+    - job: imaging
+      artifacts: true
+  trigger:
+    project: kde-linux/os-autoinst-distri-kdelinux
+    branch: $OPENQA_BRANCH
+    strategy: depend
+  variables:
+    IMAGE_URL: $IMAGE_URL
+    STAGING_CHANNEL_URL: $STAGING_CHANNEL_URL
+    OPENQA_BRANCH: master
+
+# Publish the staged image in storage.
+publish:
+  stage: publish
   tags:
     - VM
     - amd64
   rules:
-    # NOTE: these are different from the regular imaging job!
     - if: $CI_COMMIT_REF_PROTECTED == 'true' && $CI_DEFAULT_BRANCH == $CI_COMMIT_REF_NAME && $CI_PROJECT_PATH == 'kde-linux/kde-linux'
-      when: always
+      when: on_success
+  needs:
+    - job: imaging
+      artifacts: false
+    - job: trigger-openqa
   allow_failure: false
   image: storage.kde.org/vm-images/kde-linux-builder
   id_tokens: *tokens
   variables: *variables
   script:
     - sudo cp /etc/pacman.conf.nolinux /etc/pacman.conf # can be dropped once an image rebuild has happened after 2026-05-27
-    - sudo pacman --sync --refresh --noconfirm curl which git
-    - curl -s https://gitlab.com/gitlab-org/incubation-engineering/mobile-devops/download-secure-files/-/raw/main/installer | bash
-    - sudo ./build.sh --force --debug # bootstap.sh happens as part of CI image build
-    - ./upload.sh
-  after_script:
-    # Upload broken images to Harald for inspection
-    - "[ $CI_JOB_STATUS == 'success' ] || ./upload-to-storage.sh || true"
+    - ./upload.sh --publish
   artifacts: *artifacts
