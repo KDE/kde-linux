@@ -1,4 +1,4 @@
-module invent.kde.org/kde-linux/kde-linux/uploader
+module invent.kde.org/kde-linux/kde-linux/publisher
 
 go 1.23.0
 

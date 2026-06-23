@@ -17,9 +17,9 @@ import (
 	"strings"
 
 	"gopkg.in/yaml.v2"
+	"invent.kde.org/kde-linux/kde-linux/minioauth"
 
 	"github.com/minio/minio-go/v7"
-	"github.com/minio/minio-go/v7/pkg/credentials"
 )
 
 type release struct {
@@ -29,36 +29,12 @@ type release struct {
 func connectToMinIO() *minio.Client {
 	endpoint := "storage.kde.org"
 
-	// Below is a huge code dupe from uploader/main.go, should be shared somehow
-	awsSection, err := readConfigAWS("default")
+	minioClient, err := minioauth.Connect(endpoint)
 	if err != nil {
-		log.Fatalln("Failed to read AWS config:", err)
-	}
-	accessKeyID := awsSection.AccessKeyId
-	if accessKeyID == "" {
-		log.Fatalln("AWS access key ID is empty")
-	}
-	secretAccessKey := awsSection.SecretKey
-	if secretAccessKey == "" {
-		log.Fatalln("AWS secret access key is empty")
-	}
-	sessionToken := awsSection.SessionToken
-	if secretAccessKey == "" {
-		log.Fatalln("AWS session token is empty")
-	}
-	useSSL := true
-
-	// Initialize minio client object.
-	minioClient, err := minio.New(endpoint, &minio.Options{
-		Creds:           credentials.NewStaticV4(accessKeyID, secretAccessKey, sessionToken),
-		Secure:          useSSL,
-		TrailingHeaders: true,
-	})
-	if err != nil {
-		log.Fatalln("Failed to create MinIO client:", err)
+		log.Fatalln("Failed to connect to MinIO:", err)
 	}
 
-	buckets, err := minioClient.ListBuckets(context.Background())
+	buckets, err := minioauth.ListBuckets(minioClient)
 	if err != nil {
 		log.Fatalln("Failed to list buckets:", err)
 	}

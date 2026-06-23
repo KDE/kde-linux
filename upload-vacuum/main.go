@@ -33,8 +33,8 @@ func connectToHost(user, host, identity string) (*ssh.Client, *ssh.Session, erro
 		log.Fatalf("unable to parse private key: %v", err)
 	}
 
-	// You can use `ssh-keyscan origin.files.kde.org` to get the host key
-	_, _, hostKey, _, _, err := ssh.ParseKnownHosts([]byte("origin.files.kde.org ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILUjdH4S7otYIdLUkOZK+owIiByjNQPzGi7GQ5HOWjO6"))
+	// You can use `ssh-keyscan tinami.kde.org` to get the host key
+	_, _, hostKey, _, _, err := ssh.ParseKnownHosts([]byte("tinami.kde.org ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILUjdH4S7otYIdLUkOZK+owIiByjNQPzGi7GQ5HOWjO6"))
 	if err != nil {
 		log.Fatalf("unable to parse host public key: %v", err)
 	}
@@ -120,6 +120,7 @@ func readSHA256SUMS(client *sftp.Client, path string) map[string]string {
 
 func readSHA256s(toKeep []string, releases map[string]release, existingSums map[string]string) []string {
 	sha256s := []string{}
+	rootPath := strings.TrimRight(os.Getenv("SSH_ROOT_PATH"), "/")
 	for _, key := range toKeep {
 		artifacts := releases[key].artifacts
 		sort.Strings(artifacts) // Sort artifacts to ensure consistent order
@@ -129,7 +130,7 @@ func readSHA256s(toKeep []string, releases map[string]release, existingSums map[
 				// https://github.com/systemd/systemd/issues/38605
 				continue
 			}
-			if strings.HasPrefix(artifact, "/home/kdeos/kde-linux/kdeos_") {
+			if rootPath != "" && strings.HasPrefix(artifact, rootPath+"/kdeos_") {
 				// HACK 2025-08-20 sha256s of the files are broken, only drop this if when they are fixed (possibly just a matter of time)
 				continue
 			}
@@ -235,7 +236,10 @@ func main() {
 	identity := os.Getenv("SSH_IDENTITY")
 	host := os.Getenv("SSH_HOST")
 	user := os.Getenv("SSH_USER")
-	path := os.Getenv("SSH_PATH")
+	path := os.Getenv("SSH_SYSUPDATE_PATH")
+	if path == "" {
+		path = os.Getenv("SSH_PATH")
+	}
 	root_path := os.Getenv("SSH_ROOT_PATH")
 
 	var errs []error
@@ -249,7 +253,7 @@ func main() {
 		errs = append(errs, errors.New("SSH_USER not set"))
 	}
 	if path == "" {
-		errs = append(errs, errors.New("SSH_PATH not set"))
+		errs = append(errs, errors.New("SSH_SYSUPDATE_PATH or SSH_PATH not set"))
 	}
 	if root_path == "" {
 		errs = append(errs, errors.New("SSH_ROOT_PATH not set"))

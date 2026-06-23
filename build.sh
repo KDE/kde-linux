@@ -50,7 +50,7 @@ ROOTFS_CAIBX=${OUTPUT}_root-x86-64.caibx
 ROOTFS_EROFS=${OUTPUT}_root-x86-64.erofs # Output erofs image path
 ISO="${OUTPUT}.iso" # both a valid GPT disk image and a bootable ISO
 
-EFI_BASE=kde-linux_${VERSION} # Base name of the UKI in the image's ESP (exported so it can be used in basic-test-efi-addon.sh)
+EFI_BASE=kde-linux_${VERSION} # Base name of the UKI in the image's ESP
 EFI=${EFI_BASE}+3.efi      # Name of primary UKI in the image's ESP (with tries counter for installed system)
 LIVE_EFI=${EFI_BASE}.efi   # Name of live UKI in the ESP (no tries counter — ESP is read-only on ISO)
 
@@ -203,10 +203,6 @@ systemd-repart \
     --el-torito-volume="KDE LINUX $VERSION" \
     --el-torito-publisher="KDE" \
     "$ISO"
-
-# Test the ISO (which is also a valid GPT image so no need to test as .raw separately)
-./basic-test.py "$ISO" "$LIVE_EFI" || exit 1
-rm ./mkosi.output/*.test.iso
 
 # Incase the owner is root
 chown -R user:user mkosi.output

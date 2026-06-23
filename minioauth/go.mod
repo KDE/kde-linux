@@ -1,4 +1,4 @@
-module invent.kde.org/kde-linux/kde-linux/uploader
+module invent.kde.org/kde-linux/kde-linux/minioauth
 
 go 1.23.0
 
@@ -6,11 +6,8 @@ toolchain go1.24.4
 
 require (
 	github.com/minio/minio-go/v7 v7.0.95
-	invent.kde.org/kde-linux/kde-linux/minioauth v0.0.0
 	gopkg.in/ini.v1 v1.67.0
 )
-
-replace invent.kde.org/kde-linux/kde-linux/minioauth => ../minioauth
 
 require (
 	github.com/davecgh/go-spew v1.1.1 // indirect

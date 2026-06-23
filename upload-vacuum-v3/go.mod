@@ -6,9 +6,12 @@ require (
 	github.com/minio/minio-go/v7 v7.0.100
 	github.com/pkg/sftp v1.13.6
 	golang.org/x/crypto v0.50.0
+	invent.kde.org/kde-linux/kde-linux/minioauth v0.0.0
 	gopkg.in/ini.v1 v1.67.1
 	gopkg.in/yaml.v2 v2.4.0
 )
+
+replace invent.kde.org/kde-linux/kde-linux/minioauth => ../minioauth
 
 require (
 	github.com/dustin/go-humanize v1.0.1 // indirect
