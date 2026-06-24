@@ -3,7 +3,6 @@
 
 kind: stack
 
-depends: []
-
-# gammaray # GUI debugging for Qt apps
-# orca # screen reader
+depends:
+- components/gammaray.bst # gammaray: GUI debugging for Qt apps
+- components/orca.bst # orca: screen reader

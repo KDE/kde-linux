@@ -1,0 +1,4 @@
+# SPDX-FileCopyrightText: Arch Linux Contributors
+# SPDX-License-Identifier: ISC
+
+emulate sh -c 'source /etc/profile'

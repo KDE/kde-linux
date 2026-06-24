@@ -53,29 +53,46 @@ depends:
 - freedesktop-sdk.bst:components/xfsprogs.bst # xfsprogs: Manipulating XFS filesystems; used by kpmcore
 - freedesktop-sdk.bst:extensions/vainfo/libva-utils.bst # libva-utils: CLI tools for interacting with and debugging GPU acceleration
 - gnome-build-meta.bst:core-deps/sane-backends.bst # sane: scanner udev rules - everything else in the package is deleted later
-# - gnome-build-meta.bst:core-deps/system-config-printer.bst # system-config-printer: Local printer auto-discovery
 - gnome-build-meta.bst:gnomeos-deps/android-udev-rules.bst # android-udev: udev rules for accessing Android devices
-# - gnome-build-meta.bst:gnomeos-deps/fprintd.bst # fprintd: Fingerprint authentication
-- gnome-build-meta.bst:gnomeos-deps/mokutil.bst # mokutil: To manage the Machine Owner Key list for Shim; needs low-level access to work
-- gnome-build-meta.bst:gnomeos-deps/spice-vdagent.bst # spice-vdagent: QEMU's SPICE counterpart to enable desktop integration
+- gnome-build-meta.bst:gnomeos-deps/mokutil.bst # mokutil: To manage the Machine Owner Key (MOK) list for Shim (only for advanced users); needs low-level access to work
+- gnome-build-meta.bst:gnomeos-deps/spice-vdagent.bst # spice-vdagent: QEMU's SPICE counterpart to enable desktop integration (e.g. clipboard sharing, dynamic resolution, etc)
 - gnome-build-meta.bst:gnomeos-deps/swtpm.bst # swtpm: TPM emulator used by Incus VMs
 - gnome-build-meta.bst:gnomeos-deps/virtiofsd.bst # virtiofsd: Enables access to host folders from virt-manager and incus VMs
 - gnome-build-meta.bst:gnomeos-deps/zram-generator.bst # zram-generator: use compressed zram for swap
+- components/cups-browsed.bst # cups-browsed: Pre-2012 network printer auto-discovery
+- components/ipp-usb.bst # ipp-usb: Connect to post-2012 driverless printers over USB
+- components/system-config-printer.bst # system-config-printer: Local printer auto-discovery
 - components/fatresize.bst # fatresize: Resizing FAT filesystems; used by kpmcore
 - components/gutenprint.bst # gutenprint: FOSS drivers for lots of pre-2012 printers
-- components/inotify-tools.bst # ; for kmscon-launch-gui waiting mechanism
+- components/inotify-tools.bst # inotify-tools: ; for kmscon-launch-gui waiting mechanism
 - components/ntfsprogs.bst # ntfsprogs: Manipulating ntfs filesystems; used by kpmcore
 - components/powertop.bst # powertop: Energy monitoring; also used in our energy tuning scripts
-- components/solaar-udev.bst # solaar: Logitech Unify receiver udev rules
+- components/solaar-udev.bst # solaar: Logitech Unify reciever udev rules - everything else in the package is deleted later
 - components/tuned.bst # tuned-ppd: Power profiles
 - components/ydotool.bst # ydotool: Basic TUI and GUI app automation; needs low-level access to work
 - components/kmscon.bst # kmscon: modern userspace getty and virtual terminal replacement
-- components/acsccid.bst # ACS CCID smart card readers
+- components/acsccid.bst # acsccid: ACS CCID smart card readers
+- components/bmusb.bst # bmusb: Specialty video capture/playback boxes from BlackMagicDesign
+- components/fprintd.bst # fprintd: Fingerprint authentication
+- components/pam-u2f.bst # pam-u2f: 2nd factor PAM support for Yubikey hardware authenticators
+- components/thermald.bst # thermald: Improved thermal management and performance for Intel CPUs
+- components/udev-hid-bpf.bst # udev-hid-bpf: Many drawing tablets
+- components/usb_modeswitch.bst # usb_modeswitch: WiFi dongles that have a flash storage mode preventing use OOTB
+- gnome-build-meta.bst:core-deps/libusbmuxd.bst # usbmuxd: Apple iOS devices via USB
+- components/btrfsmaintenance.bst # btrfsmaintenance: Provides Systemd Services for BTRFS Operations like scrubbing and balancing
+- components/efibootmgr.bst # efibootmgr: EFI dump/management tools; needs low-level access to work
+- components/open-vm-tools.bst # open-vm-tools: Integration for VMWare virtualization software
+- gnome-build-meta.bst:gnomeos-deps/qemu-user.bst # qemu-guest-agent: Integration for QEMU
+- components/virtualbox-guest-utils.bst # virtualbox-guest-utils: integration for VirtualBox
 
 (?):
 - arch == 'x86_64':
     depends:
       (>):
       - freedesktop-sdk.bst:extensions/platform-vaapi-intel/intel-media-driver.bst # intel-media-driver: Hardware accelerated video on newer Intel GPUs
+      #- components/libva-intel-driver.bst # libva-intel-driver: Hardware accelerated video on old Intel GPUs
       - freedesktop-sdk.bst:extensions/platform-vaapi-nvidia/nvidia-vaapi-driver.bst # libva-nvidia-driver: Hardware accelerated video on NVIDIA GPUs
+      - components/nvidia-prime.bst # nvidia-prime: prime-run command; used in kio via Dolphin, Plasma, KRunner
+      - gnome-build-meta.bst:gnomeos-deps/nvidia-drivers-modules.bst # nvidia-open: Open kernel modules for NVIDIA GPUs
+      - gnome-build-meta.bst:gnomeos-deps/nvidia-drivers-libs.bst # nvidia-utils: NVIDIA userspace libraries and Vulkan support
       - gnome-build-meta.bst:gnomeos-deps/intel-ucode.bst

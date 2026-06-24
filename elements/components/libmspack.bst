@@ -1,0 +1,22 @@
+# SPDX-FileCopyrightText: 2026 Aleix Pol Gonzalez <aleixpol@kde.org>
+# SPDX-License-Identifier: BSD-2-Clause
+
+# Inspired by ArchLinux's PKGBUILD: https://gitlab.archlinux.org/archlinux/packaging/packages/libmspack/-/raw/main/PKGBUILD?ref_type=heads
+kind: autotools
+
+description: A library for Microsoft compression formats
+
+build-depends:
+- freedesktop-sdk.bst:public-stacks/buildsystem-autotools.bst
+
+depends:
+- freedesktop-sdk.bst:public-stacks/runtime-minimal.bst
+
+variables:
+  command-subdir: libmspack
+
+sources:
+- kind: git_repo
+  url: github:kyz/libmspack
+  track: 'v*'
+  ref: v1.11-0-g305907723a4e7ab2018e58040059ffb5e77db837

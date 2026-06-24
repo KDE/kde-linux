@@ -14,3 +14,5 @@ aliases:
   samba_pub: https://download.samba.org/pub/
   openldap: https://openldap.org/
   kerberos: https://kerberos.org/
+  qemu: https://download.qemu.org/
+

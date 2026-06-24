@@ -1,0 +1,5 @@
+# SPDX-FileCopyrightText: 2026 Aleix Pol <aleixpol@kde.org>
+#
+# SPDX-License-Identifier: BSD-2-Clause
+
+emulate sh -c 'source /etc/profile'

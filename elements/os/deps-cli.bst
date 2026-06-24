@@ -5,16 +5,26 @@ kind: stack
 
 depends:
 - freedesktop-sdk.bst:components/iproute2.bst # iproute2: Basic networking tools
-- freedesktop-sdk.bst:components/usbutils.bst # usbutils: lsusb and other useful troubleshooting tools
+- freedesktop-sdk.bst:components/usbutils.bst # usbutils: `lsusb` and other useful troubleshooting tools
 - freedesktop-sdk.bst:components/bash-completion.bst # bash-completion: Completions for Bash
 - freedesktop-sdk.bst:components/iputils.bst
 - freedesktop-sdk.bst:components/openssh.bst
 - freedesktop-sdk.bst:components/openssh-systemd.bst
 - freedesktop-sdk.bst:components/vim.bst
+- components/ripgrep.bst
+- components/xdg-utils.bst # xdg-utils: xdg-open and other useful cross-desktop CLI tools
+- components/zsh.bst
+- components/zsh-autosuggestions.bst # zsh-autosuggestions: fish-like suggestions
+- components/zsh-completions.bst
+- components/zsh-history-substring-search.bst # zsh-history-substring-search: fish-like history search
+- components/zsh-syntax-highlighting.bst # zsh-syntax-highlighting: fish-like syntax highlighting
 - freedesktop-sdk.bst:components/bc.bst # bc: used during kernel builds
 - freedesktop-sdk.bst:components/ccache.bst
 - freedesktop-sdk.bst:components/cmake.bst
 - freedesktop-sdk.bst:components/crun.bst # crun: default for podman
+# - components/docker.bst
+- components/docker-buildx.bst
+- components/docker-compose.bst
 - freedesktop-sdk.bst:components/desktop-file-utils.bst # desktop-file-utils: desktop-file-validate and related useful tools
 - freedesktop-sdk.bst:components/flatpak-builder.bst
 - freedesktop-sdk.bst:components/git.bst # git: It's git
@@ -22,7 +32,8 @@ depends:
 - gnome-build-meta.bst:core-deps/intltool.bst # intltool: make dependency for purpose, plasma-desktop, and kio-gdrive
 - freedesktop-sdk.bst:components/jq.bst # jq: JSON processor
 - freedesktop-sdk.bst:components/less.bst
-- freedesktop-sdk.bst:components/llvm.bst # clang, lld, llvm
+- components/lldb.bst # debugger for llvm based languages (odin, zig..) as well as c/c++ and usual suspects
+- freedesktop-sdk.bst:components/llvm.bst # clang, llvm
 - freedesktop-sdk.bst:components/man-db.bst # man-db: Classic `man`
 - freedesktop-sdk.bst:components/man-pages.bst # man-pages: Manual pages for things
 - freedesktop-sdk.bst:components/meson.bst # meson: often used for glib software as alternative to cmake
@@ -31,29 +42,55 @@ depends:
 - freedesktop-sdk.bst:components/perf.bst
 - freedesktop-sdk.bst:components/plocate.bst # plocate: Fast file locating
 - freedesktop-sdk.bst:components/podman.bst
+- components/podman-compose.bst
+- components/python-atspi.bst # python-atspi: For selenium
+- gnome-build-meta.bst:core-deps/qemu.bst
+- components/reuse.bst # reuse: optional make dependency for a bunch of KDE projects
 - freedesktop-sdk.bst:components/python3-pyyaml.bst # python-yaml: For kde-builder
 - freedesktop-sdk.bst:components/ruby.bst # ruby: For the torrent script in the repo
 - freedesktop-sdk.bst:components/strace.bst # strace: instrument running executables
+- components/systemd-bootchart.bst # systemd-bootchart: Boot profiling tools
+- components/subversion.bst # subversion: VCS needed for cloning old repos that don't use git
 - freedesktop-sdk.bst:components/vulkan-icd-loader.bst
-- freedesktop-sdk.bst:components/wget2.bst # wget
-- components/wireguard-tools.bst # wireguard-tools: CLI tools for controlling WireGuard VPNs
+- freedesktop-sdk.bst:components/wget2.bst
+- components/wireguard-tools.bst # wireguard-tools: CLI tools for controlling Wireguard VPNs
 - freedesktop-sdk.bst:components/xz.bst
 - freedesktop-sdk.bst:components/zip.bst # zip: the zip CLI archiving tool
+- components/zsh.bst
+- components/zsh-autosuggestions.bst # zsh-autosuggestions: fish-like suggestions
+- components/zsh-completions.bst
+- components/zsh-history-substring-search.bst # zsh-history-substring-search: fish-like history search
+- components/zsh-syntax-highlighting.bst # zsh-syntax-highlighting: fish-like syntax highlighting
 - gnome-build-meta.bst:boards/common/alsa-utils.bst # alsa-utils: alsamixer and other useful audio debugging tools
 - gnome-build-meta.bst:boards/common/iw.bst # iw: Kernel-level wireless configuration
 - gnome-build-meta.bst:core-deps/espeak-ng.bst # espeak-ng: CLI-invoked speech; accessible automation feedback
 - gnome-build-meta.bst:gnomeos-deps/distrobox.bst
-- components/noto-fonts.bst # noto-fonts: Google Noto TTF fonts
-- gnome-build-meta.bst:gnomeos-deps/noto-cjk.bst # noto-fonts-cjk: Noto CJK scripts
-- freedesktop-sdk.bst:components/noto-emoji.bst # noto-fonts-emoji: Color emoji font
+- components/android-tools.bst # android-tools: Tools for working with Android devices
+- components/bat.bst # bat: Opinionated fancy cat
+- components/cpupower.bst # cpupower: For more granular tuning of CPU limits; needs to touch the kernel
 - gnome-build-meta.bst:gnomeos-deps/nvme-cli.bst # nvme-cli: NVMe SSD support tooling
 - gnome-build-meta.bst:gnomeos-deps/toolbox.bst
 - gnome-build-meta.bst:gnomeos-deps/wl-clipboard.bst
 - gnome-build-meta.bst:gnomeos-deps/words.bst # words: Dictionaries in /usr/share/dict
 - gnome-build-meta.bst:sdk-deps/sassc.bst # sassc: make dependency for breeze-gtk and kde-gtk-config
 - components/drm-info.bst # drm-info: for debugging KWin and other graphics issues
+- components/duf.bst # duf: Opinionated fancy df
+- components/fastfetch.bst # fastfetch: For showing off on r/unixporn
+- components/fd.bst # fd: Opinionated fancy find
+- components/fzf.bst # fzf: Fuzzy find
+- components/gping.bst # gping: Opinionated fancy ping
+- components/htop.bst # htop: Opinionated fancy top
 - components/iotop-c.bst # iotop: Opinionated fancy top for disks
+- components/libratbag.bst # libratbag: Inspect and modify configurable mice
+- components/lshw.bst # lshw: fancy hardware listing
 - components/lsof.bst
+- components/mcfly.bst # mcfly: Fancy shell history searching
 - components/nvtop.bst # nvtop: Fancy GPU monitoring
+- components/procs.bst # procs: Opinionated fancy ps
+- components/tldr.bst # tldr: mini-manpages
+- components/trash-cli.bst # trash-cli: safer way to remove files from the CLI
 - components/tree.bst
+- components/turbostat.bst # turbostat: Reports processor frequency and idle statistics
+- components/udftools.bst # udftools: Manipulating optical discs
+- components/yubikey-manager.bst # CLI tools for managing Yubikey hardware authenticators
 - components/xerces-c.bst # xerces-c: optional make dependency for syntax-highlighting
