@@ -1,6 +1,7 @@
-#!/bin/env python3
+#!/usr/bin/env python3
 # SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL
 # SPDX-FileCopyrightText: 2025 Harald Sitter <sitter@kde.org>
+# SPDX-FileCopyrightText: 2026 Hadi Chokr <hadichokr@icloud.com>
 
 import atexit
 import http.server
@@ -8,7 +9,7 @@ import sys
 import subprocess
 import os
 import time
-
+import tempfile
 from pathlib import Path
 
 class Handler(http.server.BaseHTTPRequestHandler):
@@ -31,32 +32,58 @@ img = sys.argv[1]
 if not img:
     print("No image specified")
     sys.exit(1)
-test_img = img.replace('.raw', '.test.raw')
 
 efi_base = sys.argv[2]
 if not efi_base:
     print("No EFI base image specified")
     sys.exit(1)
 
+# Always test as ISO (a valid .iso9660 is also a valid .raw)
+test_img = img.replace('.raw', '.test.iso').replace('.iso', '.test.iso')
 subprocess.check_call(['cp', '--reflink=auto', img, test_img])
-subprocess.check_call(['systemd-dissect', test_img, '--with', f'{os.path.dirname(os.path.realpath(__file__))}/basic-test-efi-addon.sh'],
-                      env={'PORT': str(server.server_port),
-                           'UKI': efi_base},
-                      stdout=sys.stdout, stderr=sys.stderr)
+
+# Inject the EFI addon into the ESP partition of the test ISO
+script_dir = os.path.dirname(os.path.realpath(__file__))
+addon_src = f'{script_dir}/basic-test-efi-addon.sh'
+
+with tempfile.TemporaryDirectory() as mnt:
+    # Find the ESP partition offset and size using sfdisk
+    sfdisk = subprocess.check_output(['sfdisk', '--json', test_img]).decode()
+    import json
+    parts = json.loads(sfdisk)['partitiontable']['partitions']
+    esp = next(p for p in parts if p.get('type', '') == 'C12A7328-F81F-11D2-BA4B-00A0C93EC93B')
+    sector_size = json.loads(sfdisk)['partitiontable']['sectorsize']
+    offset = esp['start'] * sector_size
+    size = esp['size'] * sector_size
+
+    subprocess.check_call([
+        'mount', '-o', f'loop,offset={offset},sizelimit={size}',
+        test_img, mnt
+    ])
+    try:
+        efi_extra_dir = f'{mnt}/EFI/Linux/{efi_base}.extra.d'
+        os.makedirs(efi_extra_dir, exist_ok=True)
+        subprocess.check_call([
+            'bash', addon_src
+        ], env={
+            'PORT': str(server.server_port),
+            'UKI': efi_base,
+            'ADDON_DIR': efi_extra_dir,
+        })
+    finally:
+        subprocess.check_call(['umount', mnt])
+
+qemu_cmd = [
+    "qemu-system-x86_64",
+    "-cdrom", test_img,
+    "-m", "4G",
+    "-enable-kvm",
+    "-cpu", "host",
+    "-bios", "/usr/share/OVMF/x64/OVMF.4m.fd",
+]
 
 # I ought to point out that this leaks the process in case of failure. It will however get reaped by the docker container shutdown.
-qemu = subprocess.Popen([
-    "qemu-system-x86_64",
-    "-drive",
-    f"file={test_img},format=raw",
-    "-m",
-    "4G",
-    "-enable-kvm",
-    "-cpu",
-    "host",
-    "-bios",
-    "/usr/share/OVMF/x64/OVMF.4m.fd",
-])
+qemu = subprocess.Popen(qemu_cmd)
 atexit.register(lambda: (qemu.kill()))
 
 def on_timeout():

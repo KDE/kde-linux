@@ -12,8 +12,8 @@ OUTDIR="${OUTDIR:-mkosi.output}"
 mv upload-tree upload-tree-old || true
 if [ ! -d upload-tree ]; then
     mkdir upload-tree
-    for f in "$OUTDIR"/*.raw "$OUTDIR"/*.erofs "$OUTDIR"/*.efi; do
-        if [[ $f == *.test.raw ]]; then
+    for f in "$OUTDIR"/*.iso "$OUTDIR"/*.erofs "$OUTDIR"/*.efi; do
+        if [[ $f == *.test.iso ]]; then
             # Skip test images
             continue
         fi

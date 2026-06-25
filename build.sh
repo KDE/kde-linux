@@ -2,9 +2,10 @@
 # SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL
 # SPDX-FileCopyrightText: 2023 Harald Sitter <sitter@kde.org>
 # SPDX-FileCopyrightText: 2024 Bruno Pajdek <brupaj@proton.me>
+# SPDX-FileCopyrightText: 2026 Hadi Chokr <hadichokr@icloud.com>
 
 # Build image using mkosi, well, somewhat. mkosi is actually a bit too inflexible for our purposes so we generate a OS
-# tree using mkosi and then construct shipable raw images (for installation) and tarballs (for systemd-sysupdate)
+# tree using mkosi and then construct shipable .iso9660 (and gpt raw disk images) for installation and tarballs (for systemd-sysupdate)
 # ourselves.
 
 set -ex
@@ -47,13 +48,14 @@ DEBUG_TAR=${OUTPUT}_debug-x86-64.tar # Output debug archive path (.zst will be a
 # We'll rename things accordingly via sysupdate.d files.
 ROOTFS_CAIBX=${OUTPUT}_root-x86-64.caibx
 ROOTFS_EROFS=${OUTPUT}_root-x86-64.erofs # Output erofs image path
-IMG=${OUTPUT}.raw                    # Output raw image path
+ISO="${OUTPUT}.iso" # both a valid GPT disk image and a bootable ISO
 
 EFI_BASE=kde-linux_${VERSION} # Base name of the UKI in the image's ESP (exported so it can be used in basic-test-efi-addon.sh)
-EFI=${EFI_BASE}+3.efi # Name of primary UKI in the image's ESP
+EFI=${EFI_BASE}+3.efi      # Name of primary UKI in the image's ESP (with tries counter for installed system)
+LIVE_EFI=${EFI_BASE}.efi   # Name of live UKI in the ESP (no tries counter — ESP is read-only on ISO)
 
 # Clean up old build artifacts.
-rm --recursive --force kde-linux.cache/*.raw kde-linux.cache/*.mnt
+rm --recursive --force kde-linux.cache/*.raw kde-linux.cache/*.iso kde-linux.cache/*.mnt
 
 cat /etc/pacman.conf.nolinux >> mkosi.sandbox/etc/pacman.conf
 
@@ -135,42 +137,50 @@ rm -rfv "${OUTPUT}/efi"
 [ -d "${OUTPUT}/usr/share/factory/boot/EFI" ] || mkdir --mode 0700 "${OUTPUT}/usr/share/factory/boot/EFI"
 [ -d "${OUTPUT}/usr/share/factory/boot/EFI/Linux" ] || mkdir --mode 0700 "${OUTPUT}/usr/share/factory/boot/EFI/Linux"
 [ -d "${OUTPUT}/usr/share/factory/boot/EFI/Linux/$EFI_BASE.efi.extra.d" ] || mkdir --mode 0700 "${OUTPUT}/usr/share/factory/boot/EFI/Linux/$EFI_BASE.efi.extra.d"
+
+# Save the main UKI (with tries counter) aside as it must NOT go into factory/boot yet
+# so it doesn't end up on the live ESP.
 cp -v "${OUTPUT}"/kde-linux.efi "$MAIN_UKI"
-mv -v "${OUTPUT}"/kde-linux.efi "${OUTPUT}/usr/share/factory/boot/EFI/Linux/$EFI"
-mv -v "${OUTPUT}"/live.efi "$LIVE_UKI"
+rm -v "${OUTPUT}"/kde-linux.efi
 mv -v "${OUTPUT}"/erofs.addon.efi "${OUTPUT}_erofs.addon.efi"
+mv -v "${OUTPUT}"/live.efi "$LIVE_UKI"
 
 make_debug_archive
 
-# Now let's actually build a live raw image. First, the ESP.
+# Now let's actually build the live ESP.
 # We use kde-linux.cache instead of /tmp as usual because we'll probably run out of space there.
 
-# Since we're building a live image, replace the main UKI with the live one.
-mv "$LIVE_UKI" "${OUTPUT}/usr/share/factory/boot/EFI/Linux/$EFI"
+# Only LIVE_EFI (no tries counter) goes into factory/boot for the ESP.
+# The installed system UKI ($EFI with +3) is added AFTER the ESP is built.
+mv "$LIVE_UKI" "${OUTPUT}/usr/share/factory/boot/EFI/Linux/$LIVE_EFI"
 
 # Change to kde-linux.cache since we'll be working there.
 cd kde-linux.cache
 
-# Create a 260M large FAT32 filesystem inside of esp.raw.
-fallocate -l 260M esp.raw
+# Create a 280M large FAT32 filesystem inside of esp.raw.
+fallocate -l 280M esp.raw
 mkfs.fat -F 32 esp.raw
 
 # Mount it to esp.raw.mnt.
-mkdir -p esp.raw.mnt # The -p prevents failure if directory already exists
+mkdir -p esp.raw.mnt
 mount esp.raw esp.raw.mnt
 
 # Copy everything from /usr/share/factory/boot into esp.raw.mnt.
+# At this point only LIVE_EFI is in factory/boot/EFI/Linux/ so the installed UKI (+3) is not there yet.
 cp --archive --recursive "${OUTPUT}/usr/share/factory/boot/." esp.raw.mnt
 
 # We're done, unmount esp.raw.mnt.
 umount esp.raw.mnt
 
-# Now, the root.
+cd .. # and back to root
 
-# Copy back the main UKI for the root.
+# Now add the installed system UKI (with tries counter) to factory/boot for the erofs rootfs.
+# This happens AFTER the ESP build so it doesn't land on the live ESP.
 cp "$MAIN_UKI" "${OUTPUT}/usr/share/factory/boot/EFI/Linux/$EFI"
 
-cd .. # and back to root
+# Remove the live UKI from factory as it was only needed for the ESP build.
+# The erofs rootfs should only contain the installed system UKI (+3).
+rm "${OUTPUT}/usr/share/factory/boot/EFI/Linux/$LIVE_EFI"
 
 # Drop flatpak data from erofs. They are in the usr/share/factory and deployed from there.
 rm -rf "$OUTPUT/var/lib/flatpak"
@@ -179,18 +189,30 @@ mkdir "$OUTPUT/var/lib/flatpak" # but keep a mountpoint around for the live sess
 time mkfs.erofs -zzstd -C 65536 --chunksize 65536 "$ROOTFS_EROFS" "$OUTPUT" > erofs.log 2>&1
 cp --reflink=auto "$ROOTFS_EROFS" kde-linux.cache/root.raw
 
-# Now assemble the two generated images using systemd-repart and the definitions in mkosi.repart into $IMG.
-touch "$IMG"
-systemd-repart --no-pager --empty=allow --size=auto --dry-run=no --root=kde-linux.cache --definitions=mkosi.repart "$IMG"
+# Now assemble the image using systemd-repart and the definitions in mkosi.repart into $ISO.
+# The resulting file is both a valid GPT disk image and a bootable El Torito ISO.
+touch "$ISO"
+systemd-repart \
+    --no-pager \
+    --empty=allow \
+    --size=auto \
+    --dry-run=no \
+    --root=kde-linux.cache \
+    --definitions=mkosi.repart \
+    --el-torito=true \
+    --el-torito-volume="KDE LINUX $VERSION" \
+    --el-torito-publisher="KDE" \
+    "$ISO"
+
+# Test the ISO (which is also a valid GPT image so no need to test as .raw separately)
+./basic-test.py "$ISO" "$LIVE_EFI" || exit 1
+rm ./mkosi.output/*.test.iso
 
 # Incase the owner is root
 chown -R user:user mkosi.output
 
-./basic-test.py "$IMG" "$EFI_BASE.efi" || exit 1
-rm ./mkosi.output/*.test.raw
-
 # Create a torrent for the image
-./torrent-create.rb "$VERSION" "$OUTPUT" "$IMG"
+./torrent-create.rb "$VERSION" "$OUTPUT" "$ISO"
 
 go install -v github.com/folbricht/desync/cmd/desync@latest
 ~/go/bin/desync make --print-stats --chunk-size 1024:2048:4096 "$ROOTFS_CAIBX" "$ROOTFS_EROFS"

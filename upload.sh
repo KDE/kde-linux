@@ -45,7 +45,7 @@ sha256sum -- *-x86-64.caibx >> SHA256SUMS
 
 gpg --homedir="$GNUPGHOME" --output SHA256SUMS.gpg --detach-sign SHA256SUMS
 
-scp -i "$SSH_IDENTITY" ./*.raw ./*.torrent "$REMOTE_ROOT"
+scp -i "$SSH_IDENTITY" ./*.iso ./*.torrent "$REMOTE_ROOT"
 scp -i "$SSH_IDENTITY" ./*.efi ./*.tar.zst ./*.erofs ./*.caibx "$REMOTE_PATH"
 scp -i "$SSH_IDENTITY" SHA256SUMS SHA256SUMS.gpg "$REMOTE_PATH" # upload as last artifact to finalize the upload
 
@@ -71,7 +71,7 @@ rm -rf upload-tree
 V2_TREE="upload-tree/testing/sysupdate/v2"
 mkdir -p "$V2_TREE"
 
-mv "$OUTDIR"/*.raw "$OUTDIR"/*.torrent upload-tree/testing/
+mv "$OUTDIR"/*.iso "$OUTDIR"/*.torrent upload-tree/testing/
 mv "$OUTDIR"/*.efi "$OUTDIR"/*.tar.zst "$OUTDIR"/*.erofs "$OUTDIR"/*.caibx "$V2_TREE/"
 
 ### Upload
