@@ -1,0 +1,57 @@
+#!/bin/sh
+# SPDX-License-Identifier: GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL
+# SPDX-FileCopyrightText: 2026 Nate Graham <nate@kde.org>
+
+# Turn "developer mode" on or off.
+
+set -e
+
+USR_APPS_LOCATION="/usr/share/applications/"
+OPT_APPS_LOCATION="/opt/local/share/applications/"
+PREINSTALLED_DEV_APPS="GammaRay.desktop \
+org.kde.heaptrack.desktop \
+org.kde.plasma.lookandfeelexplorer.desktop \
+org.kde.plasma.themeexplorer.desktop \
+org.kde.plasmaengineexplorer.desktop"
+
+function enable_dev_apps
+{
+    echo "Enabling development apps…"
+
+    run0 mkdir -p "$OPT_APPS_LOCATION" 1> /dev/null
+
+    for ITEM in $PREINSTALLED_DEV_APPS; do
+        run0 cp "${USR_APPS_LOCATION}${ITEM}" "${OPT_APPS_LOCATION}${ITEM}" 1> /dev/null
+        run0 sed -i "/NoDisplay=true/d" "${OPT_APPS_LOCATION}${ITEM}" 1> /dev/null
+        echo "- Enabled ${ITEM}"
+    done
+
+    echo "Refreshing app cache…"
+    kbuildsycoca6
+
+    echo "Done; development apps are now visible in the “Development” category of your launcher widget."
+    echo "files were installed in ${OPT_APPS_LOCATION}."
+}
+
+function disable_dev_apps
+{
+    echo "Hiding development apps…"
+
+    for ITEM in $PREINSTALLED_DEV_APPS; do
+        run0 rm "${OPT_APPS_LOCATION}${ITEM}" 1> /dev/null
+    done
+
+    echo "Refreshing app cache…"
+    kbuildsycoca6
+
+    run0 rmdir --ignore-fail-on-non-empty "$OPT_APPS_LOCATION" 1> /dev/null
+
+    echo "Done; development apps are now hidden."
+}
+
+
+if [ -f "${OPT_APPS_LOCATION}GammaRay.desktop" ]; then
+    disable_dev_apps
+else
+    enable_dev_apps
+fi

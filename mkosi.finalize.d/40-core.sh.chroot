@@ -65,6 +65,18 @@ rm -rf \
     /usr/bin/qvidcap \
     /usr/share/applications/qvidcap.desktop \
 
+# Development tools that are useful enough to pre-install, but that we
+# don't want made visible to the user until they ask for them. Don't
+# delete; just hide. The user can show them again with
+# `toggle-developer-mode`.
+# (audit once everything in plasma-sdk is on Flathub)
+echo "NoDisplay=true" | tee -a \
+    /usr/share/applications/GammaRay.desktop \
+    /usr/share/applications/org.kde.heaptrack.desktop \
+    /usr/share/applications/org.kde.plasma.lookandfeelexplorer.desktop \
+    /usr/share/applications/org.kde.plasma.themeexplorer.desktop \
+    /usr/share/applications/org.kde.plasmaengineexplorer.desktop \
+
 # Parts of plasma-sdk that are on Flathub now, so you can just get them from there
 # (once everything is on Flathub, we can stop building plasma-sdk, and remove these lines)
 rm -rf \
