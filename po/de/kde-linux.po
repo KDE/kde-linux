@@ -2,19 +2,21 @@
 # German translation for kde-linux.
 # Copyright (C) 2026 This file is copyright:
 # This file is distributed under the same license as the kde-linux package.
+# SPDX-FileCopyrightText: 2026 Philipp Kiemle <l10n.daphipz@fastmail.de>
 msgid ""
 msgstr ""
 "Project-Id-Version: kde-linux\n"
 "Report-Msgid-Bugs-To: https://bugs.kde.org\n"
 "POT-Creation-Date: 2026-03-18 00:43+0000\n"
-"PO-Revision-Date: 2026-03-18 10:39+0100\n"
-"Last-Translator: Automatically generated\n"
+"PO-Revision-Date: 2026-06-22 13:16+0200\n"
+"Last-Translator: Philipp Kiemle <l10n.daphipz@fastmail.de>\n"
 "Language-Team: German <kde-i18n-de@kde.org>\n"
 "Language: de\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: Lokalize 26.04.2\n"
 
 #: mkosi.extra/usr/lib/command-not-found-handler.py:72
 msgid ""
@@ -22,6 +24,9 @@ msgid ""
 "\n"
 "Instead, try using “{}”."
 msgstr ""
+"KDE Linux enthält das Werkzeug „{}“ nicht.\n"
+"\n"
+"Versuchen Sie stattdessen, „{}“ zu verwenden."
 
 #: mkosi.extra/usr/lib/command-not-found-handler.py:74
 msgid ""
@@ -30,6 +35,11 @@ msgid ""
 "Graphical software is available using the Discover app center. To learn how "
 "to install software that’s not available in Discover, see {}"
 msgstr ""
+"KDE Linux enthält die Paketverwaltung „{}“ nicht.\n"
+"\n"
+"Grafische Anwendungen sind über die Paketverwaltung „Discover“ verfügbar. "
+"Informationen zur Installation von Software, die nicht in Discover verfügbar "
+"ist, finden Sie unter {}"
 
 #: mkosi.extra/usr/lib/command-not-found-handler.py:76
 msgid ""
@@ -38,6 +48,10 @@ msgid ""
 "\n"
 "To do so, follow the instructions at {}"
 msgstr ""
+"Unter KDE Linux ist die Paketverwaltung „{}“ nicht vorinstalliert, sie kann "
+"jedoch manuell hinzugefügt werden.\n"
+"\n"
+"Befolgen Sie dazu die Anweisungen unter {}"
 
 #: mkosi.extra/usr/lib/command-not-found-handler.py:78
 msgid ""
@@ -46,3 +60,7 @@ msgid ""
 "If you know it exists, and it’s important for your workflow, learn about "
 "options for getting it at {}"
 msgstr ""
+"KDE Linux enthält den Befehl „{}“ nicht.\n"
+"\n"
+"Wenn Sie wissen, dass es ihn gibt, und er für Ihren Arbeitsablauf wichtig "
+"ist, informieren Sie sich unter {} über die Möglichkeiten, ihn zu erhalten."
