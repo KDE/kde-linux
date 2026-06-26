@@ -17,8 +17,13 @@ make_debug_archive () {
   mkdir --parents /var/tmp/debugroot
 
   # Download and extract debug symbols produced by the packages pipeline.
-  curl --fail https://storage.kde.org/kde-linux-packages/testing/artifacts/debug.tar.zst \
-    | zstd --decompress | tar --extract --directory=/var/tmp/debugroot
+  if [ "${CI_COMMIT_BRANCH:-}" = "master" ]; then
+    curl --fail https://storage.kde.org/kde-linux-packages/testing/artifacts/debug.tar.zst \
+      | zstd --decompress | tar --extract --directory=/var/tmp/debugroot
+  else
+    curl --fail https://storage.kde.org/ci-artifacts/kde-linux/kde-linux-packages/j/     TBD     /testing/artifacts/debug.tar.zst \
+      | zstd --decompress | tar --extract --directory=/var/tmp/debugroot
+  fi
 
   # systemd-sysext uses the os-release in extension-release.d to verify the sysext matches the base OS,
   # and can therefore be safely installed. Copy the base OS' os-release there.
@@ -106,6 +111,12 @@ cp $BUILDSTREAM_EFI/usr/share/ovmf/Shell.efi $BUILDSTREAM_ROOTFS/usr/share/ovmf/
 
 # Make sure permissions are sound
 ./permission-fix.sh
+
+if [ "${CI_COMMIT_BRANCH:-}" = "master" ]; then
+  wget https://storage.kde.org/kde-linux-packages/testing/artifacts/install.tar.zst
+else
+  wget https://storage.kde.org/ci-artifacts/kde-linux/kde-linux-packages/j/     TBD     /testing/artifacts/install.tar.zst
+fi
 
 mkosi \
     --extra-tree $BUILDSTREAM_BOOTFS:/boot \
