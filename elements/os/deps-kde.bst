@@ -30,6 +30,7 @@ depends:
 - freedesktop-sdk.bst:components/python3-psutil.bst # drkonqi
 - freedesktop-sdk.bst:components/python3.bst
 - freedesktop-sdk.bst:components/git.bst
+- components/libunwind.bst # heaptrack -- FIXME need to fix upstream in freedesktop-sdk. this is a temporary fork!
 - os/deps-core.bst
 - os/deps-middleware.bst
 - os/deps-apps.bst
