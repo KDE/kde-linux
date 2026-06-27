@@ -9,6 +9,7 @@ aliases:
   kde: https://invent.kde.org/
   kde_cdn: https://download.kde.org/stable/
   fdo: https://gitlab.freedesktop.org/
+  gnome: https://gitlab.gnome.org/GNOME/
   xorg: https://xorg.freedesktop.org/
   cpan: https://cpan.metacpan.org/
   samba_pub: https://download.samba.org/pub/
