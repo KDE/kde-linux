@@ -19,3 +19,5 @@ config:
         bootstrap_build_arch: 'aarch64'
     - arch == "riscv64":
         bootstrap_build_arch: "x86_64"
+  overrides:
+    components/libunwind.bst: components/libunwind.bst
