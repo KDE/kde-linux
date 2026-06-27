@@ -25,14 +25,21 @@ environment:
   LD_LIBRARY_PATH: '%{build-root}/%{build-dir}/lib/%{gcc_triplet}'
 
 variables:
-  conf-root: llvm
+  conf-root: lldb
 
   debug_flags: "-g1"
   optimize-debug: "false"
-  enabled-projects: "lldb"
 
   cmake-local: >-
-    -DLLVM_ENABLE_PROJECTS='%{enabled-projects}'
+    -DLLVM_DIR='%{libdir}/cmake/llvm'
+    -DClang_DIR='%{libdir}/cmake/clang'
     -DCMAKE_SKIP_RPATH=ON
     -DCLANG_LINK_CLANG_DYLIB=ON
     -DLLVM_LINK_LLVM_DYLIB=ON
+    -DLLVM_INCLUDE_TESTS=OFF
+    -DLLDB_INCLUDE_TESTS=OFF
+
+sources:
+  (>):
+  - kind: patch
+    path: files/lldb/lldb-standalone-clang-resource-dir.patch
