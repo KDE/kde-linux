@@ -34,7 +34,7 @@ echo "rw \
   nohz=on nohz_full=all \
   rcu_nocbs=all rcutree.enable_rcu_lazy=1 \
   amdgpu.dcdebugmask=0x10 \
-  vt.global_cursor_default=0 quiet splash loglevel=3" > cmdline
+  vt.global_cursor_default=0 quiet splash plymouth.ignore-serial-consoles loglevel=3" > cmdline
 mkinitcpio --config mkinitcpio.conf --generate initrd --kernel "$kernel_version"
 ukify build \
   --linux /usr/lib/modules/$kernel_version/vmlinuz \
@@ -64,7 +64,7 @@ echo "rw rootflags=subvol=@system,compress=zstd:-4,lazytime \
   rcu_nocbs=all rcutree.enable_rcu_lazy=1 \
   amdgpu.dcdebugmask=0x10 \
   systemd.hostname=kde-linux \
-  vt.global_cursor_default=0 quiet splash loglevel=3" > cmdline
+  vt.global_cursor_default=0 quiet splash plymouth.ignore-serial-consoles loglevel=3" > cmdline
 mkinitcpio --config mkinitcpio.conf --generate initrd --kernel "$kernel_version"
 ukify build \
   --linux /usr/lib/modules/$kernel_version/vmlinuz \
