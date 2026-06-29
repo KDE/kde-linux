@@ -71,14 +71,14 @@ sources:
     git-ref: v0.4.7-0-g03509a98a092b522b2ff0de13e53513d18b3b837
     explicit: True
 - kind: go_module
-  url: https://go.googlesource.com/sys
+  url: github:golang/sys.git
   module: golang.org/x/sys
   ref:
     go-version: v0.35.0
     git-ref: v0.35.0-0-g5b936e1f126baa13682eff91c2e4d5d9e3a0b71d
     explicit: True
 - kind: go_module
-  url: https://go.googlesource.com/term
+  url: github:golang/term.git
   module: golang.org/x/term
   ref:
     go-version: v0.34.0
@@ -106,7 +106,7 @@ sources:
     git-ref: v0.0.16-0-g6ceadc68530e7bfea8cba17d6523bed32912d4fa
     explicit: True
 - kind: go_module
-  url: https://go.googlesource.com/text
+  url: github:golang/text.git
   module: golang.org/x/text
   ref:
     go-version: v0.28.0
