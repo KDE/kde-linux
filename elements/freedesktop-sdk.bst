@@ -8,6 +8,8 @@ sources:
   url: https://gitlab.com/freedesktop-sdk/freedesktop-sdk.git
   track: master # we need to track master because we bring dependencies from there
   ref: freedesktop-sdk-25.08rc.3-1937-gf90b8f2ba588148c7941b2e26657b8d4f3f04e5c
+- kind: patch
+  path: files/freedesktop-sdk/libunwind.patch
 
 config:
   options:
@@ -19,5 +21,3 @@ config:
         bootstrap_build_arch: 'aarch64'
     - arch == "riscv64":
         bootstrap_build_arch: "x86_64"
-  overrides:
-    components/libunwind.bst: components/libunwind.bst

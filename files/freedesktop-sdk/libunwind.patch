@@ -1,0 +1,12 @@
+diff --git a/elements/components/libunwind.bst b/elements/components/libunwind.bst
+index 6876c60f2..0ac528fbb 100644
+--- a/elements/components/libunwind.bst
++++ b/elements/components/libunwind.bst
+@@ -16,6 +16,7 @@ config:
+     - |
+       mkdir -p "%{install-root}%{includedir}/%{gcc_triplet}"
+       mv "%{install-root}%{includedir}/libunwind.h" "%{install-root}%{includedir}/%{gcc_triplet}/"
++      mv "%{install-root}%{includedir}/unwind.h" "%{install-root}%{includedir}/%{gcc_triplet}/"
+       for h in "%{install-root}%{includedir}/"libunwind-{x86,arm,aarch64,x86_64,loongarch64}.h; do
+         if [ -e "${h}" ]; then
+            mv "${h}" "%{install-root}%{includedir}/%{gcc_triplet}/"

@@ -31,7 +31,7 @@ depends:
 - freedesktop-sdk.bst:components/python3.bst
 - freedesktop-sdk.bst:components/git.bst
 - freedesktop-sdk.bst:components/elfutils.bst # heaptrack
-- components/libunwind.bst # heaptrack -- FIXME need to fix upstream in freedesktop-sdk. this is a temporary fork!
+- freedesktop-sdk.bst:components/libunwind.bst # heaptrack -- FIXME need to fix upstream in freedesktop-sdk. this is a temporary fork!
 - os/deps-core.bst
 - os/deps-middleware.bst
 - os/deps-apps.bst
