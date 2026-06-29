@@ -10,6 +10,8 @@ sources:
   ref: freedesktop-sdk-25.08rc.3-1937-gf90b8f2ba588148c7941b2e26657b8d4f3f04e5c
 - kind: patch
   path: files/freedesktop-sdk/libunwind.patch
+- kind: patch
+  path: files/freedesktop-sdk/json-glib-add-glib-dependency.patch
 
 config:
   options:
