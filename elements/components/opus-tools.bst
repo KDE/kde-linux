@@ -12,15 +12,14 @@ build-depends:
 - freedesktop-sdk.bst:components/opus.bst
 - freedesktop-sdk.bst:components/opusfile.bst
 - components/libopusenc.bst
-- components/flac.bst
 
 depends:
 - freedesktop-sdk.bst:public-stacks/runtime-minimal.bst
+- freedesktop-sdk.bst:components/libflac.bst
 - freedesktop-sdk.bst:components/libogg.bst
 - freedesktop-sdk.bst:components/opus.bst
 - freedesktop-sdk.bst:components/opusfile.bst
 - components/libopusenc.bst
-- components/flac.bst
 
 sources:
 - kind: tar
