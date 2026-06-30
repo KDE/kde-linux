@@ -1,0 +1,113 @@
+#!/bin/sh
+# SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL
+# SPDX-FileCopyrightText: 2026 Felipe Araújo <felipearaujodff@gmail.com>
+
+# Collect system diagnostics into a .tar.zst archive for bug reports.
+
+set -eu
+
+if systemd-detect-virt --container --quiet; then
+    echo "Results won’t be accurate when running inside a container; exiting." >&2
+    exit 1
+fi
+
+report_name="kde-linux-logs-$(date +%Y%m%d-%H%M%S)"
+work_dir="$(mktemp -d)"
+report_dir="${work_dir}/${report_name}"
+mkdir -p "${report_dir}"
+trap 'rm -rf "${work_dir}"' EXIT
+
+# collect <output-file> <command> [args...]
+collect() {
+    out="${report_dir}/$1"
+    shift
+    cmd="$1"
+    if [ "${cmd}" = run0 ] || [ "${cmd}" = sudo ] || [ "${cmd}" = pkexec ]; then
+        cmd="$2"
+    fi
+    echo "Collecting ${cmd}…"
+    if ! command -v "$1" >/dev/null 2>&1; then
+        echo "command “$1“ not found; skipped." > "${out}"
+        return 0
+    fi
+    {
+        echo "# $*"
+        echo
+        "$@" 2>&1
+    } > "${out}" || echo "(command exited with an error)" >> "${out}"
+}
+
+# Escape sed metacharacters in $1.
+sed_escape() {
+    printf '%s\n' "$1" | sed 's/[][\\.^$*|]/\\&/g'
+}
+
+# Best-effort redaction of common identifiers from every collected file.
+redact() {
+    echo "Sanitizing logs…"
+
+    # IPv4, MAC, and e-mail addresses.
+    prog='
+s/\b\([0-9]\{1,3\}\.\)\{3\}[0-9]\{1,3\}\b/<ipv4-redacted>/g
+s/\b\([0-9a-fA-F]\{2\}:\)\{5\}[0-9a-fA-F]\{2\}\b/<mac-redacted>/g
+s/[A-Za-z0-9._%+-]\{1,\}@[A-Za-z0-9.-]\{1,\}\.[A-Za-z]\{2,\}/<email-redacted>/g'
+
+    host="$(hostname 2>/dev/null || uname -n)"
+    if [ -n "${host}" ]; then
+        prog="${prog}
+s|$(sed_escape "${host}")|<hostname-redacted>|g"
+    fi
+
+    user="$(id -un 2>/dev/null || true)"
+    if [ -n "${user}" ] && [ "${user}" != root ]; then
+        esc_user="$(sed_escape "${user}")"
+        prog="${prog}
+s|/home/${esc_user}|/home/<user-redacted>|g
+s|${esc_user}|<user-redacted>|g"
+    fi
+
+    find "${report_dir}" -type f -exec sed -i "${prog}" {} +
+}
+
+{
+    echo "Date:    $(date)"
+    echo "Uptime:  $(uptime)"
+    echo "Kernel:  $(uname -a)"
+    echo "Cmdline: $(cat /proc/cmdline)"
+} > "${report_dir}/summary.txt"
+
+collect inxi.txt inxi -Faz
+collect drm-info.txt drm_info
+collect kscreen.txt kscreen-doctor -o
+# kscreen-doctor forces colored output; strip ANSI escape codes for readability.
+sed -i "s/$(printf '\033')\[[0-9;]*m//g" "${report_dir}/kscreen.txt"
+
+env > "${report_dir}/env.txt"
+if [ -r /etc/fstab ]; then
+    cp /etc/fstab "${report_dir}/fstab.txt"
+fi
+
+collect dmesg.txt run0 dmesg
+journalctl -b 0 -p 4 --no-pager > "${report_dir}/journal-current-boot.txt" 2>&1 || true
+journalctl -b -1 -p 4 --no-pager > "${report_dir}/journal-previous-boot.txt" 2>&1 || true
+
+if command -v brew >/dev/null 2>&1; then
+    collect homebrew-packages.txt brew list --versions
+fi
+
+collect kinfo.txt kinfo
+
+redact
+
+output="${PWD}/${report_name}.tar.zst"
+tar -C "${work_dir}" -c "${report_name}" | zstd -q -T0 -o "${output}"
+
+echo
+echo "Log bundle saved to:"
+echo "  ${output}"
+echo
+echo "Please review its contents before sharing; the logs went through"
+echo "sanitization, but some personal information may remain."
+echo
+echo "You can attach this bundle to a bug report at:"
+echo "  https://invent.kde.org/kde-linux/kde-linux/-/work_items"
