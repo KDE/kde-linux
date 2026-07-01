@@ -9,6 +9,8 @@ set -e
 
 INPUT_DEVICE_IDS=$(find /sys/bus/usb/drivers/usbhid -regex '.*\/[0-9:.-]+' -printf '%f\n' | cut --delimiter ":" --fields 1 | sort --unique)
 
+set +e
+
 for DEVICE_ID in $INPUT_DEVICE_IDS; do
     DEVICE_PRETTY_NAME=$(cat /sys/bus/usb/devices/$DEVICE_ID/product)
     echo "Disabling USB auto-suspend for device \"$DEVICE_PRETTY_NAME\" (with ID $DEVICE_ID)"
