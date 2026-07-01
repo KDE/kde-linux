@@ -93,6 +93,12 @@ rm --recursive --force etc-factory
 git clone https://invent.kde.org/kde-linux/etc-factory
 DESTDIR=$PWD/mkosi.extra make --directory=etc-factory install
 
+if [ "${KDECI_BUILD:-}" = "TRUE" ]; then
+    # Set up cache overrides
+    mkdir --parents ~/.config
+    cp buildstream.conf ~/.config/buildstream.conf
+fi
+
 BST="bst"
 rm -rf "$BUILDSTREAM_ROOTFS" "$BUILDSTREAM_BOOTFS" "$BUILDSTREAM_TOOLFS" "$BUILDSTREAM_EFI"
 $BST build os/filesystem.bst
