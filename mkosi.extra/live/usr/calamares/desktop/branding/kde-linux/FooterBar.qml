@@ -11,16 +11,6 @@ import io.calamares.ui as Calamares
 RowLayout {
     spacing: Kirigami.Units.smallSpacing
 
-    QQC.Button {
-        action: Kirigami.Action {
-            enabled: Calamares.ViewManager.quitEnabled
-            visible: Calamares.ViewManager.quitVisible
-            text: Calamares.ViewManager.quitLabel
-            icon.name: Calamares.ViewManager.quitIcon
-            onTriggered: Calamares.ViewManager.quit()
-        }
-    }
-
     Item { Layout.fillWidth: true }
 
     QQC.Button {
@@ -41,4 +31,13 @@ RowLayout {
         }
     }
 
+    QQC.Button {
+        action: Kirigami.Action {
+            enabled: Calamares.ViewManager.quitEnabled
+            visible: Calamares.ViewManager.quitVisible
+            text: Calamares.ViewManager.quitLabel
+            icon.name: Calamares.ViewManager.quitIcon
+            onTriggered: Calamares.ViewManager.quit()
+        }
+    }
 }
