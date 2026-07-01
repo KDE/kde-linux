@@ -53,7 +53,7 @@ imaging:
     - sudo pacman --sync --refresh --noconfirm lzip # needed by gettext apparently
   script:
     - if [ "$IMAGING_MODE" = stage ]; then curl -s https://gitlab.com/gitlab-org/incubation-engineering/mobile-devops/download-secure-files/-/raw/main/installer | bash; fi
-    - sudo ./build.sh --force --debug
+    - KDECI_BUILD=TRUE ./build.sh --force --debug
     - if [ "$IMAGING_MODE" = stage ]; then ./upload.sh --stage; fi
     - if [ "$IMAGING_MODE" = test ]; then ./upload-to-storage.sh; fi # Need this to have something to pass to OpenQA.
   after_script:
