@@ -21,7 +21,7 @@ make_debug_archive () {
     curl --fail https://storage.kde.org/kde-linux-packages/testing/artifacts/debug.tar.zst \
       | zstd --decompress | tar --extract --directory=/var/tmp/debugroot
   else
-    curl --fail https://storage.kde.org/ci-artifacts/kde-linux/kde-linux-packages/j/     TBD     /testing/artifacts/debug.tar.zst \
+    curl --fail https://storage.kde.org/ci-artifacts/kde-linux/kde-linux-packages/j/4641917/testing/artifacts/debug.tar.zst \
       | zstd --decompress | tar --extract --directory=/var/tmp/debugroot
   fi
 
@@ -115,7 +115,7 @@ cp $BUILDSTREAM_EFI/usr/share/ovmf/Shell.efi $BUILDSTREAM_ROOTFS/usr/share/ovmf/
 if [ "${CI_COMMIT_BRANCH:-}" = "master" ]; then
   wget https://storage.kde.org/kde-linux-packages/testing/artifacts/install.tar.zst
 else
-  wget https://storage.kde.org/ci-artifacts/kde-linux/kde-linux-packages/j/     TBD     /testing/artifacts/install.tar.zst
+  wget https://storage.kde.org/ci-artifacts/kde-linux/kde-linux-packages/j/4641917/testing/artifacts/install.tar.zst
 fi
 
 mkosi \
