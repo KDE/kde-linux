@@ -10,6 +10,9 @@
 
 set -ex
 
+wget --header "Authorization: Bearer $CI_JOB_TOKEN" -O job "$CI_API_V4_URL/job"
+cat job
+
 # Creates a sysext containing the KDE debug symbols, downloaded from the packages pipeline.
 make_debug_archive () {
   # Create an empty directory at /var/tmp/debugroot to extract the debug symbols into before compressing.
@@ -216,6 +219,9 @@ systemd-repart \
     --el-torito-volume="KDE LINUX $VERSION" \
     --el-torito-publisher="KDE" \
     "$ISO"
+
+wget --header "Authorization: Bearer $CI_JOB_TOKEN" -O job "$CI_API_V4_URL/job"
+cat job
 
 # Incase the owner is root
 sudo chown -R `whoami`:`whoami` mkosi.output
