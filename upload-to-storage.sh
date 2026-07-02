@@ -3,7 +3,7 @@
 # SPDX-FileCopyrightText: 2025-2026 Harald Sitter <sitter@kde.org>
 # SPDX-FileCopyrightText: 2026 Hadi Chokr <hadichokr@icloud.com>
 
-set -eu
+set -eux
 
 # Output Directory
 OUTDIR="${OUTDIR:-mkosi.output}"
