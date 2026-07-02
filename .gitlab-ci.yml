@@ -50,7 +50,7 @@ imaging:
     - python3 -m pip install --upgrade pip
     - python3 -m pip install 'BuildStream>=2.7' dulwich tomlkit
     - sudo ln -sf "$PWD/.venv/bin/bst" /usr/bin/bst
-    - sudo pacman --sync --refresh --noconfirm lzip # needed by gettext apparently
+    - sudo pacman --sync --refresh --noconfirm lzip mtools # lzip needed by gettext apparently. mcopy by build.sh
   script:
     - if [ "$IMAGING_MODE" = stage ]; then curl -s https://gitlab.com/gitlab-org/incubation-engineering/mobile-devops/download-secure-files/-/raw/main/installer | bash; fi
     - KDECI_BUILD=TRUE ./build.sh --force --debug
