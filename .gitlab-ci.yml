@@ -57,8 +57,7 @@ imaging:
     - if [ "$IMAGING_MODE" = stage ]; then ./upload.sh --stage; fi
     - if [ "$IMAGING_MODE" = test ]; then ./upload-to-storage.sh; fi # Need this to have something to pass to OpenQA.
   after_script:
-    - sudo cp --archive /root/.cache/buildstream/logs buildstream-logs || true
-    - sudo chown --recursive "$(id --user):$(id --group)" buildstream-logs || true
+    - cp --archive ~/.cache/buildstream/logs buildstream-logs || true
     - if [ "$IMAGING_MODE" = stage ] && [ "$CI_JOB_STATUS" = success ]; then exit 0; fi
     - if [ "$IMAGING_MODE" = test ]; then exit 0; fi
     - ./upload-to-storage.sh || true
@@ -149,8 +148,7 @@ publish-manual:
     - curl -s https://gitlab.com/gitlab-org/incubation-engineering/mobile-devops/download-secure-files/-/raw/main/installer | bash
     - ./upload.sh --publish
   after_script:
-    - sudo cp --archive /root/.cache/buildstream/logs buildstream-logs || true
-    - sudo chown --recursive "$(id --user):$(id --group)" buildstream-logs || true
+    - cp --archive ~/.cache/buildstream/logs buildstream-logs || true
     # Upload broken images to Harald for inspection
     - "[ $CI_JOB_STATUS == 'success' ] || ./upload-to-storage.sh || true"
   artifacts: *artifacts
