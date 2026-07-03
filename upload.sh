@@ -159,10 +159,13 @@ publish() {
     go -C ./uploader/ run . --remote "$S3_TARGET"
 }
 
-curl -s https://gitlab.com/gitlab-org/incubation-engineering/mobile-devops/download-secure-files/-/raw/main/installer | bash
-
 sudo chown -Rvf "$(id -u):$(id -g)" "$PWD/.secure_files" # Make sure we have access
 chmod 600 "$SSH_IDENTITY"
+if [[ ! -d "$GNUPGHOME" ]]; then
+    mkdir "$GNUPGHOME"
+    chmod 700 "$GNUPGHOME"
+    gpg --verbose --no-options --homedir="$GNUPGHOME" --import "$PWD/.secure_files/gpg.public.key"
+fi
 gpg --verbose --no-options --homedir="$GNUPGHOME" --import "$PWD/.secure_files/gpg.private.key"
 
 

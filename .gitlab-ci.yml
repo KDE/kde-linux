@@ -45,6 +45,7 @@ imaging:
   variables: &variables
     RUNNER_AFTER_SCRIPT_TIMEOUT: 1h
   script:
+    - if [ "$IMAGING_MODE" = stage ]; then curl -s https://gitlab.com/gitlab-org/incubation-engineering/mobile-devops/download-secure-files/-/raw/main/installer | bash; fi
     - sudo ./build.sh --force --debug
     - if [ "$IMAGING_MODE" = stage ]; then ./upload.sh --stage; fi
     - if [ "$IMAGING_MODE" = test ]; then ./upload-to-storage.sh; fi # Need this to have something to pass to OpenQA.
@@ -103,6 +104,7 @@ publish:
   id_tokens: *tokens
   variables: *variables
   script:
+    - curl -s https://gitlab.com/gitlab-org/incubation-engineering/mobile-devops/download-secure-files/-/raw/main/installer | bash
     - ./upload.sh --publish
   artifacts:
     expire_in: 4 weeks
