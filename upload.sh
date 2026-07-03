@@ -97,6 +97,7 @@ stage() {
     echo "S3_TARGET_STAGING=$S3_TARGET_STAGING" >> build.env
     echo "IMAGE_URL=${S3_TARGET_STAGING#s3+}/$(basename upload-tree/*.iso)" >> build.env
     echo "STAGING_CHANNEL_URL=${S3_TARGET_STAGING#s3+}/sysupdate/v2/" >> build.env
+    echo "SYSUPDATE_PUBKEY_B64=" >> build.env
 }
 
 publish() {
