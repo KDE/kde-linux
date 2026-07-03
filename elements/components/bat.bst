@@ -6,6 +6,7 @@ kind: manual
 description: Cat clone with syntax highlighting and git integration
 
 build-depends:
+- freedesktop-sdk.bst:bootstrap/stripper.bst
 - freedesktop-sdk.bst:components/rust.bst
 
 depends:

@@ -7,6 +7,7 @@ kind: manual
 description: Fly through your shell history
 
 build-depends:
+- freedesktop-sdk.bst:bootstrap/stripper.bst
 - freedesktop-sdk.bst:components/rust.bst
 
 depends:

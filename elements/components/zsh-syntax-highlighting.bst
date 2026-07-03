@@ -9,6 +9,9 @@ depends:
 - freedesktop-sdk.bst:public-stacks/runtime-minimal.bst
 - components/zsh.bst
 
+variables:
+  strip-binaries: ''
+
 config:
   install-commands:
   - install -Dm644 zsh-syntax-highlighting.zsh "%{install-root}%{datadir}/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"

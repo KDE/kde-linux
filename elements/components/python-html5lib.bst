@@ -4,6 +4,7 @@
 kind: manual
 
 build-depends:
+- freedesktop-sdk.bst:bootstrap/stripper.bst
 - freedesktop-sdk.bst:components/python3-pip.bst
 - freedesktop-sdk.bst:components/python3.bst
 

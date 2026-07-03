@@ -11,6 +11,7 @@ build-depends:
 - freedesktop-sdk.bst:bootstrap/pcre2.bst
 - freedesktop-sdk.bst:components/gdbm.bst
 - freedesktop-sdk.bst:components/libcap.bst
+- freedesktop-sdk.bst:components/stripper.bst
 
 depends:
 - freedesktop-sdk.bst:public-stacks/runtime-minimal.bst
@@ -55,7 +56,9 @@ config:
   install-commands:
     (>):
     - install -Dm644 zprofile "%{install-root}%{sysconfdir}/zsh/zprofile"
-    - install -Dm644 LICENCE "%{install-root}%{datadir}/licenses/zsh/LICENSE"
+    - |
+      rm "%{install-root}%{bindir}/zsh"
+      ln -s zsh-5.9.1 "%{install-root}%{bindir}/zsh"
 
 public:
   bst:

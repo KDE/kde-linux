@@ -7,6 +7,7 @@ kind: manual
 description: A modern replacement for ps written in Rust
 
 build-depends:
+- freedesktop-sdk.bst:bootstrap/stripper.bst
 - freedesktop-sdk.bst:components/rust.bst
 
 depends:

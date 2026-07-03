@@ -7,6 +7,7 @@ kind: manual
 description: Simple, fast and user-friendly alternative to find
 
 build-depends:
+- freedesktop-sdk.bst:bootstrap/stripper.bst
 - freedesktop-sdk.bst:components/rust.bst
 
 depends:

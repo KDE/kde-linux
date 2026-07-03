@@ -7,6 +7,7 @@ kind: manual
 description: A search tool that combines the usability of ag with the raw speed of grep
 
 build-depends:
+- freedesktop-sdk.bst:bootstrap/stripper.bst
 - freedesktop-sdk.bst:components/rust.bst
 
 depends:

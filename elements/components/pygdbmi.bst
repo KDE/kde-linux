@@ -12,6 +12,7 @@ sources:
 build-depends:
 - freedesktop-sdk.bst:components/python3-setuptools.bst
 - freedesktop-sdk.bst:components/python3-pip.bst
+- freedesktop-sdk.bst:bootstrap/stripper.bst
 
 depends:
 - freedesktop-sdk.bst:components/python3.bst

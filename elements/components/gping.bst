@@ -7,6 +7,7 @@ kind: manual
 description: Ping, but with a graph
 
 build-depends:
+- freedesktop-sdk.bst:bootstrap/stripper.bst
 - freedesktop-sdk.bst:components/rust.bst
 
 depends:

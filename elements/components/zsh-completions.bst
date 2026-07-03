@@ -8,6 +8,7 @@ description: Additional completion definitions for zsh
 depends:
 - freedesktop-sdk.bst:public-stacks/runtime-minimal.bst
 - components/zsh.bst
+- freedesktop-sdk.bst:bootstrap/stripper.bst
 
 config:
   install-commands:
