@@ -111,3 +111,28 @@ publish:
     when: always
     paths:
       - "**/erofs.log"
+
+# Manual override for publishing a staged image when OpenQA breaks.
+publish-manual:
+  stage: publish
+  tags:
+    - VM
+    - amd64
+  rules:
+    - if: $CI_COMMIT_REF_PROTECTED == 'true' && $CI_DEFAULT_BRANCH == $CI_COMMIT_REF_NAME && $CI_PROJECT_PATH == 'kde-linux/kde-linux'
+      when: manual
+  needs:
+    - job: imaging
+      artifacts: true
+  allow_failure: false
+  image: storage.kde.org/vm-images/kde-linux-builder
+  id_tokens: *tokens
+  variables: *variables
+  script:
+    - curl -s https://gitlab.com/gitlab-org/incubation-engineering/mobile-devops/download-secure-files/-/raw/main/installer | bash
+    - ./upload.sh --publish
+  artifacts:
+    expire_in: 4 weeks
+    when: always
+    paths:
+      - "**/erofs.log"
