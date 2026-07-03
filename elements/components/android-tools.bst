@@ -14,7 +14,7 @@ build-depends:
 - freedesktop-sdk.bst:components/lz4.bst
 - freedesktop-sdk.bst:components/protobuf.bst
 - freedesktop-sdk.bst:components/zstd.bst
-- gnome-build-meta.bst:boards/common/libgtest.bst
+- components/libgtest.bst
 
 depends:
 - freedesktop-sdk.bst:public-stacks/runtime-minimal.bst

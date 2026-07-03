@@ -43,4 +43,5 @@ config:
 sources:
 - kind: git_repo
   url: https://gitlab.gnome.org/GNOME/gnome-build-meta.git
-  ref: e7b5e00f44b8ae532d33bcd7f1ca14c2c8dc0a87
+  ref: 49-branchpoint-781-g71bd07f7627b990b55e6bfacc772b3f19046209a
+  track: sam/fdsdk-26.08

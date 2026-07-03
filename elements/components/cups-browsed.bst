@@ -5,6 +5,7 @@ kind: autotools
 
 build-depends:
 - freedesktop-sdk.bst:public-stacks/buildsystem-autotools.bst
+- freedesktop-sdk.bst:components/python3.bst
 
 depends:
 - freedesktop-sdk.bst:public-stacks/runtime-minimal.bst

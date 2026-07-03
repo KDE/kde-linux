@@ -22,8 +22,9 @@ depends:
 - freedesktop-sdk.bst:components/libxml2.bst
 - freedesktop-sdk.bst:components/linux-pam.bst
 - freedesktop-sdk.bst:components/procps.bst
-- components/xmlsec.bst
+- components/re2.bst
 - components/rpcsvc-proto.bst
+- components/xmlsec.bst
 
 variables:
   command-subdir: open-vm-tools

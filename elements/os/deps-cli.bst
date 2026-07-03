@@ -61,8 +61,8 @@ depends:
 - components/zsh-completions.bst
 - components/zsh-history-substring-search.bst # zsh-history-substring-search: fish-like history search
 - components/zsh-syntax-highlighting.bst # zsh-syntax-highlighting: fish-like syntax highlighting
-- gnome-build-meta.bst:boards/common/alsa-utils.bst # alsa-utils: alsamixer and other useful audio debugging tools
-- gnome-build-meta.bst:boards/common/iw.bst # iw: Kernel-level wireless configuration
+- components/alsa-utils.bst # alsa-utils: alsamixer and other useful audio debugging tools
+- components/iw.bst # iw: Kernel-level wireless configuration
 - gnome-build-meta.bst:core-deps/espeak-ng.bst # espeak-ng: CLI-invoked speech; accessible automation feedback
 - gnome-build-meta.bst:gnomeos-deps/distrobox.bst
 - components/android-tools.bst # android-tools: Tools for working with Android devices

@@ -18,7 +18,7 @@ depends:
 - freedesktop-sdk.bst:components/nss.bst
 - freedesktop-sdk.bst:components/openssl.bst
 - gnome-build-meta.bst:core-deps/ppp.bst
-- gnome-build-meta.bst:core-deps/libnma.bst
+- components/libnma.bst
 
 config:
   configure-commands:

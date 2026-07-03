@@ -11,16 +11,16 @@ sources:
 
 build-depends:
 - freedesktop-sdk.bst:public-stacks/buildsystem-meson.bst
-- gnome-build-meta.bst:sdk/gobject-introspection.bst
-- gnome-build-meta.bst:sdk/gtk-doc.bst
-- gnome-build-meta.bst:sdk/vala.bst
+- freedesktop-sdk.bst:components/gobject-introspection.bst
+- freedesktop-sdk.bst:components/gtk-doc.bst
+- freedesktop-sdk.bst:components/vala.bst
 
 depends:
 - freedesktop-sdk.bst:components/networkmanager.bst
 - gnome-build-meta.bst:core-deps/mobile-broadband-provider-info.bst
 - gnome-build-meta.bst:sdk/gcr.bst
 - freedesktop-sdk.bst:components/glib.bst
-- gnome-build-meta.bst:sdk/gtk+-3.bst
+- freedesktop-sdk.bst:components/gtk3.bst
 - freedesktop-sdk.bst:components/iso-codes.bst
 - freedesktop-sdk.bst:public-stacks/runtime-minimal.bst
 

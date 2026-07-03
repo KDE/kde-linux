@@ -15,7 +15,7 @@ depends:
 - freedesktop-sdk.bst:components/gtk3.bst
 - freedesktop-sdk.bst:components/libsecret.bst
 - freedesktop-sdk.bst:components/networkmanager.bst
-- gnome-build-meta.bst:core-deps/libnma.bst
+- components/libnma.bst
 - components/openvpn.bst
 
 sources:

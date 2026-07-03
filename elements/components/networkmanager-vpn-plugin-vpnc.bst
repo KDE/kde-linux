@@ -14,7 +14,7 @@ depends:
 - freedesktop-sdk.bst:public-stacks/runtime-minimal.bst
 - freedesktop-sdk.bst:components/gtk3.bst
 - freedesktop-sdk.bst:components/networkmanager.bst
-- gnome-build-meta.bst:core-deps/libnma.bst
+- components/libnma.bst
 
 sources:
 - kind: git_repo
