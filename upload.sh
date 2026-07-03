@@ -111,6 +111,7 @@ publish() {
     mkdir -p publish-artifacts
     go -C ./token-redeemer/ run .
     go -C ./publisher/ build -o publisher .
+    umask 022
     ./publisher/publisher --remote "$S3_TARGET_STAGING" --output publish-artifacts --download
     shopt -s nullglob
     publish_artifacts=(publish-artifacts/*.iso publish-artifacts/*.torrent publish-artifacts/*.efi publish-artifacts/*.tar.zst publish-artifacts/*.erofs publish-artifacts/*.caibx)
@@ -135,6 +136,7 @@ publish() {
 
         gpg --homedir="$GNUPGHOME" --output SHA256SUMS.gpg --detach-sign SHA256SUMS
 
+        chmod 644 ./*.iso ./*.torrent ./*.efi ./*.tar.zst ./*.erofs ./*.caibx
         scp -i "$SSH_IDENTITY" ./*.iso ./*.torrent "$REMOTE_ROOT_PATH"
         scp -i "$SSH_IDENTITY" ./*.efi ./*.tar.zst ./*.erofs ./*.caibx "$REMOTE_SYSUPDATE_PATH"
     )
