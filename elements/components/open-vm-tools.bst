@@ -8,6 +8,8 @@ description: The Open Virtual Machine Tools (open-vm-tools) are the open source 
 
 build-depends:
 - freedesktop-sdk.bst:public-stacks/buildsystem-autotools.bst
+- freedesktop-sdk.bst:components/python3.bst
+- components/re2.bst
 - components/libmspack.bst
 
 depends:
@@ -22,7 +24,6 @@ depends:
 - freedesktop-sdk.bst:components/libxml2.bst
 - freedesktop-sdk.bst:components/linux-pam.bst
 - freedesktop-sdk.bst:components/procps.bst
-- components/re2.bst
 - components/rpcsvc-proto.bst
 - components/xmlsec.bst
 
@@ -40,3 +41,5 @@ sources:
   url: github:vmware/open-vm-tools
   track: 'stable-*'
   ref: stable-13.1.0-0-g50cede15e10a21ab919f5ad2961ae0a1840a1911
+- kind: patch
+  path: elements/components/patch/open-vm-tools-glibc-2.43.patch
