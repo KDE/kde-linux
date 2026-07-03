@@ -112,6 +112,13 @@ publish() {
     go -C ./token-redeemer/ run .
     go -C ./publisher/ build -o publisher .
     ./publisher/publisher --remote "$S3_TARGET_STAGING" --output publish-artifacts --download
+    shopt -s nullglob
+    publish_artifacts=(publish-artifacts/*.iso publish-artifacts/*.torrent publish-artifacts/*.efi publish-artifacts/*.tar.zst publish-artifacts/*.erofs publish-artifacts/*.caibx)
+    shopt -u nullglob
+    if [[ "${#publish_artifacts[@]}" -eq 0 ]]; then
+        echo "No staged artifacts found at $S3_TARGET_STAGING; assuming this staging prefix was already published."
+        exit 0
+    fi
 
     # Publish to files.kde.org.
     go -C ./upload-vacuum/ build -o upload-vacuum .

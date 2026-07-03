@@ -103,6 +103,7 @@ publish:
   image: storage.kde.org/vm-images/kde-linux-builder
   id_tokens: *tokens
   variables: *variables
+  resource_group: kde-linux-publish
   script:
     - curl -s https://gitlab.com/gitlab-org/incubation-engineering/mobile-devops/download-secure-files/-/raw/main/installer | bash
     - ./upload.sh --publish
@@ -128,6 +129,7 @@ publish-manual:
   image: storage.kde.org/vm-images/kde-linux-builder
   id_tokens: *tokens
   variables: *variables
+  resource_group: kde-linux-publish
   script:
     - curl -s https://gitlab.com/gitlab-org/incubation-engineering/mobile-devops/download-secure-files/-/raw/main/installer | bash
     - ./upload.sh --publish
