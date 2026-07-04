@@ -45,3 +45,5 @@ sources:
   url: https://gitlab.gnome.org/GNOME/gnome-build-meta.git
   ref: 49-branchpoint-781-g71bd07f7627b990b55e6bfacc772b3f19046209a
   track: sam/fdsdk-26.08
+- kind: patch
+  path: files/gnome-build-meta/swtpm-add-python-build-dependency.patch
