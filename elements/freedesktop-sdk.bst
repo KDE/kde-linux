@@ -7,11 +7,7 @@ sources:
 - kind: git_repo
   url: https://gitlab.com/freedesktop-sdk/freedesktop-sdk.git
   track: master # we need to track master because we bring dependencies from there
-  ref: freedesktop-sdk-25.08rc.3-2196-g1b5591ddfda82ad068186cdbbc2715974b65e79c
-- kind: patch
-  path: files/freedesktop-sdk/libunwind.patch
-- kind: patch
-  path: files/freedesktop-sdk/json-glib-add-glib-dependency.patch
+  ref: freedesktop-sdk-25.08rc.3-2201-g9f3e353ff62086992df74eb62225681c18d4f993
 
 config:
   options:
