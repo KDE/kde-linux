@@ -94,6 +94,7 @@ publish:
   rules:
     - if: $CI_COMMIT_REF_PROTECTED == 'true' && $CI_DEFAULT_BRANCH == $CI_COMMIT_REF_NAME && $CI_PROJECT_PATH == 'kde-linux/kde-linux'
       when: on_success
+    - when: never
   needs:
     - job: imaging
       artifacts: true
@@ -122,10 +123,11 @@ publish-manual:
   rules:
     - if: $CI_COMMIT_REF_PROTECTED == 'true' && $CI_DEFAULT_BRANCH == $CI_COMMIT_REF_NAME && $CI_PROJECT_PATH == 'kde-linux/kde-linux'
       when: manual
+      allow_failure: true
+    - when: never
   needs:
     - job: imaging
       artifacts: true
-  allow_failure: false
   image: storage.kde.org/vm-images/kde-linux-builder
   id_tokens: *tokens
   variables: *variables
