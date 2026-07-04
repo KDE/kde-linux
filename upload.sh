@@ -61,7 +61,7 @@ REMOTE_SYSUPDATE_PATH=$SSH_USER@$SSH_HOST:$SSH_SYSUPDATE_PATH
 echo "tinami.kde.org ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILUjdH4S7otYIdLUkOZK+owIiByjNQPzGi7GQ5HOWjO6" >> ~/.ssh/known_hosts
 
 stage() {
-    S3_TARGET_STAGING="s3+https://storage.kde.org/ci-artifacts/$CI_PROJECT_PATH/j/$CI_JOB_ID"
+    S3_TARGET_STAGING="s3+https://storage.kde.org/kde-linux/staging/$CI_JOB_ID"
 
     # Stage the freshly built image into the bucket.
     sudo chown -R "$USER":"$USER" "$OUTDIR"
