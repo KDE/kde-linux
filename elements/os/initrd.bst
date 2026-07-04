@@ -51,5 +51,5 @@ config:
       --kver "${version}" \
       --kernel-cmdline "rw console=tty0 console=ttyS0 quiet" \
       --filesystems "ext4 btrfs erofs" \
-      --install 'basename grep fsck.ext4 /usr/lib/btrfs-migrator /usr/lib/etc-factory /usr/lib/rootfs-transition /usr/lib/systemd/system-generators/kde-linux-live-generator /usr/lib/systemd/system-generators/kde-linux-mount-generator /usr/lib/systemd/system/etc-factory.service /usr/lib/systemd/system/local-fs-pre.target.wants/etc-factory.service' \
+      --install 'basename grep fsck.ext4 systemd-dissect /usr/lib/btrfs-migrator /usr/lib/etc-factory /usr/lib/rootfs-transition /usr/lib/systemd/system-generators/kde-linux-live-generator /usr/lib/systemd/system-generators/kde-linux-mount-generator /usr/lib/systemd/system/etc-factory.service /usr/lib/systemd/system/local-fs-pre.target.wants/etc-factory.service /usr/lib/systemd/system/systemd-loop@.service' \
       --include /tmp/initrd-overlay /
