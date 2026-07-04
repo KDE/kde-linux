@@ -43,50 +43,26 @@ func prefix(path string) string {
 	return trimmed + "/"
 }
 
-func destinationPrefix(path string) string {
-	path = strings.Trim(path, "/")
-	if path == "" {
-		log.Fatalln("Remote path must be a non-empty staging path")
-	}
-
-	parts := strings.Split(path, "/")
-	for i, part := range parts {
-		if part != "staging" {
-			continue
-		}
-		if i == len(parts)-1 {
-			log.Fatalln("Remote path must include a staging directory name")
-		}
-		if i == 0 {
-			return ""
-		}
-		return strings.Join(parts[:i], "/") + "/"
-	}
-
-	log.Fatalln("Remote path must contain a staging directory")
-	return ""
-}
-
 func isChannelCommitMarker(key string) bool {
 	base := filepath.Base(key)
 	return base == "SHA256SUMS" || base == "SHA256SUMS.gpg"
 }
 
 func removeObject(ctx context.Context, client *minio.Client, bucket string, objectKey string) {
-	log.Printf("Removing staged object %s", objectKey)
+	log.Printf("Removing source object s3://%s/%s", bucket, objectKey)
 	if err := client.RemoveObject(ctx, bucket, objectKey, minio.RemoveObjectOptions{}); err != nil {
-		log.Fatalf("Failed to remove %s: %v", objectKey, err)
+		log.Fatalf("Failed to remove source object s3://%s/%s: %v", bucket, objectKey, err)
 	}
 }
 
-// publish merges a staging tree into its channel root.
-func publish(client *minio.Client, bucket string, path string) {
+// publish copies a source tree into its destination tree.
+func publish(client *minio.Client, srcBucket string, srcPath string, destBucket string, destPath string) {
 	ctx := context.Background()
-	srcPrefix := prefix(path)
 
-	destPrefix := destinationPrefix(path)
+	srcPrefix := prefix(srcPath)
+	destPrefix := prefix(destPath)
 
-	objects := client.ListObjects(ctx, bucket, minio.ListObjectsOptions{
+	objects := client.ListObjects(ctx, srcBucket, minio.ListObjectsOptions{
 		Prefix:    srcPrefix,
 		Recursive: true,
 	})
@@ -107,25 +83,30 @@ func publish(client *minio.Client, bucket string, path string) {
 		}
 		if isChannelCommitMarker(rel) {
 			log.Printf("Skipping staged commit marker %s", objectKey)
-			removeObject(ctx, client, bucket, objectKey)
+			removeObject(ctx, client, srcBucket, objectKey)
 			continue
 		}
-		dstKey := destPrefix + rel
-		if dstKey == objectKey {
+		destKey := destPrefix + rel
+		if srcBucket == destBucket && destKey == objectKey {
 			continue
 		}
 
-		log.Printf("Publishing %s -> %s", objectKey, dstKey)
+		log.Printf("Publishing s3://%s/%s -> s3://%s/%s", srcBucket, objectKey, destBucket, destKey)
 
 		_, err := client.ComposeObject(ctx,
-			minio.CopyDestOptions{Bucket: bucket, Object: dstKey},
-			minio.CopySrcOptions{Bucket: bucket, Object: objectKey},
+			minio.CopyDestOptions{Bucket: destBucket, Object: destKey},
+			minio.CopySrcOptions{Bucket: srcBucket, Object: objectKey},
 		)
 		if err != nil {
-			log.Fatalf("Failed to copy %s to %s: %v", objectKey, dstKey, err)
+			log.Fatalf(
+				"Failed to copy s3://%s/%s to s3://%s/%s: %v",
+				srcBucket, objectKey,
+				destBucket, destKey,
+				err,
+			)
 		}
 
-		removeObject(ctx, client, bucket, objectKey)
+		removeObject(ctx, client, srcBucket, objectKey)
 	}
 }
 
@@ -168,53 +149,79 @@ func download(client *minio.Client, bucket string, path string, output string) {
 	}
 }
 
-// Either downloads every build artifact in the staging directory into --output,
-// or promotes the staging tree into the channel root.
+func parseURL(URLString string) *url.URL {
+	parsedURL, err := url.Parse(URLString)
+	if err != nil {
+		log.Fatalln("Failed to parse URL:", err)
+	}
+	if parsedURL.Scheme != "s3+https" {
+		log.Fatalln("Unsupported URL scheme:", parsedURL.Scheme)
+	}
+	if parsedURL.Host != "storage.kde.org" {
+		log.Fatalln("Unsupported URL host:", parsedURL.Host)
+	}
+	return parsedURL
+}
+
+func getBucketAndPath(bucketURL *url.URL) (string, string) {
+	path := strings.Trim(bucketURL.Path, "/")
+	if path == "" {
+		log.Fatalln("Invalid URL path, expected at least /bucket")
+	}
+
+	parts := strings.SplitN(path, "/", 2)
+	bucket := parts[0]
+	if bucket == "" {
+		log.Fatalln("Invalid URL path, expected at least /bucket")
+	}
+
+	objectPrefix := ""
+	if len(parts) == 2 {
+		objectPrefix = strings.Trim(parts[1], "/")
+	}
+
+	return bucket, objectPrefix
+}
+
+// Either downloads every build artifact from the source into --output,
+// or publishes the source tree into the destination.
 func main() {
-	remote := flag.String("remote", "", "remote url to publish from, e.g. s3+https://storage.kde.org/kde-linux/staging/1")
+	src := flag.String("src", "", "source URL to publish from, e.g. s3+https://storage.kde.org/ci-artifacts/project/j/1")
+	downloadMode := flag.Bool("download", false, "download artifacts from the source tree")
 	output := flag.String("output", ".", "directory to download artifacts into")
-	downloadMode := flag.Bool("download", false, "download artifacts from the staging tree")
-	promoteMode := flag.Bool("promote", false, "promote the staging tree into the channel root")
+	dest := flag.String("dest", "", "destination URL to publish to, e.g. s3+https://storage.kde.org/kde-linux/")
 	flag.Parse()
 
-	if *downloadMode == *promoteMode {
-		log.Fatalln("Must choose exactly one of --download or --promote")
+	if *downloadMode == (*dest != "") {
+		log.Fatalln("Must choose exactly one of --download or --dest")
 	}
 
-	remoteURI, err := url.Parse(*remote)
-	if err != nil {
-		log.Fatalln("Failed to parse remote URL:", err)
-	}
-	if remoteURI.Scheme != "s3+https" {
-		log.Fatalln("Unsupported remote scheme:", remoteURI.Scheme)
-	}
-	if remoteURI.Host != "storage.kde.org" {
-		log.Fatalln("Unsupported remote host:", remoteURI.Host)
-	}
-	parts := strings.SplitN(remoteURI.Path[1:], "/", 2)
-	if len(parts) != 2 {
-		log.Fatalln("Invalid remote path, expected format: /bucket/path")
-	}
-	bucket := parts[0]
-	path := parts[1]
-	if bucket == "" {
-		log.Fatalln("Invalid remote path, expected format: /bucket/path")
-	}
-	if path == "" {
-		log.Println("Warning: path is empty, uploading to bucket root")
-		path = "/"
-	}
-
-	log.Println("Connecting to MinIO at", remoteURI.Host)
-	minioClient := connectToMinIO(remoteURI.Host)
+	srcURL := parseURL(*src)
+	srcBucket, srcPath := getBucketAndPath(srcURL)
 
 	if *downloadMode {
-		log.Println("Downloading artifacts from bucket", bucket, "with path prefix", path, "into", *output)
-		download(minioClient, bucket, path, *output)
+		log.Println("Connecting to MinIO at", srcURL.Host)
+		minioClient := connectToMinIO(srcURL.Host)
+		log.Println("Downloading artifacts from source bucket", srcBucket, "with path prefix", srcPath, "into", *output)
+		download(minioClient, srcBucket, srcPath, *output)
 	}
 
-	if *promoteMode {
-		log.Println("Publishing to bucket", bucket, "from source path", path)
-		publish(minioClient, bucket, path)
+	if *dest != "" {
+		if srcPath == "" {
+			log.Fatalln("Source URL path must include a non-empty object prefix when publishing")
+		}
+
+		destURL := parseURL(*dest)
+		destBucket, destPath := getBucketAndPath(destURL)
+
+		if srcURL.Host != destURL.Host {
+			log.Fatalln("Source and destination endpoints must be the same.")
+		}
+
+		log.Println("Connecting to MinIO at", srcURL.Host)
+		minioClient := connectToMinIO(srcURL.Host)
+
+		log.Println("Publishing from source bucket", srcBucket, "with path prefix", srcPath, "to destination bucket", destBucket, "with path prefix", destPath)
+		publish(minioClient, srcBucket, srcPath, destBucket, destPath)
 	}
 }

@@ -49,10 +49,9 @@ export GNUPGHOME="$PWD/.secure_files/gpg"
 
 # upload tree built during staging
 V2_TREE="upload-tree/sysupdate/v2"
-
 S3_TARGET="s3+https://storage.kde.org/kde-linux/"
+S3_CHANNEL_TARGET="${S3_TARGET}testing/"
 S3_STORE="${S3_TARGET}sysupdate/store/"
-S3_TARGET_STAGING="${S3_TARGET_STAGING:-}"
 
 # files.kde.org scp targets. We don't stage on files.kde.org, only on the storage.kde.org bucket.
 # We download from the bucket then upload directly to files.kde.org to publish there.
@@ -62,7 +61,7 @@ REMOTE_SYSUPDATE_PATH=$SSH_USER@$SSH_HOST:$SSH_SYSUPDATE_PATH
 echo "tinami.kde.org ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILUjdH4S7otYIdLUkOZK+owIiByjNQPzGi7GQ5HOWjO6" >> ~/.ssh/known_hosts
 
 stage() {
-    S3_TARGET_STAGING="${S3_TARGET_STAGING:-${S3_TARGET}testing/staging/${CI_PIPELINE_ID}/${CI_JOB_ID}}"
+    S3_TARGET_STAGING="s3+https://storage.kde.org/ci-artifacts/$CI_PROJECT_PATH/j/$CI_JOB_ID"
 
     # Stage the freshly built image into the bucket.
     sudo chown -R "$USER":"$USER" "$OUTDIR"
@@ -94,8 +93,9 @@ stage() {
 
     # Emit the exact staging target for the publish job, plus public URLs for
     # OpenQA to test the staged image and sysupdate channel.
+    ISO_FILE=$(find upload-tree -maxdepth 1 -name '*.iso' | head -1 | xargs -r basename)
     echo "S3_TARGET_STAGING=$S3_TARGET_STAGING" >> build.env
-    echo "IMAGE_URL=${S3_TARGET_STAGING#s3+}/$(basename upload-tree/*.iso)" >> build.env
+    echo "IMAGE_URL=${S3_TARGET_STAGING#s3+}/$ISO_FILE" >> build.env
     echo "STAGING_CHANNEL_URL=${S3_TARGET_STAGING#s3+}/sysupdate/v2/" >> build.env
     echo "SYSUPDATE_PUBKEY_B64=" >> build.env
 }
@@ -112,7 +112,7 @@ publish() {
     go -C ./token-redeemer/ run .
     go -C ./publisher/ build -o publisher .
     umask 022
-    ./publisher/publisher --remote "$S3_TARGET_STAGING" --output publish-artifacts --download
+    ./publisher/publisher --src "$S3_TARGET_STAGING" --output publish-artifacts --download
     shopt -s nullglob
     publish_artifacts=(publish-artifacts/*.iso publish-artifacts/*.torrent publish-artifacts/*.efi publish-artifacts/*.tar.zst publish-artifacts/*.erofs publish-artifacts/*.caibx)
     shopt -u nullglob
@@ -156,7 +156,7 @@ publish() {
 
     # Merge the staged tree into the live S3 tree only after files.kde.org and the chunk store are ready.
     go -C ./token-redeemer/ run .
-    ./publisher/publisher --remote "$S3_TARGET_STAGING" --promote
+    ./publisher/publisher --src "$S3_TARGET_STAGING" --dest "$S3_CHANNEL_TARGET"
 
     # Regenerate, re-sign and re-upload SHA256SUMS.
     go -C ./token-redeemer/ run .
