@@ -34,6 +34,7 @@ echo "rw \
   nohz=on nohz_full=all \
   rcu_nocbs=all rcutree.enable_rcu_lazy=1 \
   amdgpu.dcdebugmask=0x10 \
+  nowatchdog \
   vt.global_cursor_default=0 quiet splash plymouth.ignore-serial-consoles loglevel=3" > cmdline
 mkinitcpio --config mkinitcpio.conf --generate initrd --kernel "$kernel_version"
 ukify build \
@@ -55,6 +56,8 @@ ukify build \
 # automatically by nohz_full=all, but we manually specify it here anyway because
 # rcutree.enable_rcu_lazy=1 needs it and we don't want that to break.
 
+# "nowatchdog" turns off all watchdog functionality.
+
 # amdgpu.dcdebugmask=0x10 works around https://gitlab.freedesktop.org/drm/amd/-/issues/4831
 echo "rw rootflags=subvol=@system,compress=zstd:-4,lazytime \
   lsm=landlock,lockdown,yama,integrity,bpf \
@@ -64,6 +67,7 @@ echo "rw rootflags=subvol=@system,compress=zstd:-4,lazytime \
   rcu_nocbs=all rcutree.enable_rcu_lazy=1 \
   amdgpu.dcdebugmask=0x10 \
   systemd.hostname=kde-linux \
+  nowatchdog \
   vt.global_cursor_default=0 quiet splash plymouth.ignore-serial-consoles loglevel=3" > cmdline
 mkinitcpio --config mkinitcpio.conf --generate initrd --kernel "$kernel_version"
 ukify build \
