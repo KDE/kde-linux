@@ -159,7 +159,7 @@ rm -v "${OUTPUT}"/kde-linux.efi
 mv -v "${OUTPUT}"/erofs.addon.efi "${OUTPUT}_erofs.addon.efi"
 mv -v "${OUTPUT}"/live.efi "$LIVE_UKI"
 
-# make_debug_archive
+make_debug_archive
 
 # Now let's actually build the live ESP.
 # We use kde-linux.cache instead of /tmp as usual because we'll probably run out of space there.
