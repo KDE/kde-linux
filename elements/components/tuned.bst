@@ -21,6 +21,9 @@ depends:
 - freedesktop-sdk.bst:components/python3-dbus.bst
 - freedesktop-sdk.bst:components/python3.bst
 
+runtime-depends:
+- components/python-pyudev.bst
+
 variables:
   make-args: >-
     DESTDIR="%{install-root}"
