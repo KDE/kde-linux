@@ -217,7 +217,7 @@ systemd-repart \
     --el-torito-publisher="KDE" \
     "$ISO"
 
-# Incase the owner is root
+# In case the owner is root
 sudo chown -R `whoami`:`whoami` mkosi.output
 
 # Create a torrent for the image
