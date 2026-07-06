@@ -42,3 +42,7 @@ install.tar.zst
 debug.tar.zst
 packages.txt
 /.bst/
+/buildstream-rootfs/
+/buildstream-bootfs/
+/buildstream-toolfs/
+/buildstream-efi/
