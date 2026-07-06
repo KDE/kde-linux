@@ -144,7 +144,7 @@ if [ -f "$PWD/.secure_files/ssh.key" ]; then
 fi
 
 # NOTE: /efi must be empty so auto mounting can happen. As such we put our templates in a different directory
-rm -rfv "${OUTPUT}/efi"
+sudo rm -rfv "${OUTPUT}/efi" # sudo because this is root owned
 [ -d "${OUTPUT}/efi" ] || mkdir --mode 0700 "${OUTPUT}/efi"
 [ -d "${OUTPUT}/usr/share/factory/boot" ] || mkdir --mode 0700 "${OUTPUT}/usr/share/factory/boot"
 [ -d "${OUTPUT}/usr/share/factory/boot/EFI" ] || mkdir --mode 0700 "${OUTPUT}/usr/share/factory/boot/EFI"
