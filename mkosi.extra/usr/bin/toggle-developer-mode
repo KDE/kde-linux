@@ -14,17 +14,21 @@ org.kde.plasma.lookandfeelexplorer.desktop \
 org.kde.plasma.themeexplorer.desktop \
 org.kde.plasmaengineexplorer.desktop"
 
-function enable_dev_apps
+enable_dev_apps()
 {
     echo "Enabling development apps…"
 
-    run0 mkdir -p "$OPT_APPS_LOCATION" 1> /dev/null
+    # Heredoc into run0 so we only have one auth prompt.
+    run0 sh <<EOF
+set -e
+mkdir -p "$OPT_APPS_LOCATION" 1> /dev/null
 
-    for ITEM in $PREINSTALLED_DEV_APPS; do
-        run0 cp "${USR_APPS_LOCATION}${ITEM}" "${OPT_APPS_LOCATION}${ITEM}" 1> /dev/null
-        run0 sed -i "/NoDisplay=true/d" "${OPT_APPS_LOCATION}${ITEM}" 1> /dev/null
-        echo "- Enabled ${ITEM}"
-    done
+for ITEM in $PREINSTALLED_DEV_APPS; do
+    cp "${USR_APPS_LOCATION}\${ITEM}" "${OPT_APPS_LOCATION}\${ITEM}" 1> /dev/null
+    sed -i "/NoDisplay=true/d" "${OPT_APPS_LOCATION}\${ITEM}" 1> /dev/null
+    echo "- Enabled \${ITEM}"
+done
+EOF
 
     echo "Refreshing app cache…"
     kbuildsycoca6
@@ -33,18 +37,22 @@ function enable_dev_apps
     echo "files were installed in ${OPT_APPS_LOCATION}."
 }
 
-function disable_dev_apps
+disable_dev_apps()
 {
     echo "Hiding development apps…"
 
-    for ITEM in $PREINSTALLED_DEV_APPS; do
-        run0 rm "${OPT_APPS_LOCATION}${ITEM}" 1> /dev/null
-    done
+    # Heredoc into run0 so we only have one auth prompt.
+    run0 sh <<EOF
+set -e
+for ITEM in $PREINSTALLED_DEV_APPS; do
+    rm "${OPT_APPS_LOCATION}\${ITEM}" 1> /dev/null
+done
+
+rmdir --ignore-fail-on-non-empty "$OPT_APPS_LOCATION" 1> /dev/null
+EOF
 
     echo "Refreshing app cache…"
     kbuildsycoca6
-
-    run0 rmdir --ignore-fail-on-non-empty "$OPT_APPS_LOCATION" 1> /dev/null
 
     echo "Done; development apps are now hidden."
 }
