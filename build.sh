@@ -118,9 +118,9 @@ cp $BUILDSTREAM_EFI/usr/share/ovmf/Shell.efi $BUILDSTREAM_ROOTFS/usr/share/ovmf/
 ./permission-fix.sh
 
 if [ "${CI_COMMIT_BRANCH:-}" = "master" ]; then
-  wget https://storage.kde.org/kde-linux-packages/testing/artifacts/install.tar.zst
+  wget --output-document=install.tar.zst https://storage.kde.org/kde-linux-packages/testing/artifacts/install.tar.zst
 else
-  wget https://storage.kde.org/ci-artifacts/kde-linux/kde-linux-packages/j/4665614/testing/artifacts/install.tar.zst
+  wget --output-document=install.tar.zst https://storage.kde.org/ci-artifacts/kde-linux/kde-linux-packages/j/4665614/testing/artifacts/install.tar.zst
 fi
 
 mkosi \
