@@ -124,9 +124,10 @@ else
 fi
 
 mkosi \
-    --extra-tree $BUILDSTREAM_BOOTFS:/boot \
     --image-version="$VERSION" \
-    --extra-tree="$PWD/install.tar.zst" --extra-tree="$PWD/mkosi.extra" \
+    --extra-tree $BUILDSTREAM_BOOTFS:/boot \
+    --extra-tree="$PWD/install.tar.zst" \
+    --extra-tree="$PWD/mkosi.extra" \
     "$@"
 
 # Adjust mtime to reduce unnecessary churn between images caused by us rebuilding repos that have possibly not changed in source or binary interfaces.
