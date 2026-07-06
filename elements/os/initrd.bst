@@ -5,16 +5,16 @@
 kind: script
 
 build-depends:
-- freedesktop-sdk.bst:components/fakecap.bst
-- freedesktop-sdk.bst:components/btrfs-progs.bst
-- freedesktop-sdk.bst:components/dbus.bst
-- freedesktop-sdk.bst:components/dracut.bst
-- freedesktop-sdk.bst:components/shadow.bst
-- freedesktop-sdk.bst:components/systemd.bst
-- freedesktop-sdk.bst:components/tzdata.bst
-- freedesktop-sdk.bst:vm/boot/efi/deps.bst
-- freedesktop-sdk.bst:vm/boot/efi/initial-scripts.bst
-- freedesktop-sdk.bst:vm/prepare-image.bst
+- kde-linux-packages.bst:kde-buildstream.bst:freedesktop-sdk.bst:components/fakecap.bst
+- kde-linux-packages.bst:kde-buildstream.bst:freedesktop-sdk.bst:components/btrfs-progs.bst
+- kde-linux-packages.bst:kde-buildstream.bst:freedesktop-sdk.bst:components/dbus.bst
+- kde-linux-packages.bst:kde-buildstream.bst:freedesktop-sdk.bst:components/dracut.bst
+- kde-linux-packages.bst:kde-buildstream.bst:freedesktop-sdk.bst:components/shadow.bst
+- kde-linux-packages.bst:kde-buildstream.bst:freedesktop-sdk.bst:components/systemd.bst
+- kde-linux-packages.bst:kde-buildstream.bst:freedesktop-sdk.bst:components/tzdata.bst
+- kde-linux-packages.bst:kde-buildstream.bst:freedesktop-sdk.bst:vm/boot/efi/deps.bst
+- kde-linux-packages.bst:kde-buildstream.bst:freedesktop-sdk.bst:vm/boot/efi/initial-scripts.bst
+- kde-linux-packages.bst:kde-buildstream.bst:freedesktop-sdk.bst:vm/prepare-image.bst
 - os/initrd-payload.bst
 - os/os-release.bst
 

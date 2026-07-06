@@ -4,5 +4,5 @@
 kind: stack
 
 depends:
-- components/gammaray.bst # gammaray: GUI debugging for Qt apps
-- components/orca.bst # orca: screen reader
+- kde-linux-packages.bst:kde-buildstream.bst:components/gammaray.bst # gammaray: GUI debugging for Qt apps
+- kde-linux-packages.bst:kde-buildstream.bst:components/orca.bst # orca: screen reader

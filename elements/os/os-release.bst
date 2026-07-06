@@ -7,7 +7,7 @@ kind: manual
 - include/kde-linux-image.yml
 
 build-depends:
-- freedesktop-sdk.bst:public-stacks/runtime-minimal.bst
+- kde-linux-packages.bst:kde-buildstream.bst:freedesktop-sdk.bst:public-stacks/runtime-minimal.bst
 
 variables:
   strip-binaries: ''

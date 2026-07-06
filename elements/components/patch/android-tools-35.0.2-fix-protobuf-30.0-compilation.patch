@@ -1,6 +1,0 @@
---- a/vendor/extras/libjsonpb/parse/jsonpb.cpp
-+++ b/vendor/extras/libjsonpb/parse/jsonpb.cpp
-@@ -36 +36 @@ std::string GetTypeUrl(const google::protobuf::Message& message) {
--  return std::string(kTypeUrlPrefix) + "/" + message.GetDescriptor()->full_name();
-+  return std::string(kTypeUrlPrefix) + "/" + std::string(message.GetDescriptor()->full_name());
- }
