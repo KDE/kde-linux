@@ -143,8 +143,9 @@ if [ -f "$PWD/.secure_files/ssh.key" ]; then
   scp -i "$PWD/.secure_files/ssh.key" mtimer.json kdeos@origin.files.kde.org:/home/kdeos/mtimer.json
 fi
 
+chmod u+w "$OUTPUT" # mkosi tries to be nice by making it read-only
 # NOTE: /efi must be empty so auto mounting can happen. As such we put our templates in a different directory
-sudo rm -rfv "${OUTPUT}/efi" # sudo because this is root owned
+rm -rfv "${OUTPUT}/efi"
 [ -d "${OUTPUT}/efi" ] || mkdir --mode 0700 "${OUTPUT}/efi"
 [ -d "${OUTPUT}/usr/share/factory/boot" ] || mkdir --mode 0700 "${OUTPUT}/usr/share/factory/boot"
 [ -d "${OUTPUT}/usr/share/factory/boot/EFI" ] || mkdir --mode 0700 "${OUTPUT}/usr/share/factory/boot/EFI"
