@@ -29,7 +29,6 @@
 /mkosi.output/
 
 mkosi.local.conf
-*.kate-swp
 
 kde-linux_*
 /kde-linux.cache
@@ -41,6 +40,7 @@ kde-linux_*
 install.tar.zst
 debug.tar.zst
 packages.txt
+*.kate-swp
 /.bst/
 /buildstream-rootfs/
 /buildstream-bootfs/
