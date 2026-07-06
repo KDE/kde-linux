@@ -218,7 +218,7 @@ systemd-repart \
     "$ISO"
 
 # In case the owner is root
-sudo chown -R `whoami`:`whoami` mkosi.output
+sudo chown -R $UID:$UID mkosi.output
 
 # Create a torrent for the image
 ./torrent-create.rb "$VERSION" "$OUTPUT" "$ISO"
