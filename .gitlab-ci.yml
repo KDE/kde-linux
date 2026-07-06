@@ -61,7 +61,7 @@ imaging:
     - if [ "$IMAGING_MODE" = stage ] && [ "$CI_JOB_STATUS" = success ]; then exit 0; fi
     - if [ "$IMAGING_MODE" = test ]; then exit 0; fi
     - ./upload-to-storage.sh || true
-  artifacts:
+  artifacts: &artifacts
     expire_in: 4 weeks
     when: always
     paths:
