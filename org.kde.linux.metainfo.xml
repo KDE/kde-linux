@@ -355,6 +355,7 @@ SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted
         <p xml:lang="ru">Первый выпуск KDE Linux:</p>
         <p xml:lang="sk">Prvé vydanie KDE Linux obsahujúce:</p>
         <p xml:lang="sl">Začetna izdaja KDE Linuxa z:</p>
+        <p xml:lang="sv">Originalutgåva av KDE Linux med:</p>
         <p xml:lang="tr">KDE Linux’un şunları içeren ilk yayımı:</p>
         <p xml:lang="uk">У початковому випуску KDE Linux ви знайдете:</p>
         <p xml:lang="zh-CN">KDE Linux 的首个正式版使用以下组件：</p>
@@ -384,6 +385,7 @@ SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted
           <li xml:lang="ru">KDE Plasma</li>
           <li xml:lang="sk">KDE Plasma</li>
           <li xml:lang="sl">KDE Plasma</li>
+          <li xml:lang="sv">KDE Plasma</li>
           <li xml:lang="tr">KDE Plasma</li>
           <li xml:lang="ug">KDE Plasma</li>
           <li xml:lang="uk">Плазма KDE</li>
@@ -413,6 +415,7 @@ SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted
           <li xml:lang="ru">Ядро Linux 6.7</li>
           <li xml:lang="sk">Linux kernel 6.7</li>
           <li xml:lang="sl">Linux kernel 6.7</li>
+          <li xml:lang="sv">Linux-kärna 6.7</li>
           <li xml:lang="tr">Linux 6.7</li>
           <li xml:lang="ug">Linux kernel 6.7</li>
           <li xml:lang="uk">Ядро Linux 6.7</li>
@@ -442,6 +445,7 @@ SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted
           <li xml:lang="ru">Обновлённый набор приложений KDE</li>
           <li xml:lang="sk">Aktualizovaná sada aplikácií KDE</li>
           <li xml:lang="sl">Posodobljen paket aplikacij KDE</li>
+          <li xml:lang="sv">Uppdaterad svit av KDE-program</li>
           <li xml:lang="tr">Güncellenmiş KDE uygulamaları süiti</li>
           <li xml:lang="uk">Оновлено комплект програм KDE</li>
           <li xml:lang="zh-CN">最新 KDE 应用程序套件</li>
@@ -470,6 +474,7 @@ SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted
           <li xml:lang="ru">Новый установщик системы</li>
           <li xml:lang="sk">Nový systémový inštalátor</li>
           <li xml:lang="sl">Nov namestitveni program sistema</li>
+          <li xml:lang="sv">Nytt systeminstallationsverktyg</li>
           <li xml:lang="tr">Yeni sistem kurucusu</li>
           <li xml:lang="ug">يېڭى سىستېما ئورناتقۇچ</li>
           <li xml:lang="uk">Новий засіб встановлення системи</li>
