@@ -99,18 +99,17 @@ if [ "${KDECI_BUILD:-}" = "TRUE" ]; then
     cp buildstream.conf ~/.config/buildstream.conf
 fi
 
-BST="bst"
 rm -rf "$BUILDSTREAM_ROOTFS" "$BUILDSTREAM_BOOTFS" "$BUILDSTREAM_TOOLFS" "$BUILDSTREAM_EFI"
-$BST build os/filesystem.bst
-$BST artifact checkout os/filesystem.bst --directory $BUILDSTREAM_ROOTFS
-$BST build components/calamares.bst \
+bst build os/filesystem.bst
+bst artifact checkout os/filesystem.bst --directory $BUILDSTREAM_ROOTFS
+bst build components/calamares.bst \
       os/initrd.bst \
       freedesktop-sdk.bst:components/ovmf-maybe.bst \
       freedesktop-sdk.bst:vm/prepare-image.bst
-$BST artifact checkout components/calamares.bst --deps none --directory $BUILDSTREAM_ROOTFS/live
-$BST artifact checkout os/initrd.bst --directory $BUILDSTREAM_BOOTFS
-$BST artifact checkout freedesktop-sdk.bst:vm/prepare-image.bst --deps none --directory $BUILDSTREAM_TOOLFS
-$BST artifact checkout freedesktop-sdk.bst:components/ovmf-maybe.bst --directory $BUILDSTREAM_EFI
+bst artifact checkout components/calamares.bst --deps none --directory $BUILDSTREAM_ROOTFS/live
+bst artifact checkout os/initrd.bst --directory $BUILDSTREAM_BOOTFS
+bst artifact checkout freedesktop-sdk.bst:vm/prepare-image.bst --deps none --directory $BUILDSTREAM_TOOLFS
+bst artifact checkout freedesktop-sdk.bst:components/ovmf-maybe.bst --directory $BUILDSTREAM_EFI
 
 mkdir -p $BUILDSTREAM_ROOTFS/usr/share/ovmf/
 cp $BUILDSTREAM_EFI/usr/share/ovmf/Shell.efi $BUILDSTREAM_ROOTFS/usr/share/ovmf/Shell.efi
