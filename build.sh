@@ -196,11 +196,14 @@ rm -f "${OUTPUT}/etc/resolv.conf"
 ln -s ../run/systemd/resolve/stub-resolv.conf "${OUTPUT}/etc/resolv.conf"
 # TODO: prune static archives in BuildStream/package composition instead of here.
 find "${OUTPUT}" -xdev -type f -name '*.a' -print -delete
-sudo chown -R 0:0 $OUTPUT
+# Needs sudo because it sets caps
 sudo SOURCE_DATE_EPOCH=1320937200 $BUILDSTREAM_TOOLFS/usr/bin/prepare-image.sh --sysroot $OUTPUT --initscripts $OUTPUT/etc/fdsdk/initial_scripts --noroot --nodepmod --noboot
 bash -x check-fs.sh "${OUTPUT}"
-sudo install -D -m 0644 "$OUTPUT/etc/shells" "$OUTPUT/usr/share/factory/etc/shells"
-sudo mkfs.erofs -zzstd -C 65536 --chunksize 65536 "$ROOTFS_EROFS" "$OUTPUT" > erofs.log 2>&1
+install -D -m 0644 "$OUTPUT/etc/shells" "$OUTPUT/usr/share/factory/etc/shells"
+# Needs sudo so it can tinker with setuid files
+time sudo mkfs.erofs -zzstd -C 65536 --chunksize 65536 "$ROOTFS_EROFS" "$OUTPUT" > erofs.log 2>&1
+# Then chown back the result
+sudo chown $UID:$UID "$ROOTFS_EROFS"
 cp --reflink=auto "$ROOTFS_EROFS" kde-linux.cache/root.raw
 
 # Now assemble the image using systemd-repart and the definitions in mkosi.repart into $ISO.
@@ -217,9 +220,6 @@ systemd-repart \
     --el-torito-volume="KDE LINUX $VERSION" \
     --el-torito-publisher="KDE" \
     "$ISO"
-
-# In case the owner is root
-sudo chown -R $UID:$UID mkosi.output
 
 # Create a torrent for the image
 ./torrent-create.rb "$VERSION" "$OUTPUT" "$ISO"
