@@ -11,7 +11,8 @@ enable accounts-daemon.service
 enable avahi-daemon.service
 enable avahi-daemon.socket
 enable bluetooth.service
-enable cups.service
+enable cups.path
+enable cups.socket
 enable NetworkManager.service
 enable pcscd.socket
 enable plasma-setup.service
