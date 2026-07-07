@@ -4,7 +4,7 @@
 kind: compose
 
 build-depends:
-- os/deps.bst
+- kde-linux-packages.bst:kde-buildstream.bst:os/deps.bst
 - os/initial-scripts.bst
 - os/os-release.bst
 
