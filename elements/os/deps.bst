@@ -9,3 +9,4 @@ depends:
 - os/deps-kde.bst
 - os/deps-apps.bst
 - os/deps-cli.bst
+- components/dbus-broker.bst
