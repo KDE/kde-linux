@@ -72,4 +72,5 @@ pacman --sync --refresh --refresh --noconfirm --sysupgrade \
     transmission-cli \
     tree \
     ukify \
-    wget
+    wget \
+    lzip
