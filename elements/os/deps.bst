@@ -9,4 +9,4 @@ depends:
 - os/deps-kde.bst
 - os/deps-apps.bst
 - os/deps-cli.bst
-- components/dbus-broker.bst
+- kde-linux-packages.bst:kde-buildstream.bst:components/dbus-broker.bst
