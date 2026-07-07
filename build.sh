@@ -101,7 +101,7 @@ fi
 
 rm -rf "$BUILDSTREAM_ROOTFS" "$BUILDSTREAM_BOOTFS" "$BUILDSTREAM_TOOLFS" "$BUILDSTREAM_EFI"
 bst build \
-    os/filesystem.bst
+    os/filesystem.bst \
     os/initrd.bst \
     kde-linux-packages.bst:kde-buildstream.bst:components/calamares.bst \
     kde-linux-packages.bst:kde-buildstream.bst:freedesktop-sdk.bst:components/ovmf-maybe.bst \
