@@ -201,7 +201,7 @@ sudo SOURCE_DATE_EPOCH=1320937200 $BUILDSTREAM_TOOLFS/usr/bin/prepare-image.sh -
 bash -x check-fs.sh "${OUTPUT}"
 install -D -m 0644 "$OUTPUT/etc/shells" "$OUTPUT/usr/share/factory/etc/shells"
 # Needs sudo so it can tinker with setuid files
-time sudo mkfs.erofs -zzstd -C 65536 --chunksize 65536 "$ROOTFS_EROFS" "$OUTPUT" > erofs.log 2>&1
+time sudo mkfs.erofs --all-root -zzstd -C 65536 --chunksize 65536 "$ROOTFS_EROFS" "$OUTPUT" > erofs.log 2>&1
 # Then chown back the result
 sudo chown $UID:$UID "$ROOTFS_EROFS"
 cp --reflink=auto "$ROOTFS_EROFS" kde-linux.cache/root.raw
