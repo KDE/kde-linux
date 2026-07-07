@@ -6,8 +6,8 @@ kind: junction
 sources:
 - kind: git_repo
   url: invent:kde-linux/kde-linux-packages.git
-  track: work/apol/bst
-  ref: 3543568bc50045d5a8815e1d474f7d77160215e8
+  track: work/sitter/bst
+  ref: 04e9990cb451abdd9b0fc0a64079d19e709c1358
 
 config:
   overrides:
