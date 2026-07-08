@@ -170,22 +170,17 @@ fi
 
 # Delete af_alg et al. kernel modules; they're dangerous and unused by anything
 # relevant except for iwd and non-default cryptsetup algorithms, neither of which
-# are supported on KDE Linux. Also delete esp4, esp6, and rxrpc which are
-# exploitable via the dirtyfrag vulnerability and are only used for IPsec-in-IPv4, IPsec-in-IPv6, and the
-# AF_RXRPC socket protocol (used by AFS/kAFS clients) respectively as none of which
-# are used on KDE Linux.
+# are used on KDE Linux. Also delete rxrpc, which is only used for the AF_RXRPC
+# socket protocol by AFS/kAFS clients, which are not used on KDE Linux.
 # See also:
 # - https://www.secwest.net/copyfail-mitigation
 # - https://news.ycombinator.com/item?id=47956312
-# - https://github.com/V4bel/dirtyfrag
 rm -rf \
     /usr/lib/modules/*/kernel/crypto/af_alg.ko.zst \
     /usr/lib/modules/*/kernel/crypto/algif_aead.ko.zst \
     /usr/lib/modules/*/kernel/crypto/algif_hash.ko.zst \
     /usr/lib/modules/*/kernel/crypto/algif_rng.ko.zst \
     /usr/lib/modules/*/kernel/crypto/algif_skcipher.ko.zst \
-    /usr/lib/modules/*/kernel/net/ipv4/esp4.ko.zst \
-    /usr/lib/modules/*/kernel/net/ipv6/esp6.ko.zst \
     /usr/lib/modules/*/kernel/net/rxrpc/rxrpc.ko.zst
 
 # Clean up final remnants of the build process
