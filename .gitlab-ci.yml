@@ -48,7 +48,7 @@ imaging:
     - python3 -m venv .venv --system-site-packages
     - . .venv/bin/activate
     - python3 -m pip install --upgrade pip
-    - python3 -m pip install 'BuildStream>=2.7' dulwich tomlkit
+    - python3 -m pip install 'BuildStream>=2.7' buildstream-plugins dulwich tomlkit
     - sudo ln -sf "$PWD/.venv/bin/bst" /usr/bin/bst
     - sudo pacman --sync --refresh --noconfirm lzip mtools # lzip needed by gettext apparently. mcopy by build.sh
   script:
