@@ -7,7 +7,7 @@ sources:
 - kind: git_repo
   url: invent:kde-linux/kde-linux-packages.git
   track: work/sitter/bst
-  ref: 04e9990cb451abdd9b0fc0a64079d19e709c1358
+  ref: 3d52b4683136ae5cc5a8803bbd341e148818768b
 
 config:
   overrides:
