@@ -175,10 +175,20 @@ mv "$LIVE_UKI" "${OUTPUT}/usr/share/factory/boot/EFI/Linux/$LIVE_EFI"
 # Change to kde-linux.cache since we'll be working there.
 cd kde-linux.cache
 
-# Create a 560M large FAT32 filesystem inside of esp.raw.
-fallocate -l 560M esp.raw
+# Create a 280M large FAT32 filesystem inside of esp.raw.
+fallocate -l 280M esp.raw
 mkfs.fat -F 32 esp.raw
-mcopy -i esp.raw -s "${OUTPUT}/usr/share/factory/boot/"* ::/
+
+# Mount it to esp.raw.mnt.
+mkdir -p esp.raw.mnt
+mount esp.raw esp.raw.mnt
+
+# Copy everything from /usr/share/factory/boot into esp.raw.mnt.
+# At this point only LIVE_EFI is in factory/boot/EFI/Linux/ so the installed UKI (+3) is not there yet.
+cp --archive --recursive "${OUTPUT}/usr/share/factory/boot/." esp.raw.mnt
+
+# We're done, unmount esp.raw.mnt.
+umount esp.raw.mnt
 
 cd .. # and back to root
 
@@ -216,6 +226,9 @@ systemd-repart \
     --el-torito-volume="KDE LINUX $VERSION" \
     --el-torito-publisher="KDE" \
     "$ISO"
+
+# Incase the owner is root
+chown -R user:user mkosi.output
 
 # Create a torrent for the image
 ./torrent-create.rb "$VERSION" "$OUTPUT" "$ISO"
