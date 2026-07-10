@@ -6,6 +6,16 @@ set -ex
 
 env
 
+for f in /etc/fdsdk/initial_scripts/*; do
+    $f /
+done
+
+# Safety nets to prevent excessive breakage
+## sudo should have sticky bit set
+[ -u /usr/bin/sudo ] || exit 1
+## newuidmap should have a capability set
+[ "$(getcap /usr/bin/newuidmap)" != "" ] || exit 1
+
 mkdir --mode 0700 /system # for the kde-linux-overlay.service
 
 export SYSTEMD_ESP_PATH="$BOOT_MNT"
