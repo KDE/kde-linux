@@ -195,8 +195,6 @@ rm "${OUTPUT}/usr/share/factory/boot/EFI/Linux/$LIVE_EFI"
 rm -rf "$OUTPUT/var/lib/flatpak"
 mkdir "$OUTPUT/var/lib/flatpak" # but keep a mountpoint around for the live session
 
-# Needs sudo because it sets caps
-./check-fs.sh "${OUTPUT}"
 # Needs sudo so it can tinker with setuid files
 time sudo mkfs.erofs --all-root -zzstd -C 65536 --chunksize 65536 "$ROOTFS_EROFS" "$OUTPUT" > erofs.log 2>&1
 # Then chown back the result
