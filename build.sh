@@ -194,14 +194,8 @@ rm "${OUTPUT}/usr/share/factory/boot/EFI/Linux/$LIVE_EFI"
 rm -rf "$OUTPUT/var/lib/flatpak"
 mkdir "$OUTPUT/var/lib/flatpak" # but keep a mountpoint around for the live session
 
-rm -f "${OUTPUT}/etc/resolv.conf"
-ln -s ../run/systemd/resolve/stub-resolv.conf "${OUTPUT}/etc/resolv.conf"
-# TODO: prune static archives in BuildStream/package composition instead of here.
-find "${OUTPUT}" -xdev -type f -name '*.a' -print -delete
 # Needs sudo because it sets caps
-sudo SOURCE_DATE_EPOCH=1320937200 $BUILDSTREAM_TOOLFS/usr/bin/prepare-image.sh --sysroot $OUTPUT --initscripts $OUTPUT/etc/fdsdk/initial_scripts --noroot --nodepmod --noboot
 bash -x check-fs.sh "${OUTPUT}"
-install -D -m 0644 "$OUTPUT/etc/shells" "$OUTPUT/usr/share/factory/etc/shells"
 # Needs sudo so it can tinker with setuid files
 time sudo mkfs.erofs --all-root -zzstd -C 65536 --chunksize 65536 "$ROOTFS_EROFS" "$OUTPUT" > erofs.log 2>&1
 # Then chown back the result
