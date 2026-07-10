@@ -178,17 +178,8 @@ cd kde-linux.cache
 # Create a 280M large FAT32 filesystem inside of esp.raw.
 fallocate -l 280M esp.raw
 mkfs.fat -F 32 esp.raw
-
-# Mount it to esp.raw.mnt.
-mkdir -p esp.raw.mnt
-mount esp.raw esp.raw.mnt
-
-# Copy everything from /usr/share/factory/boot into esp.raw.mnt.
-# At this point only LIVE_EFI is in factory/boot/EFI/Linux/ so the installed UKI (+3) is not there yet.
-cp --archive --recursive "${OUTPUT}/usr/share/factory/boot/." esp.raw.mnt
-
-# We're done, unmount esp.raw.mnt.
-umount esp.raw.mnt
+# We use mcopy so we don't have to mount the image (which would require sudo) and have less code
+mcopy -i esp.raw -s "${OUTPUT}/usr/share/factory/boot/"* ::/
 
 cd .. # and back to root
 
