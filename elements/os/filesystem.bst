@@ -1,17 +1,14 @@
-# SPDX-FileCopyrightText: 2025 Aleix Pol Gonzalez <aleix.pol@codethink.co.uk>
 # SPDX-License-Identifier: BSD-2-Clause
+# SPDX-FileCopyrightText: 2026 Harald Sitter <sitter@kde.org>
 
-kind: compose
+kind: script
 
 build-depends:
-- kde-linux-packages.bst:kde-buildstream.bst:os/deps.bst
-- os/initial-scripts.bst
-- os/os-release.bst
+- os/filesystem-compose.bst
+
+variables:
+  install-root: /
 
 config:
-  exclude:
-  - debug
-  - doc
-  - tests
-  - shells
-  include-orphans: True
+  commands:
+  - rm -r /etc/audit # de-configure the audit system, we don't need it by default
