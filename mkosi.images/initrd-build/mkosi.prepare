@@ -1,0 +1,15 @@
+#!/bin/sh
+# SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL
+# SPDX-FileCopyrightText: 2026 Harald Sitter <sitter@kde.org>
+
+set -eux
+
+cd "$BUILDROOT"
+zstd -c --decompress "$SRCDIR"/mkosi.output/initrd.cpio.zst | cpio --extract --make-directories --preserve-modification-time
+
+for dir in "$SRCDIR"/buildstream-initrdfs/lib/modules/*; do
+    name=$(basename "$dir")
+    target="$BUILDROOT/usr/lib/modules/$name"
+    # target must already exist since the initrd tree was seeded by the same directory!
+    cp "$dir/vmlinuz" "$target/"
+done
