@@ -55,15 +55,8 @@ enable kde-linux-opt-cleaner-mask.service
 enable plasma-setup-live-system.service
 
 # KMSCON
-enable kmsconvt@
-enable kmsconvt@tty1.service
-
-# Disable stuff we don't want
-# ===========================
-# getty - we use kmscon
-disable autovt@.service
 disable getty@.service
-disable getty@tty1.service
+enable kmsconvt@.service
 
 # networkd - we use networkmanager
 disable systemd-networkd.service
