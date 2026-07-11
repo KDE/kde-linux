@@ -45,4 +45,5 @@ packages.txt
 /buildstream-rootfs/
 /buildstream-bootfs/
 /buildstream-toolfs/
+/buildstream-initrdfs/
 /buildstream-efi/
