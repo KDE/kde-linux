@@ -68,12 +68,3 @@ disable getty@tty1.service
 # networkd - we use networkmanager
 disable systemd-networkd.service
 disable systemd-networkd-wait-online.service
-
-# Pacman - we don't do packages
-disable archlinux-keyring-wkd-sync.timer
-disable dirmngr@etc-pacman.d-gnupg.socket
-disable gpg-agent-browser@etc-pacman.d-gnupg.socket
-disable gpg-agent@etc-pacman.d-gnupg.socket
-disable gpg-agent-extra@etc-pacman.d-gnupg.socket
-disable gpg-agent-ssh@etc-pacman.d-gnupg.socket
-disable keyboxd@etc-pacman.d-gnupg.socket
