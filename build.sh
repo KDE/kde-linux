@@ -127,7 +127,7 @@ fi
 
 mkosi \
     --image-version="$VERSION" \
-    --extra-tree $BUILDSTREAM_BOOTFS:/boot \
+    --extra-tree=$BUILDSTREAM_BOOTFS:/boot \
     --extra-tree="$PWD/install.tar.zst" \
     --extra-tree="$PWD/mkosi.extra" \
     "$@"
