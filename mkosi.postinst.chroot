@@ -105,10 +105,6 @@ for theme in $(plymouth-set-default-theme --list); do
     fi
 done
 
-cd /tmp
-/usr/lib/rebuild-efi
-mv -v ./*.efi /
-
 for f in /etc/fdsdk/initial_scripts/*; do
     $f /
 done

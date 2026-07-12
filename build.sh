@@ -130,7 +130,6 @@ fi
 
 mkosi \
     --image-version="$VERSION" \
-    --extra-tree=$BUILDSTREAM_BOOTFS:/boot \
     --extra-tree="$PWD/install.tar.zst" \
     --extra-tree="$PWD/mkosi.extra" \
     "$@"
@@ -161,10 +160,8 @@ rm -rfv "${OUTPUT}/efi"
 
 # Save the main UKI (with tries counter) aside as it must NOT go into factory/boot yet
 # so it doesn't end up on the live ESP.
-cp -v "${OUTPUT}"/kde-linux.efi "$MAIN_UKI"
-rm -v "${OUTPUT}"/kde-linux.efi
-mv -v "${OUTPUT}"/erofs.addon.efi "${OUTPUT}_erofs.addon.efi"
-mv -v "${OUTPUT}"/live.efi "$LIVE_UKI"
+mv -v mkosi.output/uki.efi "$MAIN_UKI"
+mv -v mkosi.output/uki.live.efi "$LIVE_UKI"
 
 make_debug_archive
 
