@@ -5,7 +5,6 @@ kind: script
 
 build-depends:
 - os/systemd-initrd-compose.bst
-- os/systemd-initrd-mkosi-extra.bst
 
 variables:
   install-root: /
@@ -13,3 +12,12 @@ variables:
 config:
   commands:
   - rm -r /etc/audit # de-configure the audit system, we don't need it by default
+
+  # Remove some cruft pulled in by plymouth and friends
+  - rm -r /usr/share/terminfo
+  - rm -r /usr/share/misc
+  - rm -r /usr/share/mime
+  - rm -r /usr/share/gtk*
+  - rm -r /usr/share/xkeyboard-config-2
+  - rm -r /usr/share/bash-completion
+  - rm -r /usr/share/X11

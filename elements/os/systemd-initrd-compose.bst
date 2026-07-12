@@ -11,6 +11,7 @@ build-depends:
 - kde-linux-packages.bst:kde-buildstream.bst:gnome-build-meta.bst:gnomeos-deps/intel-ucode.bst
 - kde-linux-packages.bst:kde-buildstream.bst:gnome-build-meta.bst:gnomeos-deps/nvidia-drivers-modules.bst
 - os/os-release.bst
+- os/systemd-initrd-mkosi-extra.bst
 
 config:
   exclude:
