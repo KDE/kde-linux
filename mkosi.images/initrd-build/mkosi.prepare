@@ -13,3 +13,19 @@ for dir in "$SRCDIR"/buildstream-initrdfs/lib/modules/*; do
     # target must already exist since the initrd tree was seeded by the same directory!
     cp "$dir/vmlinuz" "$target/"
 done
+
+# Next let's inject our bespoke udev trigger. The way this works is that systemd will shut down the switch-root service
+# and then we force a trigger run so the modules get loaded as necessary, ASAP.
+
+cd "$BUILDROOT"/usr/lib/systemd/system/
+[ -d initrd-switch-root.service.d ] || mkdir initrd-switch-root.service.d
+cat > initrd-switch-root.service.d/kde-linux-udev.conf <<'EOF'
+[Service]
+ExecStopPost=systemctl --no-block systemd-udev-trigger.service
+EOF
+
+[ -d breakpoint-pre-switch-root.service.d ] || mkdir breakpoint-pre-switch-root.service.d
+cat > breakpoint-pre-switch-root.service.d/kde-linux-udev.conf <<'EOF'
+[Service]
+ExecStopPost=systemctl --no-block systemd-udev-trigger.service
+EOF
