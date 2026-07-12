@@ -45,12 +45,16 @@ imaging:
   variables: &variables
     RUNNER_AFTER_SCRIPT_TIMEOUT: 1h
   before_script:
+    - sudo pacman --sync --refresh --noconfirm lzip mtools python-pip # lzip needed by gettext apparently. mcopy by build.sh
+    - sudo pacman --remove --nosave --recursive --noconfirm mkosi
+    - sudo pip install --break-system-packages git+https://github.com/systemd/mkosi.git
+    - which mkosi
+    - mkosi --version
     - python3 -m venv .venv --system-site-packages
     - . .venv/bin/activate
     - python3 -m pip install --upgrade pip
     - python3 -m pip install 'BuildStream>=2.7' buildstream-plugins dulwich tomlkit
     - sudo ln -sf "$PWD/.venv/bin/bst" /usr/bin/bst
-    - sudo pacman --sync --refresh --noconfirm lzip mtools # lzip needed by gettext apparently. mcopy by build.sh
   script:
     - if [ "$IMAGING_MODE" = stage ]; then curl -s https://gitlab.com/gitlab-org/incubation-engineering/mobile-devops/download-secure-files/-/raw/main/installer | bash; fi
     - KDECI_BUILD=TRUE ./build.sh --force --debug
