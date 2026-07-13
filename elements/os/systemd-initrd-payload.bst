@@ -17,7 +17,4 @@ config:
   - rm -r /usr/share/terminfo
   - rm -r /usr/share/misc
   - rm -r /usr/share/mime
-  - rm -r /usr/share/gtk*
-  - rm -r /usr/share/xkeyboard-config-2
   - rm -r /usr/share/bash-completion
-  - rm -r /usr/share/X11
