@@ -32,8 +32,20 @@ pacman --remove --noconfirm gnome-keyring
 pacman --remove --noconfirm packagekit libpackagekit-glib archlinux-appstream-data || true
 rm -rf /usr/share/swcatalog
 
-# Calamares
+
 cd /tmp
+
+git clone https://invent.kde.org/silverhadch/komplete.git
+
+cd /tmp/komplete
+
+cmake -B build -DCMAKE_INSTALL_PREFIX=/usr
+cmake --build build
+cmake --install build
+
+cd /tmp 
+
+# Calamares
 # We're building Calamares from master, due to https://codeberg.org/Calamares/calamares/pulls/2470 not being in a release yet.
 # It can be switched back to build from the latest release once a new release is cut that includes that PR.
 #LATEST_RELEASE=$(curl -s "https://codeberg.org/api/v1/repos/Calamares/calamares/releases" | jq -r '.[0].tag_name')
