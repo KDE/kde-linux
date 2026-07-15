@@ -32,11 +32,6 @@ enable vmtoolsd.service
 # OpenQA integration
 enable run-extensions-openqa.mount
 
-# NVIDIA-specific services (shouldn't affect non-NVIDIA hardware)
-enable nvidia-hibernate.service
-enable nvidia-resume.service
-enable nvidia-suspend.service
-
 # Multi-gpu support (doesn't affect single-GPU use cases)
 enable switcheroo-control.service
 
