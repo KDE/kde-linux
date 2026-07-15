@@ -73,4 +73,7 @@ pacman --sync --refresh --refresh --noconfirm --sysupgrade \
     tree \
     ukify \
     wget \
-    lzip
+    lzip \
+    python-pip
+
+pip install --break-system-packages 'BuildStream>=2.7' buildstream-plugins dulwich tomlkit
