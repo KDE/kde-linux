@@ -80,6 +80,9 @@ pacman --sync --refresh --refresh --noconfirm
 # Make sure permissions are sound
 ./permission-fix.sh
 
+export PATH="$HOME/.cargo/bin:$PATH"
+cargo install just
+
 cargo build --release --manifest-path btrfs-migrator/Cargo.toml
 cp -v btrfs-migrator/target/release/btrfs-migrator mkosi.extra/usr/lib/
 
@@ -90,6 +93,10 @@ DESTDIR=$PWD/mkosi.extra make --directory=kde-linux-sysupdated install
 rm --recursive --force etc-factory
 git clone https://invent.kde.org/kde-linux/etc-factory
 DESTDIR=$PWD/mkosi.extra make --directory=etc-factory install
+
+rm --recursive --force etc-fixater
+git clone https://invent.kde.org/sitter/etc-fixater
+DESTDIR=$PWD/mkosi.extra just --justfile etc-fixater/Justfile --working-directory etc-fixater install
 
 # Extract the KDE packages pipeline output into mkosi.extra so kde-builder built files
 # are baked directly into the image instead of going through the package repo.

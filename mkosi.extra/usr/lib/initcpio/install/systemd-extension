@@ -22,7 +22,8 @@ build() {
         systemd-loop@.service \
         systemd-volatile-root.service \
         systemd-bootchart.service \
-        etc-factory.service
+        etc-factory.service \
+        initrd-etc-fixater.service
 
     # Make double sure the dissection rule is present. Without it booting doesn't work because we can't find a root.
     # Notably not getting added by the release initcpio combined with aur systemd-git at the time of writing.
