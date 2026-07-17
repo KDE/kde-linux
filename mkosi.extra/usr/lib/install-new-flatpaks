@@ -42,8 +42,9 @@ for APP in "$FACTORY_DIR"/*; do
         SPECIAL_APP_REMOTE_URL=$(rg -A 1 "$SPECIAL_APP_REMOTE_NAME" "$REPO_CONFIG" | rg url | cut -d "=" -f 2 || true)
         SPECIAL_APP_REMOTE_FLATPAK_REPO="${SPECIAL_APP_REMOTE_URL}${SPECIAL_APP_REMOTE_NAME}.flatpakrepo"
         echo "Adding its repository from $SPECIAL_APP_REMOTE_FLATPAK_REPO"
-        flatpak remote-modify --gpg-verify "$SPECIAL_APP_REMOTE_NAME"
         flatpak remote-add --if-not-exists "$SPECIAL_APP_REMOTE_NAME" "$SPECIAL_APP_REMOTE_FLATPAK_REPO"
+        # In case the remote already existed but with GPG verification disabled...
+        flatpak remote-modify --gpg-verify "$SPECIAL_APP_REMOTE_NAME"
     fi
 
     echo "Installing $APP from $REMOTE…"
