@@ -1,0 +1,6 @@
+version = 1
+
+[[annotations]]
+path = "patches/4xx/*"
+SPDX-FileCopyrightText = "Joan Bruguera Micó and others"
+SPDX-License-Identifier = "LicenseRef-NVIDIA"

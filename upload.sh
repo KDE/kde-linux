@@ -73,6 +73,7 @@ stage() {
         sha256sum -- *.efi >> SHA256SUMS
         sha256sum -- *.tar.zst >> SHA256SUMS
         sha256sum -- *.erofs >> SHA256SUMS
+        sha256sum -- *.sysext.raw >> SHA256SUMS
         # Don't put .erofs.caibx into the SHA256SUMS, it will break file matching.
         # https://github.com/systemd/systemd/issues/38605
         sha256sum -- *-x86-64.caibx >> SHA256SUMS
@@ -84,7 +85,7 @@ stage() {
     rm -rf upload-tree
     mkdir -p "$V2_TREE"
     mv "$OUTDIR"/*.iso "$OUTDIR"/*.torrent upload-tree/
-    mv "$OUTDIR"/*.efi "$OUTDIR"/*.tar.zst "$OUTDIR"/*.erofs "$OUTDIR"/*.caibx "$V2_TREE/"
+    mv "$OUTDIR"/*.efi "$OUTDIR"/*.tar.zst "$OUTDIR"/*.erofs "$OUTDIR"/*.caibx "$OUTDIR"/*.sysext.raw "$V2_TREE/"
     mv "$OUTDIR"/SHA256SUMS "$OUTDIR"/SHA256SUMS.gpg "$V2_TREE/"
 
     # Upload to the per-job staging prefix in the bucket.
@@ -131,6 +132,7 @@ publish() {
         sha256sum -- *.efi >> SHA256SUMS
         sha256sum -- *.tar.zst >> SHA256SUMS
         sha256sum -- *.erofs >> SHA256SUMS
+        sha256sum -- *.sysext.raw >> SHA256SUMS
         # https://github.com/systemd/systemd/issues/38605
         sha256sum -- *-x86-64.caibx >> SHA256SUMS
 

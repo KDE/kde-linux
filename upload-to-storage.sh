@@ -22,13 +22,14 @@ mv upload-tree upload-tree-old || true
 if [ ! -d upload-tree ]; then
     mkdir -p upload-tree/sysupdate/v2
     mv "$OUTDIR"/*.iso upload-tree/
-    mv "$OUTDIR"/*.efi "$OUTDIR"/*.tar.zst "$OUTDIR"/*.erofs "$OUTDIR"/*.caibx upload-tree/sysupdate/v2/
+    mv "$OUTDIR"/*.efi "$OUTDIR"/*.tar.zst "$OUTDIR"/*.erofs "$OUTDIR"/*.caibx  "$OUTDIR"/*.sysext.raw upload-tree/sysupdate/v2/
     (
         cd upload-tree/sysupdate/v2
         # shellcheck disable=SC2129
         sha256sum -- *.efi >> SHA256SUMS
         sha256sum -- *.tar.zst >> SHA256SUMS
         sha256sum -- *.erofs >> SHA256SUMS
+        sha256sum -- *.sysext.raw >> SHA256SUMS
         # Don't put .erofs.caibx into SHA256SUMS, it will break file matching.
         # https://github.com/systemd/systemd/issues/38605
         sha256sum -- *-x86-64.caibx >> SHA256SUMS

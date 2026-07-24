@@ -204,8 +204,15 @@ systemd-repart \
     --el-torito-publisher="KDE" \
     "$ISO"
 
-# Incase the owner is root
-chown -R user:user mkosi.output
+# In case the owner is not root
+chown -R "$(id -u):$(id -g)" mkosi.output nvidia-legacy
+chmod 777 .
+
+unshare --map-root-user --keep-caps --mount ./build-nvidia.sh "$OUTPUT"
+
+# In case the owner is root :D
+chown -R user:user mkosi.output *sysext.raw
+mv *sysext.raw mkosi.output/
 
 # Create a torrent for the image
 ./torrent-create.rb "$VERSION" "$OUTPUT" "$ISO"
