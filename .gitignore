@@ -15,6 +15,7 @@
 /upload-vacuum/vendor/
 /btrfs-cleanup/target/
 /btrfs-migrator/target/
+/nvidia-driver-selection/
 
 /mkosi.extra/usr/lib/btrfs-migrator
 /mkosi.extra/usr/lib/etc-factory
