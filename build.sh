@@ -189,6 +189,15 @@ mkdir "$OUTPUT/var/lib/flatpak" # but keep a mountpoint around for the live sess
 time mkfs.erofs -zzstd -C 65536 --chunksize 65536 "$ROOTFS_EROFS" "$OUTPUT" > erofs.log 2>&1
 cp --reflink=auto "$ROOTFS_EROFS" kde-linux.cache/root.raw
 
+go install -v github.com/folbricht/desync/cmd/desync@latest
+~/go/bin/desync make --print-stats --chunk-size 1024:2048:4096 "$ROOTFS_CAIBX" "$ROOTFS_EROFS"
+# Be very careful with this file. It is here for backwards compat. It must not appear in SHA256SUMS.
+# https://github.com/systemd/systemd/issues/38605
+cp "$ROOTFS_CAIBX" "$ROOTFS_EROFS.caibx"
+
+# Place the caibx into /live for pickup by the installer so we have one out of the box.
+cp --verbose "$ROOTFS_CAIBX" "$OUTPUT/live/"
+
 # Now assemble the image using systemd-repart and the definitions in mkosi.repart into $ISO.
 # The resulting file is both a valid GPT disk image and a bootable El Torito ISO.
 touch "$ISO"
@@ -209,12 +218,6 @@ chown -R user:user mkosi.output
 
 # Create a torrent for the image
 ./torrent-create.rb "$VERSION" "$OUTPUT" "$ISO"
-
-go install -v github.com/folbricht/desync/cmd/desync@latest
-~/go/bin/desync make --print-stats --chunk-size 1024:2048:4096 "$ROOTFS_CAIBX" "$ROOTFS_EROFS"
-# Be very careful with this file. It is here for backwards compat. It must not appear in SHA256SUMS.
-# https://github.com/systemd/systemd/issues/38605
-cp "$ROOTFS_CAIBX" "$ROOTFS_EROFS.caibx"
 
 # Fake artifacts to keep older systems happy to upgrade to newer versions.
 # Can be removed once we have started having revisions in our update trees.

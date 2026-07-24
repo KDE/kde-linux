@@ -92,6 +92,7 @@ btrfs subvolume create @system
 btrfs subvolume create @system/etc
 mkdir @system/boot @system/proc @system/sys @system/dev @system/run @system/usr
 cp /dev/gpt-auto-root kde-linux_$IMAGE_VERSION.erofs
+cp /live/kde-linux_$IMAGE_VERSION.caibx kde-linux_$IMAGE_VERSION.caibx
 
 # Overmount calamares' mount with the subvol mount
 mount -o "subvol=@system" "$device" "$ROOT"
