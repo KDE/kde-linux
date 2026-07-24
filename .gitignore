@@ -40,3 +40,11 @@ kde-linux_*
 install.tar.zst
 debug.tar.zst
 packages.txt
+*.kate-swp
+.bst/
+/buildstream-rootfs/
+/buildstream-bootfs/
+/buildstream-toolfs/
+/buildstream-initrdfs/
+/buildstream-efi/
+source-checkout/
