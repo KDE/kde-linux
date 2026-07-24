@@ -6,7 +6,7 @@
 auth       required                    pam_shells.so
 auth       requisite                   pam_nologin.so
 auth       requisite                   pam_faillock.so      preauth
--auth      required                    pam_fprintd.so
+-auth      required                    pam_fprintd.so       timeout=-1
 auth       optional                    pam_permit.so
 auth       required                    pam_env.so
 
