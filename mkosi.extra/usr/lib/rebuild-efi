@@ -66,7 +66,6 @@ echo "rw rootflags=subvol=@system,compress=zstd:-4,lazytime \
   nohz=on nohz_full=all \
   rcu_nocbs=all rcutree.enable_rcu_lazy=1 \
   amdgpu.dcdebugmask=0x10 \
-  systemd.hostname=kde-linux \
   nowatchdog \
   vt.global_cursor_default=0 quiet splash plymouth.ignore-serial-consoles loglevel=3" > cmdline
 mkinitcpio --config mkinitcpio.conf --generate initrd --kernel "$kernel_version"
