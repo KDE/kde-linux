@@ -6,22 +6,16 @@
 
 set -e
 
-SYSEXT_NAME="kde"
-
-if test -n "$1"; then
-  SYSEXT_NAME="$1"
-fi
-
-SYSEXT_BASE_LOCATION="${HOME}/${SYSEXT_NAME}/usr/"
+SYSEXT_BASE_LOCATION="${HOME}/kde/usr/"
 SYSEXT_LOCATION="${SYSEXT_BASE_LOCATION}/lib/extension-release.d/"
 SYSEXT_ROOT_LOCATION="/var/lib/extensions/"
 
 echo
-if [ -f "${SYSEXT_LOCATION}/extension-release.${SYSEXT_NAME}" ]; then
-    echo '== Systemd system extension ${SYSEXT_NAME}: already set up, skipping =='
+if [ -f "${SYSEXT_LOCATION}/extension-release.kde" ]; then
+    echo '== Systemd system extension: already set up, skipping =='
 else
     echo '== Systemd system extension: needs setup =='
-    echo "Setting up extension ${SYSEXT_NAME} at ${SYSEXT_BASE_LOCATION}..."
+    echo "Setting up extension at ${SYSEXT_BASE_LOCATION}..."
 
     # Create directory to hold this system extension
     mkdir -p "${SYSEXT_LOCATION}"
@@ -30,21 +24,21 @@ else
     run0 sh <<EOF
 set -e
 mkdir -p "${SYSEXT_ROOT_LOCATION}"
-ln -fs "${HOME}/${SYSEXT_NAME}" "${SYSEXT_ROOT_LOCATION}"
+ln -fs "${HOME}/kde" "${SYSEXT_ROOT_LOCATION}"
 
 # Copy the system os-release file to be an extension-release file that identifies this extension
-cp /usr/lib/os-release "${SYSEXT_LOCATION}/extension-release.${SYSEXT_NAME}"
+cp /usr/lib/os-release "${SYSEXT_LOCATION}/extension-release.kde"
 
 # Set its ID to "_any" so system updates don't break the extension
 # Skip this step if you want the extension to only work for the current system build
-sed -i "s/^ID=.*/ID=_any/g" "${SYSEXT_LOCATION}/extension-release.${SYSEXT_NAME}"
+sed -i "s/^ID=.*/ID=_any/g" "${SYSEXT_LOCATION}/extension-release.kde"
 
 # Make the release file immutable so it can't be accidentally removed
-chattr +i "${SYSEXT_LOCATION}/extension-release.${SYSEXT_NAME}"
+chattr +i "${SYSEXT_LOCATION}/extension-release.kde"
 
 # Turn it on!
 systemd-sysext refresh || systemd-sysext merge
 EOF
 
-    echo "Finished setting up extension ${SYSEXT_NAME}! When you put files in ${SYSEXT_BASE_LOCATION} and run 'run0 systemd-sysext refresh', they will appear in /usr/. See https://community.kde.org/KDE_Linux/Add_or_override_content_in_/usr for more information."
+    echo "Finished setting up extension! When you put files in ${SYSEXT_BASE_LOCATION} and run 'run0 systemd-sysext refresh', they will appear in /usr/. See https://community.kde.org/KDE_Linux/Add_or_override_content_in_/usr for more information."
 fi
