@@ -4,4 +4,20 @@
 
 set -eux
 
-flatpak install --noninteractive --assumeyes --sideload-repo=/usr/share/factory/var/lib/flatpak/.ostree/repo org.gtk.Gtk3theme.Breeze org.kde.gwenview org.kde.okular org.kde.kwrite org.kde.haruna org.kde.qrca org.kde.ark org.kde.kcalc org.kde.keepsecret org.mozilla.firefox
+flatpak install --noninteractive --assumeyes --sideload-repo=/usr/share/factory/var/lib/flatpak/.ostree/repo \
+org.gtk.Gtk3theme.Breeze \
+org.kde.gwenview \
+org.kde.okular \
+org.kde.kwrite \
+org.kde.haruna \
+org.kde.qrca \
+org.kde.ark \
+org.kde.kcalc \
+org.kde.keepsecret \
+org.mozilla.firefox \
+org.fcitx.Fcitx5 \
+org.fcitx.Fcitx5.Addon.ChineseAddons \
+org.fcitx.Fcitx5.Addon.Chewing \
+org.fcitx.Fcitx5.Addon.Mozc \
+org.fcitx.Fcitx5.Addon.Hangul \
+org.fcitx.Fcitx5.Addon.Unikey \

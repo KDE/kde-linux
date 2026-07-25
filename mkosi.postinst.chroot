@@ -114,7 +114,13 @@ download_flatpaks() {
     flatpak install --or-update --noninteractive --assumeyes flathub \
         org.gtk.Gtk3theme.Breeze \
         org.kde.kwrite \
-        org.mozilla.firefox
+        org.mozilla.firefox \
+        org.fcitx.Fcitx5 \
+        org.fcitx.Fcitx5.Addon.ChineseAddons \
+        org.fcitx.Fcitx5.Addon.Chewing \
+        org.fcitx.Fcitx5.Addon.Mozc \
+        org.fcitx.Fcitx5.Addon.Hangul \
+        org.fcitx.Fcitx5.Addon.Unikey \
 
     # And restore default
     flatpak config --unset languages
