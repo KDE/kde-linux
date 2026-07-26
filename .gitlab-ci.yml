@@ -85,6 +85,28 @@ trigger-openqa:
     SYSUPDATE_PUBKEY_B64: $SYSUPDATE_PUBKEY_B64
     OPENQA_BRANCH: master
 
+# Collect the JUnit files produced by the triggered openQA pipeline.
+openqa-report:
+  stage: test
+  image: python:3.13-alpine
+  rules:
+    - if: $CI_PROJECT_PATH != 'kde-linux/kde-linux'
+      when: never
+    - when: always
+  needs:
+    - job: trigger-openqa
+      artifacts: false
+  script:
+    - python3 .gitlab-ci/scripts/download-openqa-results.py
+  artifacts:
+    when: always
+    expire_in: 4 weeks
+    reports:
+      junit:
+        - openqa-results/**/gitlab-artifacts/*-results.xml
+    paths:
+      - openqa-results/
+
 # Publish the staged image in storage.
 publish:
   stage: publish
