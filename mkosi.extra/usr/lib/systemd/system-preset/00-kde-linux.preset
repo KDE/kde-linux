@@ -13,6 +13,7 @@ enable avahi-daemon.socket
 enable bluetooth.service
 enable cups.path
 enable cups.socket
+enable ModemManager.service
 enable NetworkManager.service
 enable pcscd.socket
 enable plasma-setup.service
