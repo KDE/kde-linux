@@ -5,15 +5,19 @@
 set -eu
 
 FACTORY_DIR="/usr/share/factory/var/lib/flatpak/app"
+FACTORY_RUNTIME_DIR="/usr/share/factory/var/lib/flatpak/runtime"
 REPO_CONFIG="/usr/share/factory/var/lib/flatpak/repo/config"
 DEFAULT_REMOTE="flathub"
-INSTALLED_APPS=$(tr '\n' ' ' <<< $(flatpak list --app --columns=application))
+INSTALLED_APPS=$(tr '\n' ' ' <<< $(flatpak list --columns=application))
 EVER_PREINSTALLED_APPS_FILE="/var/lib/kde-linux/ever-preinstalled-flatpak-apps"
 EVER_PREINSTALLED_APPS=$(tr '\n' ' ' < $EVER_PREINSTALLED_APPS_FILE)
 
-echo "Looking in $FACTORY_DIR for new pre-installed apps that need installing…"
+echo "Looking in $FACTORY_DIR and $FACTORY_RUNTIME_DIR for new pre-installed apps and addons that need installing…"
 
-for APP in "$FACTORY_DIR"/*; do
+APPS=$(ls $FACTORY_DIR)
+ADDONS=$(find $FACTORY_RUNTIME_DIR -maxdepth 1 -type d -name "*.Addon.*" -printf "%f\n")
+
+for APP in $APPS $ADDONS; do
 
     # trim trailing slash
     APP=$(basename "$APP")
@@ -35,7 +39,7 @@ for APP in "$FACTORY_DIR"/*; do
 
     # See if we have a special repo to install it from
     NON_RDNS_NAME="${APP#*.*.}"
-    SPECIAL_APP_REMOTE_NAME=$(rg "$NON_RDNS_NAME" "$REPO_CONFIG" | head -n 1 | cut -d '"' -f 2 || true)
+    SPECIAL_APP_REMOTE_NAME=$(rg "\[remote.*${NON_RDNS_NAME}" "$REPO_CONFIG" | head -n 1 | cut -d '"' -f 2 || true)
     if [[ -n "$SPECIAL_APP_REMOTE_NAME" ]]; then
         echo "$APP needs to be installed from a special repo: $SPECIAL_APP_REMOTE_NAME"
         REMOTE="$SPECIAL_APP_REMOTE_NAME"

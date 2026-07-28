@@ -25,7 +25,10 @@ org.mozilla.firefox
 EOF
 else
     # This is a brand new system. The set of apps that have ever been preinstalled on the system
-    # is exactly those in /usr/share/factory/var/lib/flatpak/app
+    # is exactly those in /usr/share/factory/var/lib/flatpak/app. We also need to identify
+    # addons in /usr/share/factory/var/lib/flatpak/runtime, which we do based on naming convention.
     echo "New KDE Linux install: using preinstalled app list from factory directory"
     ls /usr/share/factory/var/lib/flatpak/app > $EVER_PREINSTALLED_APPS_FILE
+    find /usr/share/factory/var/lib/flatpak/runtime \
+        -maxdepth 1 -type d -name "*.Addon.*" -printf "%f\n" >> $EVER_PREINSTALLED_APPS_FILE
 fi
