@@ -5,15 +5,10 @@
 Description=KDE Linux Live Session Setup
 Requires=systemd-logind.service
 Before=display-manager.service
-After=systemd-logind.service systemd-homed.service
-ConditionPathExists=/live/usr/lib/live-setup
+After=run-extensions-live.mount systemd-logind.service systemd-homed.service
+ConditionPathExists=/run/extensions/live/usr/lib/live-setup
 ConditionKernelCommandLine=kde-linux.live=1
 
 [Service]
 Type=oneshot
-ExecStart=/live/usr/lib/live-setup
-ExecStartPost=/usr/bin/systemctl disable %n
-
-[Install]
-RequiredBy=multi-user.target
-RequiredBy=display-manager.service
+ExecStart=/run/extensions/live/usr/lib/live-setup

@@ -22,10 +22,6 @@ if [ "$BOOTED_LABEL" != "KDELinuxLive" ]; then
     exit 1
 fi
 
-mkdir --mode 0755 -p /run
-mkdir --mode 0755 -p /run/extensions/
-# Mind that /live is only available if the erofs is mounted as rootfs. On the final system we selectively only mount usr from the erofs!
-ln -s /live /run/extensions/live
 systemd-sysext refresh
 
 useradd --create-home --comment "Live User" live

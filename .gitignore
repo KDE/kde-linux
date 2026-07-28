@@ -37,6 +37,8 @@ kde-linux_*
 
 /etc-factory
 
+/live-root/
+
 install.tar.zst
 debug.tar.zst
 packages.txt

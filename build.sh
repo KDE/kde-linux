@@ -186,6 +186,14 @@ rm "${OUTPUT}/usr/share/factory/boot/EFI/Linux/$LIVE_EFI"
 rm -rf "$OUTPUT/var/lib/flatpak"
 mkdir "$OUTPUT/var/lib/flatpak" # but keep a mountpoint around for the live session
 
+# Split /live out of the rootfs into its own erofs image. It becomes an extra
+# partition on the ISO (mkosi.repart/20-live.conf) and is mounted as a sysext by
+# run-extensions-live.mount, so installed systems never carry it.
+rm --recursive --force live-root
+mv "$OUTPUT/live" live-root
+time mkfs.erofs -zzstd -C 65536 --chunksize 65536 \
+    kde-linux.cache/live.raw live-root > erofs-live.log 2>&1
+
 time mkfs.erofs -zzstd -C 65536 --chunksize 65536 "$ROOTFS_EROFS" "$OUTPUT" > erofs.log 2>&1
 cp --reflink=auto "$ROOTFS_EROFS" kde-linux.cache/root.raw
 
