@@ -1,0 +1,40 @@
+#!/bin/sh
+# SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL
+# SPDX-FileCopyrightText: 2026 Harald Sitter <sitter@kde.org>
+
+set -eux
+
+cd "$BUILDROOT"
+zstd -c --decompress "$SRCDIR"/mkosi.output/initrd.cpio.zst | cpio --extract --make-directories --preserve-modification-time
+
+for dir in "$SRCDIR"/buildstream-initrdfs/lib/modules/*; do
+    name=$(basename "$dir")
+    target="$BUILDROOT/usr/lib/modules/$name"
+    # target must already exist since the initrd tree was seeded by the same directory!
+
+    # In an unfortunate turn of events we need to put the vmlinuz in the tree so that the ukis find it.
+    # Because of https://github.com/systemd/mkosi/issues/4397 that unfortunately also means it will be
+    # in the actual initrd. Nothing to be done about it except fix mkosi.
+    cp "$dir/vmlinuz" "$target/"
+done
+
+# Make sure we don't accidentally leak useless artifacts into the initrd
+rm --recursive --force "$BUILDROOT"/usr/src
+rm --recursive --force "$BUILDROOT"/usr/include
+rm --recursive --force "$BUILDROOT"/usr/lib/debug
+
+# Next let's inject our bespoke udev trigger. The way this works is that systemd will shut down the switch-root service
+# and then we force a trigger run so the modules get loaded as necessary, ASAP.
+
+cd "$BUILDROOT"/usr/lib/systemd/system/
+[ -d initrd-switch-root.service.d ] || mkdir initrd-switch-root.service.d
+cat > initrd-switch-root.service.d/kde-linux-udev.conf <<'EOF'
+[Service]
+ExecStopPost=systemctl --no-block systemd-udev-trigger.service
+EOF
+
+[ -d breakpoint-pre-switch-root.service.d ] || mkdir breakpoint-pre-switch-root.service.d
+cat > breakpoint-pre-switch-root.service.d/kde-linux-udev.conf <<'EOF'
+[Service]
+ExecStopPost=systemctl --no-block systemd-udev-trigger.service
+EOF

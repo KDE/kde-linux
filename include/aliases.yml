@@ -1,0 +1,7 @@
+# SPDX-License-Identifier: BSD-2-Clause
+# SPDX-FileCopyrightText: 2025 Aleix Pol Gonzalez <aleix.pol@codethink.co.uk>
+
+aliases:
+  pypi: https://files.pythonhosted.org/packages/
+  kde: https://invent.kde.org/
+  invent: https://invent.kde.org/

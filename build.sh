@@ -17,8 +17,13 @@ make_debug_archive () {
   mkdir --parents /var/tmp/debugroot
 
   # Download and extract debug symbols produced by the packages pipeline.
-  curl --fail https://storage.kde.org/kde-linux-packages/testing/artifacts/debug.tar.zst \
-    | zstd --decompress | tar --extract --directory=/var/tmp/debugroot
+  if [ "${CI_COMMIT_BRANCH:-}" = "master" ]; then
+    curl --fail https://storage.kde.org/kde-linux-packages/testing/artifacts/debug.tar.zst \
+      | zstd --decompress | tar --extract --directory=/var/tmp/debugroot
+  else
+    curl --fail https://storage.kde.org/ci-artifacts/kde-linux/kde-linux-packages/j/4781692/testing/artifacts/debug.tar.zst \
+      | zstd --decompress | tar --extract --directory=/var/tmp/debugroot
+  fi
 
   # systemd-sysext uses the os-release in extension-release.d to verify the sysext matches the base OS,
   # and can therefore be safely installed. Copy the base OS' os-release there.
@@ -57,28 +62,26 @@ LIVE_EFI=${EFI_BASE}.efi   # Name of live UKI in the ESP (no tries counter — E
 # Clean up old build artifacts.
 rm --recursive --force kde-linux.cache/*.raw kde-linux.cache/*.iso kde-linux.cache/*.mnt
 
-cat /etc/pacman.conf.nolinux >> mkosi.sandbox/etc/pacman.conf
+BUILDSTREAM_ROOTFS="buildstream-rootfs"
+BUILDSTREAM_BOOTFS="buildstream-bootfs"
+BUILDSTREAM_TOOLFS="buildstream-toolfs"
+BUILDSTREAM_INITRDFS="buildstream-initrdfs"
+BUILDSTREAM_EFI="buildstream-efi"
 
-# Enable multilib; we need it later for steam-devices
-cat <<EOF >> mkosi.sandbox/etc/pacman.conf
-[multilib]
-Include = /etc/pacman.d/mirrorlist
+cat <<EOF > "include/kde-linux-image.yml"
+# SPDX-FileCopyrightText: 2026 KDE Linux Contributors
+# SPDX-License-Identifier: BSD-2-Clause
+
+variables:
+  kde-linux-version-date: '${VERSION_DATE}'
+  kde-linux-image-version: '${VERSION}'
+  kde-linux-build-id: '${CI_COMMIT_SHORT_SHA:-unknownSHA}'
+  kde-linux-commit-sha: '${CI_COMMIT_SHA:-unknownSHA}'
+  kde-linux-commit-short-sha: '${CI_COMMIT_SHORT_SHA:-unknownSHA}'
+  kde-linux-ci-url: '${CI_PIPELINE_URL:-https://invent.kde.org}'
 EOF
 
-mkdir --parents mkosi.sandbox/etc/pacman.d
-# Ensure the base image does not go out of sync with the Arch snapshot used to build packages.
-# WARNING: code copy in bootstrap.sh
-BUILD_REPO=$(curl --fail --silent https://storage.kde.org/kde-linux-packages/testing/repo/build_repo.txt)
-if [ -z "$BUILD_REPO" ]; then
-  echo "ERROR: Could not fetch build_repo.txt — refusing to build out-of-sync image." >&2
-  exit 1
-fi
-echo "Server = ${BUILD_REPO}/\$repo/os/\$arch" > mkosi.sandbox/etc/pacman.d/mirrorlist
-# ... and make sure our cache is up to date. Second --refresh forces a refresh.
-pacman --sync --refresh --refresh --noconfirm
-
-# Make sure permissions are sound
-./permission-fix.sh
+mkdir -p "$PWD/mkosi.extra/usr/lib"
 
 cargo build --release --manifest-path btrfs-migrator/Cargo.toml
 cp -v btrfs-migrator/target/release/btrfs-migrator mkosi.extra/usr/lib/
@@ -91,30 +94,47 @@ rm --recursive --force etc-factory
 git clone https://invent.kde.org/kde-linux/etc-factory
 DESTDIR=$PWD/mkosi.extra make --directory=etc-factory install
 
-# Extract the KDE packages pipeline output into mkosi.extra so kde-builder built files
-# are baked directly into the image instead of going through the package repo.
-curl --fail https://storage.kde.org/kde-linux-packages/testing/artifacts/install.tar.zst \
-    -o install.tar.zst
+if [ "${KDECI_BUILD:-}" = "TRUE" ]; then
+    # Set up cache overrides
+    git clone --depth=1 https://invent.kde.org/sitter/kde-buildstream.git
+    mkdir --parents ~/.config
+    cp kde-buildstream/buildstream.conf.readable ~/.config/buildstream.conf
+fi
 
-# Generate a mkosi dropin with the packages from the packages pipeline
-curl --fail https://storage.kde.org/kde-linux-packages/testing/artifacts/packages.txt \
-    -o packages.txt
+rm -rf "$BUILDSTREAM_ROOTFS" "$BUILDSTREAM_BOOTFS" "$BUILDSTREAM_TOOLFS" "$BUILDSTREAM_INITRDFS" "$BUILDSTREAM_EFI"
+bst build \
+    os/filesystem.bst \
+    os/initrd.bst \
+    os/systemd-initrd-payload.bst \
+    kde-linux-packages.bst:kde-buildstream.bst:components/calamares.bst \
+    kde-linux-packages.bst:kde-buildstream.bst:freedesktop-sdk.bst:components/ovmf-maybe.bst \
+    kde-linux-packages.bst:kde-buildstream.bst:freedesktop-sdk.bst:vm/prepare-image.bst
+bst artifact checkout os/filesystem.bst --directory $BUILDSTREAM_ROOTFS
+bst artifact checkout os/initrd.bst --directory $BUILDSTREAM_BOOTFS
+bst artifact checkout os/systemd-initrd-payload.bst --directory $BUILDSTREAM_INITRDFS
+bst artifact checkout kde-linux-packages.bst:kde-buildstream.bst:components/calamares.bst --deps none --directory $BUILDSTREAM_ROOTFS/live
+bst artifact checkout kde-linux-packages.bst:kde-buildstream.bst:freedesktop-sdk.bst:vm/prepare-image.bst --deps none --directory $BUILDSTREAM_TOOLFS
+bst artifact checkout kde-linux-packages.bst:kde-buildstream.bst:freedesktop-sdk.bst:components/ovmf-maybe.bst --directory $BUILDSTREAM_EFI
 
-mkdir -p mkosi.conf.d
-{
-    echo "[Content]"
-    while IFS= read -r pkg; do
-        echo "Packages=$pkg"
-    done < packages.txt
-} > mkosi.conf.d/40-kde-packages.conf
+mkdir -p $BUILDSTREAM_ROOTFS/usr/share/ovmf/
+cp $BUILDSTREAM_EFI/usr/share/ovmf/Shell.efi $BUILDSTREAM_ROOTFS/usr/share/ovmf/Shell.efi
+
+# Remove debug symbols from live directory. It'd be inconvenient to do this in bst right now.
+rm --recursive --force $BUILDSTREAM_ROOTFS/live/usr/lib/debug
+
+# Make sure permissions are sound
+./permission-fix.sh
+
+if [ "${CI_COMMIT_BRANCH:-}" = "master" ]; then
+  wget --output-document=install.tar.zst https://storage.kde.org/kde-linux-packages/testing/artifacts/install.tar.zst
+else
+  wget --output-document=install.tar.zst https://storage.kde.org/ci-artifacts/kde-linux/kde-linux-packages/j/4781692/testing/artifacts/install.tar.zst
+fi
 
 mkosi \
-    --environment="CI_COMMIT_SHORT_SHA=${CI_COMMIT_SHORT_SHA:-unknownSHA}" \
-    --environment="CI_COMMIT_SHA=${CI_COMMIT_SHA:-unknownSHA}" \
-    --environment="CI_PIPELINE_URL=${CI_PIPELINE_URL:-https://invent.kde.org}" \
-    --environment="VERSION_DATE=${VERSION_DATE}" \
     --image-version="$VERSION" \
-    --extra-tree="$PWD/install.tar.zst" --extra-tree="$PWD/mkosi.extra" \
+    --extra-tree="$PWD/install.tar.zst" \
+    --extra-tree="$PWD/mkosi.extra" \
     "$@"
 
 # Adjust mtime to reduce unnecessary churn between images caused by us rebuilding repos that have possibly not changed in source or binary interfaces.
@@ -130,20 +150,21 @@ if [ -f "$PWD/.secure_files/ssh.key" ]; then
   scp -i "$PWD/.secure_files/ssh.key" mtimer.json kdeos@origin.files.kde.org:/home/kdeos/mtimer.json
 fi
 
+chmod u+w "$OUTPUT" # mkosi tries to be nice by making it read-only
 # NOTE: /efi must be empty so auto mounting can happen. As such we put our templates in a different directory
 rm -rfv "${OUTPUT}/efi"
 [ -d "${OUTPUT}/efi" ] || mkdir --mode 0700 "${OUTPUT}/efi"
 [ -d "${OUTPUT}/usr/share/factory/boot" ] || mkdir --mode 0700 "${OUTPUT}/usr/share/factory/boot"
 [ -d "${OUTPUT}/usr/share/factory/boot/EFI" ] || mkdir --mode 0700 "${OUTPUT}/usr/share/factory/boot/EFI"
 [ -d "${OUTPUT}/usr/share/factory/boot/EFI/Linux" ] || mkdir --mode 0700 "${OUTPUT}/usr/share/factory/boot/EFI/Linux"
+[ -d "${OUTPUT}/usr/share/factory/boot/loader" ] || mkdir --mode 0700 "${OUTPUT}/usr/share/factory/boot/loader"
+[ -d "${OUTPUT}/usr/share/factory/boot/loader/entries" ] || mkdir --mode 0700 "${OUTPUT}/usr/share/factory/boot/loader/entries"
 [ -d "${OUTPUT}/usr/share/factory/boot/EFI/Linux/$EFI_BASE.efi.extra.d" ] || mkdir --mode 0700 "${OUTPUT}/usr/share/factory/boot/EFI/Linux/$EFI_BASE.efi.extra.d"
 
 # Save the main UKI (with tries counter) aside as it must NOT go into factory/boot yet
 # so it doesn't end up on the live ESP.
-cp -v "${OUTPUT}"/kde-linux.efi "$MAIN_UKI"
-rm -v "${OUTPUT}"/kde-linux.efi
-mv -v "${OUTPUT}"/erofs.addon.efi "${OUTPUT}_erofs.addon.efi"
-mv -v "${OUTPUT}"/live.efi "$LIVE_UKI"
+mv -v mkosi.output/uki.efi "$MAIN_UKI"
+mv -v mkosi.output/uki.live.efi "$LIVE_UKI"
 
 make_debug_archive
 
@@ -160,17 +181,8 @@ cd kde-linux.cache
 # Create a 280M large FAT32 filesystem inside of esp.raw.
 fallocate -l 280M esp.raw
 mkfs.fat -F 32 esp.raw
-
-# Mount it to esp.raw.mnt.
-mkdir -p esp.raw.mnt
-mount esp.raw esp.raw.mnt
-
-# Copy everything from /usr/share/factory/boot into esp.raw.mnt.
-# At this point only LIVE_EFI is in factory/boot/EFI/Linux/ so the installed UKI (+3) is not there yet.
-cp --archive --recursive "${OUTPUT}/usr/share/factory/boot/." esp.raw.mnt
-
-# We're done, unmount esp.raw.mnt.
-umount esp.raw.mnt
+# We use mcopy so we don't have to mount the image (which would require sudo) and have less code
+mcopy -i esp.raw -s "${OUTPUT}/usr/share/factory/boot/"* ::/
 
 cd .. # and back to root
 
@@ -194,7 +206,11 @@ mv "$OUTPUT/live" live-root
 time mkfs.erofs -zzstd -C 65536 --chunksize 65536 \
     kde-linux.cache/live.raw live-root > erofs-live.log 2>&1
 
-time mkfs.erofs -zzstd -C 65536 --chunksize 65536 "$ROOTFS_EROFS" "$OUTPUT" > erofs.log 2>&1
+# Needs sudo so it can tinker with setuid files
+time sudo mkfs.erofs --all-root -zzstd -C 65536 --chunksize 65536 -T 0 -E fragments,ztailpacking,dedupe \
+    "$ROOTFS_EROFS" "$OUTPUT" > erofs.log 2>&1
+# Then chown back the result
+sudo chown $UID:$UID "$ROOTFS_EROFS"
 cp --reflink=auto "$ROOTFS_EROFS" kde-linux.cache/root.raw
 
 # Now assemble the image using systemd-repart and the definitions in mkosi.repart into $ISO.
