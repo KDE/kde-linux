@@ -44,12 +44,19 @@ imaging:
       aud: https://tokens.kde.org
   variables: &variables
     RUNNER_AFTER_SCRIPT_TIMEOUT: 1h
+  before_script:
+    - sudo pacman --sync --refresh --noconfirm mtools
+    - sudo pacman --remove --nosave --recursive --noconfirm mkosi
+    - sudo pip install --break-system-packages git+https://github.com/systemd/mkosi.git
+    - which mkosi
+    - mkosi --version
   script:
     - if [ "$IMAGING_MODE" = stage ]; then curl -s https://gitlab.com/gitlab-org/incubation-engineering/mobile-devops/download-secure-files/-/raw/main/installer | bash; fi
-    - sudo ./build.sh --force --debug
+    - KDECI_BUILD=TRUE ./build.sh --force --debug
     - if [ "$IMAGING_MODE" = stage ]; then ./upload.sh --stage; fi
     - if [ "$IMAGING_MODE" = test ]; then ./upload-to-storage.sh; fi # Need this to have something to pass to OpenQA.
   after_script:
+    - cp --archive ~/.cache/buildstream/logs buildstream-logs || true
     - if [ "$IMAGING_MODE" = stage ] && [ "$CI_JOB_STATUS" = success ]; then exit 0; fi
     - if [ "$IMAGING_MODE" = test ]; then exit 0; fi
     - ./upload-to-storage.sh || true
@@ -58,6 +65,7 @@ imaging:
     when: always
     paths:
       - "**/erofs.log"
+      - "buildstream-logs/**/*.log"
     reports:
       dotenv: build.env
 
@@ -130,7 +138,7 @@ publish:
   script:
     - curl -s https://gitlab.com/gitlab-org/incubation-engineering/mobile-devops/download-secure-files/-/raw/main/installer | bash
     - ./upload.sh --publish
-  artifacts:
+  artifacts: &artifacts
     expire_in: 4 weeks
     when: always
     paths:
@@ -157,8 +165,4 @@ publish-manual:
   script:
     - curl -s https://gitlab.com/gitlab-org/incubation-engineering/mobile-devops/download-secure-files/-/raw/main/installer | bash
     - ./upload.sh --publish
-  artifacts:
-    expire_in: 4 weeks
-    when: always
-    paths:
-      - "**/erofs.log"
+  artifacts: *artifacts
