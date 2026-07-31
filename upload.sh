@@ -37,6 +37,25 @@ fi
 
 OUTDIR=mkosi.output
 
+export PUBLISH_DIR="testing"
+if [ "${CI_COMMIT_BRANCH:-}" != "testing-buildstream" ]; then
+    export PUBLISH_DIR="testing-buildstream"
+fi
+
+PUBLISH_RESOURCE_HOLDER_PID=""
+function finish {
+    set +e
+    if [ "$PUBLISH_RESOURCE_HOLDER_PID" != "" ]; then
+        kill ${PUBLISH_RESOURCE_HOLDER_PID} || true
+    fi
+}
+trap finish EXIT INT ABRT TERM
+
+curl https://resources.kde-linux.haraldsitter.eu/v1/locks
+git clone https://invent.kde.org/sitter/kde-linux-resource-semaphore
+kde-linux-resource-semaphore/resource-holder --resource image-storage-$PUBLISH_DIR &
+PUBLISH_RESOURCE_HOLDER_PID=$!
+
 # For the vacuum helper and this script
 export SSH_IDENTITY="$PWD/.secure_files/ssh.key"
 export SSH_USER=kdeos
