@@ -69,7 +69,7 @@ export GNUPGHOME="$PWD/.secure_files/gpg"
 # upload tree built during staging
 V2_TREE="upload-tree/sysupdate/v2"
 S3_TARGET="s3+https://storage.kde.org/kde-linux/"
-S3_CHANNEL_TARGET="${S3_TARGET}testing/"
+S3_CHANNEL_TARGET="${S3_TARGET}${PUBLISH_DIR}/"
 S3_STORE="${S3_TARGET}sysupdate/store/"
 
 # files.kde.org scp targets. We don't stage on files.kde.org, only on the storage.kde.org bucket.
@@ -182,8 +182,8 @@ publish() {
     go -C ./upload-vacuum-v3/ run .
 
     gpg --homedir="$GNUPGHOME" \
-        --output "upload-tree/testing/sysupdate/v2/SHA256SUMS.gpg" \
-        --detach-sign "upload-tree/testing/sysupdate/v2/SHA256SUMS"
+        --output "upload-tree/$PUBLISH_DIR/sysupdate/v2/SHA256SUMS.gpg" \
+        --detach-sign "upload-tree/$PUBLISH_DIR/sysupdate/v2/SHA256SUMS"
     go -C ./token-redeemer/ run .
     go -C ./uploader/ run . --remote "$S3_TARGET"
 }
