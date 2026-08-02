@@ -10,6 +10,12 @@
 
 set -ex
 
+S3_PACKAGES_URL="https://storage.kde.org/kde-linux-packages/testing/"
+if [ "${CI_COMMIT_BRANCH:-}" == "buildstream" ]; then
+    go install invent.kde.org/sitter/kde-linux-ci-artifacts-find-latest@master
+    S3_PACKAGES_URL="$(kde-linux-ci-artifacts-find-latest)/testing-buildstream/"
+fi
+
 # Creates a sysext containing the KDE debug symbols, downloaded from the packages pipeline.
 make_debug_archive () {
   # Create an empty directory at /var/tmp/debugroot to extract the debug symbols into before compressing.
@@ -17,10 +23,7 @@ make_debug_archive () {
   mkdir --parents /var/tmp/debugroot
 
   # Download and extract debug symbols produced by the packages pipeline.
-  url="https://storage.kde.org/kde-linux-packages/testing/artifacts/debug.tar.zst"
-  if [ "${CI_COMMIT_BRANCH:-}" == "testing-buildstream" ]; then
-    url="https://storage.kde.org/kde-linux-packages/testing-buildstream/artifacts/debug.tar.zst"
-  fi
+  url="${S3_PACKAGES_URL}/artifacts/debug.tar.zst"
 
   curl --fail "$url" \
     | zstd --decompress | tar --extract --directory=/var/tmp/debugroot
@@ -125,11 +128,7 @@ rm --recursive --force $BUILDSTREAM_ROOTFS/live/usr/lib/debug
 # Make sure permissions are sound
 ./permission-fix.sh
 
-url="https://storage.kde.org/kde-linux-packages/testing/artifacts/install.tar.zst"
-if [ "${CI_COMMIT_BRANCH:-}" == "testing-buildstream" ]; then
-    url="https://storage.kde.org/kde-linux-packages/testing-buildstream/artifacts/install.tar.zst"
-fi
-wget --output-document=install.tar.zst "$url"
+wget --output-document=install.tar.zst "${S3_PACKAGES_URL}/artifacts/install.tar.zst"
 
 mkosi \
     --image-version="$VERSION" \
