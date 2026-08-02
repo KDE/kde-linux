@@ -38,7 +38,7 @@ fi
 OUTDIR=mkosi.output
 
 export PUBLISH_DIR="testing"
-if [ "${CI_COMMIT_BRANCH:-}" != "testing-buildstream" ]; then
+if [ "${CI_COMMIT_BRANCH:-}" = "buildstream" ]; then
     export PUBLISH_DIR="testing-buildstream"
 fi
 
