@@ -12,8 +12,11 @@ set -ex
 
 S3_PACKAGES_URL="https://storage.kde.org/kde-linux-packages/testing/"
 if [ "${CI_COMMIT_BRANCH:-}" == "buildstream" ]; then
-    go install invent.kde.org/sitter/kde-linux-ci-artifacts-find-latest@master
-    S3_PACKAGES_URL="$(~/go/bin/kde-linux-ci-artifacts-find-latest --project kde-linux/kde-linux-packages)/testing-buildstream/"
+    git clone https://invent.kde.org/sitter/kde-linux-ci-artifacts-find-latest
+    cd kde-linux-ci-artifacts-find-latest
+    go build
+    S3_PACKAGES_URL="$(./kde-linux-ci-artifacts-find-latest --project kde-linux/kde-linux-packages)/testing-buildstream/"
+    cd ..
 fi
 
 # Creates a sysext containing the KDE debug symbols, downloaded from the packages pipeline.
