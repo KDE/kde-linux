@@ -15,7 +15,8 @@ if [ "${CI_COMMIT_BRANCH:-}" == "buildstream" ]; then
     git clone https://invent.kde.org/sitter/kde-linux-ci-artifacts-find-latest
     cd kde-linux-ci-artifacts-find-latest
     go build
-    S3_PACKAGES_URL="$(./kde-linux-ci-artifacts-find-latest --project kde-linux/kde-linux-packages)/testing-buildstream/"
+    # Be very mindful of excess slashes. Minio gets angry over them.
+    S3_PACKAGES_URL="$(./kde-linux-ci-artifacts-find-latest --project kde-linux/kde-linux-packages)/testing-buildstream"
     cd ..
 fi
 
