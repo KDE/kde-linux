@@ -1,21 +1,96 @@
-#!/bin/sh
+#!/usr/bin/env sh
 # SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL
 # SPDX-FileCopyrightText: 2025 Nate Graham <nate@kde.org>
+# SPDX-FileCopyrightText: 2026 Paul Brown <paul.brown@kde.org>
+# SPDX-FileCopyrightText: 2026 Hadi Chokr <hadichokr@icloud.com>
 
 # Set up a systemd extension allowing you to create or override files in /usr/
 
 set -e
 
-SYSEXT_BASE_LOCATION="${HOME}/kde/usr/"
-SYSEXT_LOCATION="${SYSEXT_BASE_LOCATION}/lib/extension-release.d/"
-SYSEXT_ROOT_LOCATION="/var/lib/extensions/"
+usage() {
+    cat <<USAGE
+Usage: $0 [-n <name>] [-d <directory>]
+
+  -n <name>       Name of the extension (default: kde)
+  -d <directory>  Directory that will hold the extension. Relative paths
+                  are resolved against \$HOME (default: \$HOME)
+  -h              Show this help
+
+The extension tree ends up in <directory>/<name>.
+USAGE
+}
+
+SYSEXT_NAME=
+SYSEXT_DIR=
+
+# Check for parameters (see "usage" function above)
+while getopts "n:d:h" option; do
+    case "${option}" in
+        n)
+            SYSEXT_NAME="$OPTARG"
+            ;;
+        d)
+            SYSEXT_DIR="$OPTARG"
+            ;;
+        h)
+            usage
+            exit 0
+            ;;
+        *)
+            usage >&2
+            exit 1
+            ;;
+    esac
+done
+shift $((OPTIND - 1))
+
+if [ "$#" -gt 0 ]; then
+    echo "Unexpected argument: $1" >&2
+    usage >&2
+    exit 1
+fi
+
+# Only prompt if there's a terminal to prompt on; other callers get the default.
+if [ -z "${SYSEXT_NAME}" ]; then
+    if [ -t 0 ]; then
+        printf '%s' 'Extension name [press Enter to use “kde”]: '
+        read -r SYSEXT_NAME || SYSEXT_NAME=
+    fi
+    SYSEXT_NAME="${SYSEXT_NAME:-kde}"
+fi
+
+# The name ends up in a path and in the run0 script below.
+case "${SYSEXT_NAME}" in
+    *[!A-Za-z0-9_-]*)
+        echo "Extension names may only contain letters, digits, “-” and “_”." >&2
+        exit 1
+        ;;
+esac
+
+if [ -z "${SYSEXT_DIR}" ] && [ -t 0 ]; then
+    printf '%s' 'Extension directory [press Enter to use your home directory]: '
+    read -r SYSEXT_DIR || SYSEXT_DIR=
+fi
+
+# The tree lives at <directory>/<name>. Relative paths are under $HOME.
+case "${SYSEXT_DIR}" in
+    "") SYSEXT_PARENT="${HOME}" ;;
+    /*) SYSEXT_PARENT="${SYSEXT_DIR}" ;;
+    *)  SYSEXT_PARENT="${HOME}/${SYSEXT_DIR}" ;;
+esac
+
+SYSEXT_TREE="${SYSEXT_PARENT}/${SYSEXT_NAME}"
+SYSEXT_BASE_LOCATION="${SYSEXT_TREE}/usr"
+SYSEXT_LOCATION="${SYSEXT_BASE_LOCATION}/lib/extension-release.d"
+SYSEXT_ROOT_LOCATION="/var/lib/extensions"
 
 echo
-if [ -f "${SYSEXT_LOCATION}/extension-release.kde" ]; then
-    echo '== Systemd system extension: already set up, skipping =='
+if [ -f "${SYSEXT_LOCATION}/extension-release.${SYSEXT_NAME}" ]; then
+    echo "== Systemd system extension “${SYSEXT_NAME}”: already set up, skipping =="
 else
-    echo '== Systemd system extension: needs setup =='
-    echo "Setting up extension at ${SYSEXT_BASE_LOCATION}..."
+    echo "== Systemd system extension “${SYSEXT_NAME}”: needs setup =="
+    echo "Setting up extension “${SYSEXT_NAME}” at ${SYSEXT_BASE_LOCATION}..."
 
     # Create directory to hold this system extension
     mkdir -p "${SYSEXT_LOCATION}"
@@ -24,21 +99,22 @@ else
     run0 sh <<EOF
 set -e
 mkdir -p "${SYSEXT_ROOT_LOCATION}"
-ln -fs "${HOME}/kde" "${SYSEXT_ROOT_LOCATION}"
+ln -fs "${SYSEXT_TREE}" "${SYSEXT_ROOT_LOCATION}"
 
 # Copy the system os-release file to be an extension-release file that identifies this extension
-cp /usr/lib/os-release "${SYSEXT_LOCATION}/extension-release.kde"
+cp /usr/lib/os-release "${SYSEXT_LOCATION}/extension-release.${SYSEXT_NAME}"
 
 # Set its ID to "_any" so system updates don't break the extension
 # Skip this step if you want the extension to only work for the current system build
-sed -i "s/^ID=.*/ID=_any/g" "${SYSEXT_LOCATION}/extension-release.kde"
+sed -i "s/^ID=.*/ID=_any/g" "${SYSEXT_LOCATION}/extension-release.${SYSEXT_NAME}"
 
 # Make the release file immutable so it can't be accidentally removed
-chattr +i "${SYSEXT_LOCATION}/extension-release.kde"
+chattr +i "${SYSEXT_LOCATION}/extension-release.${SYSEXT_NAME}"
 
 # Turn it on!
 systemd-sysext refresh || systemd-sysext merge
 EOF
 
-    echo "Finished setting up extension! When you put files in ${SYSEXT_BASE_LOCATION} and run 'run0 systemd-sysext refresh', they will appear in /usr/. See https://community.kde.org/KDE_Linux/Add_or_override_content_in_/usr for more information."
+    # set-up-system-development greps for "Finished setting up extension".
+    echo "Finished setting up extension “${SYSEXT_NAME}”! When you put files in ${SYSEXT_BASE_LOCATION} and run 'run0 systemd-sysext refresh', they will appear in /usr/. See https://linux.kde.org/docs/override-usr/ for more information."
 fi
