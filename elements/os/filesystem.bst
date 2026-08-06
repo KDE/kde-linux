@@ -22,6 +22,9 @@ config:
   # Some things are actually needed to build stuff! (notably some gcc .a files)
   - rm /usr/lib/x86_64-linux-gnu/libQt*.a
   - rm /usr/lib/x86_64-linux-gnu/libqpdf.a
+  # Mesa's extension bundles the same LLVM shared library as the base system.
+  # Its consumers use the SONAME, so the dynamic loader can use the system copy.
+  - rm /usr/lib/%{gcc_triplet}/GL/default/lib/libLLVM.so.*
   # Don't need the thesaurus, we have no framework or app to consume them. And they are huge!
   - rm --recursive /usr/share/locale/*/mythes
   - rm --recursive /usr/share/mythes
