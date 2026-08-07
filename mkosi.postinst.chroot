@@ -176,7 +176,8 @@ rm -rf \
     /usr/lib/modules/*/kernel/crypto/algif_hash.ko.zst \
     /usr/lib/modules/*/kernel/crypto/algif_rng.ko.zst \
     /usr/lib/modules/*/kernel/crypto/algif_skcipher.ko.zst \
-    /usr/lib/modules/*/kernel/net/rxrpc/rxrpc.ko.zst
+    /usr/lib/modules/*/kernel/net/rxrpc/rxrpc.ko.zst \
+    /usr/lib/modules/*/kernel/fs/afs/kafs.ko.zst
 
 /usr/lib/rebuild-efi
 mv -v ./*.efi /
