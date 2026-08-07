@@ -168,21 +168,6 @@ if [ -f /etc/updatedb.conf ]; then
     sed -i 's/^PRUNE_BIND_MOUNTS = "yes"/PRUNE_BIND_MOUNTS = "no"/' /etc/updatedb.conf
 fi
 
-# Delete af_alg et al. kernel modules; they're dangerous and unused by anything
-# relevant except for iwd and non-default cryptsetup algorithms, neither of which
-# are used on KDE Linux. Also delete rxrpc, which is only used for the AF_RXRPC
-# socket protocol by AFS/kAFS clients, which are not used on KDE Linux.
-# See also:
-# - https://www.secwest.net/copyfail-mitigation
-# - https://news.ycombinator.com/item?id=47956312
-rm -rf \
-    /usr/lib/modules/*/kernel/crypto/af_alg.ko.zst \
-    /usr/lib/modules/*/kernel/crypto/algif_aead.ko.zst \
-    /usr/lib/modules/*/kernel/crypto/algif_hash.ko.zst \
-    /usr/lib/modules/*/kernel/crypto/algif_rng.ko.zst \
-    /usr/lib/modules/*/kernel/crypto/algif_skcipher.ko.zst \
-    /usr/lib/modules/*/kernel/net/rxrpc/rxrpc.ko.zst
-
 # Clean up final remnants of the build process
 rm -rf \
     /buildroot \
