@@ -1,0 +1,64 @@
+# SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL
+# SPDX-FileCopyrightText: 2026 Philip Grant <pg_kde_invent@runbox.com>
+
+remotes:
+  - name: flathub
+    url: https://dl.flathub.org/repo/flathub.flatpakrepo
+    collection_id: org.flathub.Stable
+    # 'apps' here can also include non-app Flatpak refs, notably the Fcitx
+    # runtime addons
+    apps:
+      - org.gtk.Gtk3theme.Breeze
+      - org.kde.kwrite
+      - org.fcitx.Fcitx5
+      - org.fcitx.Fcitx5.Addon.ChineseAddons
+      - org.fcitx.Fcitx5.Addon.Chewing
+      - org.fcitx.Fcitx5.Addon.Mozc
+      - org.fcitx.Fcitx5.Addon.Hangul
+      - org.fcitx.Fcitx5.Addon.Unikey
+      - org.mozilla.firefox:
+          overrides:
+            # Ensure accent colors are correctly applied to Firefox.
+            - filesystem=xdg-config/gtk-3.0:ro
+            # Also ensure Firefox has access to the speech-dispatcher socket.
+            - filesystem=xdg-run/speech-dispatcher:ro
+
+  - name: ark-nightly
+    url: https://cdn.kde.org/flatpak/ark-nightly/ark-nightly.flatpakrepo
+    apps:
+      - org.kde.ark
+
+  - name: gwenview-nightly
+    url: https://cdn.kde.org/flatpak/gwenview-nightly/gwenview-nightly.flatpakrepo
+    apps:
+      - org.kde.gwenview
+
+  - name: kcalc-nightly
+    url: https://cdn.kde.org/flatpak/kcalc-nightly/kcalc-nightly.flatpakrepo
+    apps:
+      - org.kde.kcalc
+
+  - name: keepsecret-nightly
+    url: https://cdn.kde.org/flatpak/keepsecret-nightly/keepsecret-nightly.flatpakrepo
+    apps:
+      - org.kde.keepsecret
+
+  - name: haruna-nightly
+    url: https://cdn.kde.org/flatpak/haruna-nightly/haruna-nightly.flatpakrepo
+    apps:
+      - org.kde.haruna
+
+  - name: okular-nightly
+    url: https://cdn.kde.org/flatpak/okular-nightly/okular-nightly.flatpakrepo
+    apps:
+      - org.kde.okular
+
+  - name: qrca-nightly
+    url: https://cdn.kde.org/flatpak/qrca-nightly/qrca-nightly.flatpakrepo
+    apps:
+      - org.kde.qrca
+
+global_overrides:
+  # Global overrides can be added here, e.g.
+  # - filesystem=~/.themes:ro
+  
