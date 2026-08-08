@@ -9,12 +9,6 @@ if ! flatpak info org.mozilla.firefox >/dev/null 2>&1; then
   exit 1
 fi
 
-# Ensure accent colors are correctly applied to Firefox.
-# Also ensure Firefox has access to the speech-dispatcher socket.
-flatpak override --system org.mozilla.firefox \
-  --filesystem=xdg-config/gtk-3.0:ro \
-  --filesystem=xdg-run/speech-dispatcher:ro
-
 # Get the architecture from the runtime.
 RUNTIME_REF="$(flatpak info org.mozilla.firefox 2>/dev/null | grep -E 'Runtime:' | awk '{print $2}')"
 RUNTIME_ARCH="$(echo "$RUNTIME_REF" | cut -d'/' -f2)"
