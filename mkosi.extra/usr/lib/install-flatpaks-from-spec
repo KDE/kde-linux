@@ -1,0 +1,589 @@
+#!/usr/bin/env python3
+# SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL
+# SPDX-FileCopyrightText: 2026 Philip Grant <pg_kde_invent@runbox.com>
+
+""" Processes a YAML-format spec to set up the systemwide Flatpak
+installation on a KDE Linux system. The spec prescribes the remote(s) to
+configure and the app(s) to install from them. Optionally, it can also define
+overrides (for filesystem permissions) etc to be applied systemwide, either
+"globally" (app-independent), or at an application level.
+
+At build time, the Flatpak installation is configured from scratch, so that the
+KDE Linux image contains a set of preinstalled Flatpak apps. On an existing
+KDE Linux system, the module can be invoked by a service at boot time,
+when it will determine and execute the actions needed to bring the system into
+line with the YAML spec. To enable this, a history file is written on each
+run, recording the state that has been reached by running this module.
+"""
+
+import contextlib
+import platform
+import subprocess
+from argparse import ArgumentParser
+from collections.abc import Generator, Iterable, Sequence
+from dataclasses import dataclass
+from enum import Enum, auto
+from pathlib import Path
+from typing import Any, Self
+
+import yaml
+
+log = lambda *a, **ka: print(*a, **ka, flush=True)
+
+
+class FlatpakCommandWrapper:
+    """ A collection of classmethods to run Flatpak commands (baking in the
+    args that we use as standard), collect the output and log it to the
+    journal.
+    """
+    @classmethod
+    def _run(cls,
+             args: Sequence[str],
+             log_stdout: bool = True,
+             log_stderr: bool = True) -> tuple[str, str]:
+        stdout, stderr = "", ""
+        log(f"Executing: {' '.join(args)}")
+        try:
+            res = subprocess.run(args, check=True,
+                                 capture_output=True, text=True)
+            stdout, stderr = res.stdout, res.stderr
+            return stdout, stderr
+        except subprocess.CalledProcessError as exc:
+            log("Exception in subprocess:", exc)
+            stdout, stderr = exc.stdout, exc.stderr
+            raise
+        except Exception as exc:
+            log("Exception:", exc)
+            raise
+        finally:
+            if stdout and log_stdout:
+                for line in stdout.splitlines():
+                    log(line)
+            if stderr and log_stderr:
+                for line in stderr.splitlines():
+                    log(line)
+
+    @classmethod
+    def _double_dash(cls, opts: Iterable[str]) -> list[str]:
+        return ["--" + o.lstrip("-") for o in opts]
+
+    @classmethod
+    def list(cls) -> tuple[str, str]:
+        return cls._run(["flatpak", "list",
+                         "--columns=application,origin,ref"],
+                         log_stdout=False)
+
+    @classmethod
+    def remote_add(cls,
+                   name: str,
+                   url: str) -> tuple[str, str]:
+        return cls._run(["flatpak", "remote-add",
+                         "--if-not-exists", name, url])
+
+    @classmethod
+    def remote_modify(cls,
+                      remote: str,
+                      opts: Iterable[str]) -> tuple[str, str]:
+        args = cls._double_dash(opts)
+        return cls._run(["flatpak", "remote-modify",
+                         *args,
+                         remote])
+
+    @classmethod
+    def remote_info(cls,
+                    remote: str,
+                    app: str) -> tuple[str, str]:
+        return cls._run(["flatpak", "remote-info", "--show-ref", remote, app])
+
+    @classmethod
+    def install(cls,
+                remote: str,
+                apps: Iterable[str]) -> tuple[str, str]:
+        return cls._run(["flatpak", "install",
+                         "--noninteractive", "--assumeyes",
+                         remote, *apps])
+
+    @classmethod
+    def uninstall(cls,
+                  apps: Iterable[str]) -> tuple[str, str]:
+        return cls._run(["flatpak", "uninstall",
+                         "--noninteractive", "--assumeyes",
+                         *apps])
+
+    @classmethod
+    def override(cls,
+                 overrides: Iterable[str],
+                 app: str | None = None) -> tuple[str, str]:
+        args = cls._double_dash(overrides)
+        if app:
+            args.append(app)
+        return cls._run(["flatpak", "override",
+                         *args])
+
+
+class InstalledState:
+    """ Representation of the state of a Flatpak install: per app, track which
+    ref(s) are installed from which remote(s)
+    """
+    def __init__(self, data: dict[str, dict[str, str]]) -> None:
+        """ Initialize from data in the format
+        {app: {ref1: remote1, ref2: remote2, ...}}
+        """
+        self.data = data
+
+    @classmethod
+    def from_flatpak_list_output(cls, text: str) -> Self:
+        """ Create an instance from a multi-line string in the format of
+        the output of:
+        `flatpak list --columns=application,origin,ref`
+        i.e. where each line is a whitespace-separated triple of
+        (application ID, remote, ref)
+        """
+        data = {}
+        for ln in text.splitlines():
+            parts = ln.strip().split()
+            if not parts:
+                continue
+            if len(parts) != 3:
+                raise ValueError(f"Unexpected format in line {ln}")
+            app, remote, ref = parts
+            data.setdefault(app, {})[cls.normalize_ref(ref)] = remote
+        return cls(data)
+
+    @classmethod
+    def from_current_state(cls) -> Self:
+        """ Create an instance from the current installed state as output
+        by `flatpak list`
+        """
+        raw, _ = FlatpakCommandWrapper.list()
+        return cls.from_flatpak_list_output(raw)
+
+    @classmethod
+    def normalize_ref(cls, ref: str) -> str:
+        # Normalize to a 3-part ref format, which is what `flatpak list`
+        # currently returns. Ideally both `flatpak list` and
+        # `flatpak remote-info` would give 4-part refs.
+        # (https://github.com/flatpak/flatpak/issues/6788)
+        return "/".join(ref.split("/")[-3:])
+
+    def app_instances(self, app: str) -> Sequence[tuple[str, str]]:
+        """ Return installed instances of <app> in the structure
+        [(ref1: remote1), ...] .
+        """
+        return list(self.data.get(app, {}).items())
+
+    def app_is_installed_from(self, app: str, remote: str) -> bool:
+        """ Return True iff <app> is installed from <remote>.
+        """
+        return remote in self.data.get(app, {}).values()
+
+
+class PreinstallationHistory:
+    """ Manages the on-disk record of what has historically been preinstalled.
+    We use this to detect changes in the preinstall spec, to respect any
+    uninstalls done by the user, and to avoid rerunning the process against
+    system image version that aren't new.
+    """
+    def __init__(self, file_path_str: str) -> None:
+        self.file_path = Path(file_path_str)
+        self.data = self._read_data()
+
+    def _read_data(self) -> dict[str, Any]:
+        if self.file_path.exists():
+            with open(self.file_path) as f:
+                return yaml.safe_load(f)
+        else:
+            log(f"No existing history file at {self.file_path}")
+            return {}
+
+    def write(self) -> None:
+        self.file_path.parent.mkdir(parents=True, exist_ok=True)
+        with open(self.file_path, "w") as f:
+            yaml.dump(self.data, f)
+
+    @contextlib.contextmanager
+    def version_tracking_context(self,
+                                 version: str) -> Generator[None, None, None]:
+        """ Context manager to record in the history that a run was attempted
+        against a specific image version, and (if applicable) that it
+        completed successfully. 
+        """
+        self.record_last_attempted_image_version(version)
+        self.write()
+        yield
+        self.record_last_completed_image_version(version)
+        self.write()
+
+    ### Data getters
+    def remote_for_app(self, app: str) -> str:
+        return self.data.get("apps", {}).get(app, {}).get("remote", "")
+
+    def overrides_for_app(self, app: str) -> Iterable[str]:
+        return self.data.get("apps", {}).get(app, {}).get("overrides", [])
+
+    def global_overrides(self) -> Iterable[str]:
+        return self.data.get("global_overrides", [])
+
+    def last_attempted_image_version(self) -> str | None:
+        return self.data.get("last_attempted_image_version")
+
+    def last_completed_image_version(self) -> str | None:
+        return self.data.get("last_completed_image_version")
+
+    ### Data setters. These operate in memory: the caller is responsible
+    ### for deciding when to persist, by calling .write()
+    def record_preinstall_from_remote(self,
+                                      remote: str,
+                                      app: str) -> None:
+        self.data.setdefault("apps", {}).setdefault(app, {})["remote"] = remote
+
+    def record_app_overrides(self,
+                             overrides: Iterable[str],
+                             app: str) -> None:
+        if not overrides:
+            # For brevity in the saved file, record the absence of overrides 
+            # through the absence of the key, rather than setting value to []
+            self.data.get("apps", {}).get(app, {}).pop("overrides", None)
+        else:
+            (self.data.setdefault("apps", {})
+                .setdefault(app, {})
+                ["overrides"]) = list(overrides)
+
+    def record_global_overrides(self, overrides: Iterable[str]) -> None:
+        if not overrides:
+            self.data.pop("global_overrides", None)
+        else:
+            self.data["global_overrides"] = list(overrides)
+
+    def record_last_attempted_image_version(self, version: str) -> None:
+        self.data["last_attempted_image_version"] = version
+
+    def record_last_completed_image_version(self, version: str) -> None:
+        self.data["last_completed_image_version"] = version
+
+
+@dataclass(kw_only=True)
+class AppSpec:
+    name: str
+    remote: str
+    overrides: Iterable[str] | None = None
+
+    def __post_init__(self) -> None:
+        # In case <overrides> was None, i.e. the 'overrides' key was
+        # present in the YAML key with no values.
+        self.overrides = self.overrides or []
+
+
+@dataclass(kw_only=True)
+class RemoteSpec:
+    name: str
+    url: str
+    collection_id: str | None = None
+    apps: Iterable[str | dict[str, dict[str, Any]]] | None = None
+    
+    def app_specs(self) -> Iterable[AppSpec]:
+        # An app can be represented in the original YAML either by a string, 
+        # or by a mapping of a strings to a mapping (where the only currently 
+        # valid key in the submapping is "overrides"). Translate both those
+        # cases to AppSpec objects.
+        if self.apps:
+            for app in self.apps:
+                if isinstance(app, str):
+                    app_name, kwargs = app, {}
+                else:
+                    # <app> should be a 1-key dict that looks like:
+                    # {"org.mozilla.firefox":
+                    #    {"overrides": ["filesystem=xdg-config/gtk-3.0:ro"]}
+                    # }
+                    if not (isinstance(app, dict) and len(app) == 1):
+                        raise ValueError(f"Invalid app data structure {app}")
+                    app_name, kwargs = next(iter(app.items()))
+                yield AppSpec(name=app_name, remote=self.name, **kwargs)
+
+
+class PreinstalledFlatpakSpec:
+    """ Class representing the structure of
+    /usr/share/kde-linux/preinstalled-flatpak-spec.yaml
+    """
+    def __init__(self, *,
+                 remotes: Iterable[dict[str, Any]] | None = None,
+                 global_overrides: Iterable[str] | None = None) -> None:
+        self.remote_specs = [RemoteSpec(**r) for r in remotes or ()]
+        self.global_overrides = global_overrides or []
+
+    @classmethod
+    def from_yaml(cls, yaml_data: str) -> Self:
+        data = yaml.safe_load(yaml_data)
+        return cls(**data)
+
+    @classmethod
+    def from_yaml_file_at(cls, yaml_file_path: str) -> Self:
+        with open(yaml_file_path) as f:
+            yaml_data = f.read()
+        return cls.from_yaml(yaml_data)
+
+
+class Action(Enum):
+    INSTALL = auto()
+    CHANGE_REMOTE = auto()
+    APPLY_OVERRIDES = auto()
+
+
+class Preinstaller:
+    """ The main orchestrator class, which determines the actions needed from
+    the spec and the preinstall history, and executes them via the command
+    wrapper.
+    """
+    def __init__(self,
+                 spec: PreinstalledFlatpakSpec,
+                 history: PreinstallationHistory) -> None:
+        self.spec = spec
+        self.history = history
+        self.starting_installed_state = InstalledState.from_current_state()
+
+    @classmethod
+    def image_version(cls) -> str:
+        return platform.freedesktop_os_release()["IMAGE_VERSION"]
+
+    def should_run_for_this_image(self) -> tuple[bool, str]:
+        """ By comparing this image version identifier with the images on which
+        we made our last attempt and last successful attempt to run the
+        Flatpak install process, determine whether we need to run the process
+        on this version.
+        """
+        current = self.image_version()
+        last_attempted = self.history.last_attempted_image_version()
+        last_completed = self.history.last_completed_image_version()
+        if last_completed and last_completed >= current:
+            return False, f"Already completed a run on image {last_completed}"
+        if last_attempted and last_attempted > current:
+            # Avoid running if we made even a failed attempt on a later image
+            # (i.e. we if we're currently booted into an older image)
+            return False, f"Already attempted a run on image {last_attempted}"
+        return True, ""
+
+    ##### Methods related to applying overrides
+    def override_for_app(self, app: str, overrides: Iterable[str]) -> None:
+        """ Reset the system-level overrides for <app> and apply the given
+        <overrides>. Granular resetting of individual overrides is not
+        currently supported by the Flatpak CLI
+        (https://github.com/flatpak/flatpak/issues/5854).
+        """
+        FlatpakCommandWrapper.override(["--reset"], app)
+        if overrides:
+            FlatpakCommandWrapper.override(overrides, app)
+        self.history.record_app_overrides(overrides, app)
+        self.history.write()
+
+    def override_globally(self, overrides: Iterable[str]) -> None:
+        """ Reset the system-level global overrides and apply the given
+        <overrides>
+        """
+        FlatpakCommandWrapper.override(["--reset"], None)
+        if overrides:
+            FlatpakCommandWrapper.override(overrides, None)
+        self.history.record_global_overrides(overrides)
+        self.history.write()
+
+    def apply_global_override_changes(self) -> None:
+        """ Determine whether the global overrides in the spec have changed,
+        and apply the new ones if necessary.
+        """
+        overrides = self.spec.global_overrides
+        previous = self.history.global_overrides()
+        if set(previous) != set(overrides):
+            self.override_globally(overrides)
+
+    ##### Methods related to (re)installing apps
+    def configure_remote(self, remote_spec: RemoteSpec) -> None:
+        """ Configure the remote in the system-level Flatpak config. This
+        is idempotent so we don't check whether the remote is already present.
+        """
+        FlatpakCommandWrapper.remote_add(remote_spec.name, remote_spec.url)
+        if remote_spec.collection_id:
+            FlatpakCommandWrapper.remote_modify(remote_spec.name,
+                [f"collection-id={remote_spec.collection_id}"])
+
+    def get_available_refs_for_app(self,
+                                   remote: str,
+                                   app: str) -> Sequence[str]:
+        """ Get the available refs for <app> on <remote>, by using
+        `flatpak remote-info --show-ref`
+        """
+        raw, _ = FlatpakCommandWrapper.remote_info(remote, app)
+        return [InstalledState.normalize_ref(ln.strip())
+                for ln in raw.splitlines() if ln]
+
+    def install_apps(self, remote: str, apps: Iterable[str]) -> None:
+        """ Install several apps from a single remote using a single
+        `flatpak install` command. We can't get more efficient by trying to
+        use a single command across multiple remotes, because Flatpak can't yet
+        non-interactively resolve priority rules where the same app exists
+        on different remotes: https://github.com/flatpak/flatpak/issues/5421
+        """
+        try:
+            FlatpakCommandWrapper.install(remote, apps)
+        finally:
+            # Even if something failed, try to figure out what got installed
+            # and record in the history that we installed it
+            current_installed_state = InstalledState.from_current_state()
+            for app in apps:
+                if current_installed_state.app_is_installed_from(app, remote):
+                    self.history.record_preinstall_from_remote(remote, app)
+            self.history.write()
+
+    def change_remote_for_app(self,
+                              app: str,
+                              new_remote: str,
+                              current_remote: str,
+                              current_ref: str) -> None:
+        """ Install <app> (currently installed from <current_remote>) from
+        <new_remote> instead, choosing an appropriate strategy based on the
+        refs used for the app on each remote.
+        """
+        new_refs = self.get_available_refs_for_app(new_remote, app)
+        if not new_refs:
+            raise ValueError(f"No available ref for {app} on {new_remote}")
+        if len(new_refs) > 1:
+            raise ValueError(f"Multiple refs for {app} on {new_remote}")
+
+        if new_refs[0] == current_ref:
+            self._change_remote_same_ref(app, new_remote, current_remote)
+        else:
+            self._change_remote_different_ref(app, new_remote, current_ref)
+        self.history.record_preinstall_from_remote(new_remote, app)
+
+    def _change_remote_same_ref(self,
+                                app: str,
+                                new_remote: str,
+                                current_remote: str) -> None:
+        # If the ref used for the app on both remotes is the same (in effect,
+        # if the same branch name is used on both remotes), the app can't be
+        # installed from both remotes simultaneously. To be as safe as
+        # possible we:
+        # 1. Check the remote is accessible over the network (already done by
+        # invoking `flatpak remote-info` to get the ref details)
+        # 2. Uninstall the app from the old remote
+        # 3. Install the app from the new remote
+        # 4. In the case that (3) failed, we attempt to reinstall from the
+        # old remote before re-throwing
+        FlatpakCommandWrapper.uninstall([app])
+        try:
+            FlatpakCommandWrapper.install(new_remote, [app])
+        except subprocess.CalledProcessError:
+            FlatpakCommandWrapper.install(current_remote, [app])
+            raise
+
+    def _change_remote_different_ref(self,
+                                     app: str,
+                                     new_remote: str,
+                                     current_ref: str) -> None:
+        # If the branch is different between the two remotes, the app can be
+        # installed from both remotes simultaneously. So we:
+        # 1. Install the app from the new remote
+        # 2. Uninstall the app from the old remote
+        # This should be the safer order, since the uninstall is less likely 
+        # to fail than the install.
+        FlatpakCommandWrapper.install(new_remote, [app])
+        FlatpakCommandWrapper.uninstall([current_ref])
+
+    def actions_for_app(self,
+                        app_spec: AppSpec
+                        ) -> Iterable[tuple[Action, dict[str, Any]]]:
+        """ For a given app, remote and list of overrides, examine the current
+        installed state and the preinstall history to determine whether a
+        re/install and/or an override command is needed. As far as possible,
+        we avoid reversing any user actions.
+        """
+        current_state = self.starting_installed_state.app_instances(app_spec.name)
+        if len(current_state) > 1:
+            log(f"Multiple installations of {app_spec.name}: skipping.")
+            return []
+        elif current_state:
+            current_ref, current_remote = current_state[0]
+        else:
+            current_ref, current_remote = None, None
+
+        preinstalled_remote = self.history.remote_for_app(app_spec.name)
+        preinstalled_overrides = self.history.overrides_for_app(app_spec.name)
+        
+        if current_remote:
+            # --- Already installed app 
+            # Reinstall it only in the case where both (1) the remote given
+            # in the spec is different from where the app was *originally*
+            # preinstalled from, AND (2) the remote it's *currently*
+            # installed from is the same as where it was originally
+            # preinstalled from - i.e. if the user has intentionally switched
+            # to a different source, we don't alter that.
+            if app_spec.remote != preinstalled_remote == current_remote:
+                yield (Action.CHANGE_REMOTE,
+                       {'current_remote': current_remote,
+                        'current_ref': current_ref})
+
+            # Reset and reapply the override only if the overrides in the spec
+            # are different from the original preinstall. This will reverse
+            # user-applied system-level overrides (via `run0 flatpak override`)
+            # but preserve user-level overrides (via `flatpak override-user` or
+            # typical user GUI tools).
+            if set(preinstalled_overrides) != set(app_spec.overrides):
+                yield (Action.APPLY_OVERRIDES, {})
+        else:
+            # --- Not currently installed app 
+            # Install it only if we hadn't previously preinstalled it - i.e. 
+            # if the user had intentionally uninstalled it, we don't alter that
+            if not preinstalled_remote:
+                yield (Action.INSTALL, {})
+                # Apply overrides if there are any
+                if app_spec.overrides:
+                    yield (Action.APPLY_OVERRIDES, {})
+
+    def apply_actions_for_apps(self, remote_spec: RemoteSpec) -> None:
+        """ For all the apps specified for a remote, determine which need to be
+        re/installed, and which need overrides applied, then execute the
+        actions.
+        """
+        action_queues = {a: [] for a in Action}
+        for app_spec in remote_spec.app_specs():
+            for action, details in self.actions_for_app(app_spec):
+                action_queues[action].append((app_spec, details))
+
+        to_install = [app_spec.name for app_spec, _
+                      in action_queues[Action.INSTALL]]
+        if to_install:
+            self.install_apps(remote_spec.name, to_install)
+
+        for app_spec, details in action_queues[Action.CHANGE_REMOTE]:
+            self.change_remote_for_app(app_spec.name,
+                                       app_spec.remote,
+                                       details["current_remote"],
+                                       details["current_ref"])
+        
+        for app_spec, details in action_queues[Action.APPLY_OVERRIDES]:
+            self.override_for_app(app_spec.name, app_spec.overrides)
+
+    ##### Entrypoint to orchestrate the process
+    def run(self) -> None:
+        should_run, why_not = self.should_run_for_this_image()
+        if not should_run:
+            log(f"Not running: {why_not}")
+            return
+        with self.history.version_tracking_context(self.image_version()):
+            for rs in self.spec.remote_specs:
+                self.configure_remote(rs)
+                self.apply_actions_for_apps(rs)
+            self.apply_global_override_changes()
+
+
+def main(spec_path: str, history_path: str) -> None:
+    spec = PreinstalledFlatpakSpec.from_yaml_file_at(spec_path)
+    history = PreinstallationHistory(history_path)
+    preinstaller = Preinstaller(spec, history)
+    preinstaller.run()
+
+
+if __name__ == "__main__":
+    p = ArgumentParser()
+    p.add_argument("--spec-path", help="Path to YAML spec file")
+    p.add_argument("--history-path", help="Path to preinstall history file")
+    args = p.parse_args()
+    main(args.spec_path, args.history_path)
