@@ -6,6 +6,7 @@ use std::{
     error::Error,
     fs::{self},
     io::{self, Write},
+    os::unix::fs::MetadataExt,
     path::{Path, PathBuf},
     process::Command,
 };
@@ -13,7 +14,9 @@ use std::{
 extern crate scopeguard;
 use dialoguer::{self, Confirm};
 use fstab::FsTab;
-use libbtrfsutil::{CreateSnapshotOptions, CreateSubvolumeOptions, DeleteSubvolumeOptions};
+use libbtrfsutil::{
+    CreateSnapshotOptions, CreateSubvolumeOptions, DeleteSubvolumeOptions, is_subvolume,
+};
 
 fn find_rootfs_v1(root: &Path) -> Option<PathBuf> {
     let subvols = fs::read_dir(root).ok()?;
@@ -122,7 +125,7 @@ fn run(root: &Path) -> Result<(), Box<dyn Error>> {
 
         println!(
             "Found {concerning_fstab_entries} concerning fstab entries. This suggests you have a more complicated fstab setup that we cannot auto-migrate. \
-            If nothing critically important is managed by fstab you can let the auto-migration run. If you have entries that are required for the system to boot you should manually migrate to @system."
+If nothing critically important is managed by fstab you can let the auto-migration run. If you have entries that are required for the system to boot you should manually migrate to @system."
         );
         io::stdout().flush().unwrap();
 
@@ -170,9 +173,9 @@ fn run(root: &Path) -> Result<(), Box<dyn Error>> {
         defer! {
             println!("Unmounting overlay for {}", dir);
             Command::new("umount")
-                .arg(&compose_dir)
-                .status()
-                .expect("Failed to unmount overlay for etc/var");
+            .arg(&compose_dir)
+            .status()
+            .expect("Failed to unmount overlay for etc/var");
         }
 
         println!(
@@ -237,6 +240,207 @@ fn run(root: &Path) -> Result<(), Box<dyn Error>> {
     return Ok(());
 }
 
+// Recursively walk `src`, find any btrfs subvolumes, and replace the corresponding
+// plain-directory copies under `dst` with proper snapshots.
+fn snapshot_nested_subvolumes(src: &Path, dst: &Path) -> Result<(), Box<dyn Error>> {
+    for nested in fs::read_dir(src)? {
+        let nested = nested?;
+        let nested_src = nested.path();
+
+        // file_type() is lstat based, is_subvolume() is not. Homes are full of symlinks that
+        // dangle while we run from the initrd, and the resulting ENOENT aborted the migration.
+        if !nested.file_type()?.is_dir() {
+            continue;
+        }
+
+        let nested_dst = dst.join(nested.file_name());
+        // Subvolume roots are always inode 256.
+        let subvolume = nested.metadata()?.ino() == 256
+            && is_subvolume(&nested_src)
+                .map_err(|e| format!("Failed to stat {nested_src:?}: {e:?}"))?;
+
+        if subvolume {
+            println!("Snapshotting nested subvolume {nested_src:?} -> {nested_dst:?}");
+            fs::remove_dir_all(&nested_dst)?;
+            CreateSnapshotOptions::new()
+                .recursive(true)
+                .create(&nested_src, &nested_dst)
+                .map_err(|e| {
+                    format!("Failed to snapshot {nested_src:?} to {nested_dst:?}: {e:?}")
+                })?;
+            // Don't descend further as recursive(true) already handled this subvolume's children.
+        } else {
+            snapshot_nested_subvolumes(&nested_src, &nested_dst)?;
+        }
+    }
+    Ok(())
+}
+
+// remove_dir_all() cannot rmdir the per-user subvolumes inside a staging dir.
+fn remove_staging_dir(dir: &Path) -> Result<(), Box<dyn Error>> {
+    for entry in fs::read_dir(dir)? {
+        let entry = entry?;
+        let path = entry.path();
+        if !entry.file_type()?.is_dir() {
+            continue;
+        }
+        if is_subvolume(&path).unwrap_or(false) {
+            println!("Deleting leftover subvolume {path:?}");
+            DeleteSubvolumeOptions::new()
+                .recursive(true)
+                .delete(&path)
+                .map_err(|e| format!("Failed to delete leftover subvolume {path:?}: {e:?}"))?;
+        }
+    }
+    fs::remove_dir_all(dir)?;
+    Ok(())
+}
+
+fn run_v3(root: &Path) -> Result<(), Box<dyn Error>> {
+    let system_home = root.join("@system/home");
+    let system_home_tmp = root.join("@system/home.v3tmp");
+    let system_home_old = root.join("@system/home.v3old");
+    let _ = Command::new("plymouth")
+        .arg("display-message")
+        .arg("--text=Migrating to v3 rootfs. This will take a while.")
+        .status();
+    println!("Migrating @system/home from subvolume to regular directory with per-user subvolumes");
+
+    // Clean up any leftover staging dirs from a previous failed run.
+    if system_home_old.exists() {
+        if !system_home.exists() {
+            // Crashed after rename(home→old) but before rename(tmp→home).
+            // home.v3old is the only surviving copy of user data so restore it.
+            eprintln!(
+                "Detected partial v3 migration: {system_home:?} is missing but \
+                 {system_home_old:?} exists. Restoring original home before retrying."
+            );
+            if system_home_tmp.exists() {
+                println!("Removing incomplete staging dir {system_home_tmp:?}");
+                remove_staging_dir(&system_home_tmp)?;
+            }
+            fs::rename(&system_home_old, &system_home).map_err(|e| {
+                format!(
+                    "CRITICAL: failed to restore home from {system_home_old:?}: {e}. \
+                     User data may still be in {system_home_old:?}."
+                )
+            })?;
+            println!("Restored {system_home_old:?} -> {system_home:?}. Retrying migration.");
+        } else if is_subvolume(&system_home).unwrap_or(false) {
+            // rename(home -> old) is what creates home.v3old, so the two only coexist once
+            // home has been replaced by the new regular directory. Deleting either of them
+            // here could throw away the only copy of the user data.
+            return Err(format!(
+                "Both {system_home:?} and {system_home_old:?} exist and {system_home:?} is \
+                 still a subvolume. Refusing to touch either."
+            )
+            .into());
+        } else {
+            // home is a regular dir, so a previous run completed and only failed to clean up.
+            println!("Cleaning up leftover {system_home_old:?} from previous run");
+            DeleteSubvolumeOptions::new()
+                .recursive(true)
+                .delete(&system_home_old)
+                .map_err(|e| format!("Failed to delete leftover {system_home_old:?}: {e:?}"))?;
+        }
+    }
+
+    if system_home_tmp.exists() {
+        println!("Cleaning up leftover {system_home_tmp:?} from previous run");
+        remove_staging_dir(&system_home_tmp)?;
+    }
+
+    if !system_home.exists() {
+        println!("{system_home:?} does not exist. Nothing to migrate.");
+        return Ok(());
+    }
+    if !is_subvolume(&system_home)
+        .map_err(|e| format!("Failed to stat {system_home:?}: {e:?}"))?
+    {
+        println!("{system_home:?} is already a regular directory. Nothing to do.");
+        return Ok(());
+    }
+
+    // Stage into a sibling directory so that if we crash mid-way, @system/home is still a subvolume
+    // and the next boot will retry the migration cleanly.
+    fs::create_dir(&system_home_tmp)?;
+    for entry in fs::read_dir(&system_home)? {
+        let entry = entry?;
+        let src = entry.path();
+        let file_type = entry.file_type()?;
+        let dst = system_home_tmp.join(entry.file_name());
+
+        // Not a user home, but it still has to make it across: the old subvolume gets deleted
+        // at the end. Note that file_type() is lstat based, so a symlinked home lands here and
+        // is copied as a symlink rather than dereferenced into a subvolume.
+        if !file_type.is_dir() {
+            if !file_type.is_file() && !file_type.is_symlink() {
+                eprintln!("Warning: not copying {src:?}, unsupported file type {file_type:?}");
+                continue;
+            }
+            println!("Copying {src:?} to {dst:?}");
+            let cp_result = Command::new("cp")
+                .arg("--archive")
+                .arg("--reflink=auto")
+                .arg("--no-target-directory")
+                .arg(&src)
+                .arg(&dst)
+                .status()
+                .expect("Failed to copy home entry");
+            if !cp_result.success() {
+                return Err(format!("Failed to copy {src:?} to {dst:?}").into());
+            }
+            continue;
+        }
+
+        println!("Creating user subvolume at {dst:?}");
+        CreateSubvolumeOptions::new()
+            .create(&dst)
+            .map_err(|e| format!("Failed to create subvolume {dst:?}: {e:?}"))?;
+
+        // Copy everything including nested subvolume dirs (we'll replace those with snapshots after)
+        let cp_result = Command::new("cp")
+            .arg("--recursive")
+            .arg("--archive")
+            .arg("--reflink=auto")
+            .arg(format!("{}/.", src.display()))
+            .arg(format!("{}/.", dst.display()))
+            .status()
+            .expect("Failed to copy user home");
+        if !cp_result.success() {
+            return Err(format!("Failed to copy {src:?} to {dst:?}").into());
+        }
+
+        // Recursively replace any nested subvolume dirs (which cp copied as plain dirs) with proper
+        // snapshots. This handles deeply nested cases.
+        snapshot_nested_subvolumes(&src, &dst)?;
+    }
+
+    println!("Renaming {system_home:?} to {system_home_old:?}");
+    fs::rename(&system_home, &system_home_old)?;
+
+    println!("Renaming {system_home_tmp:?} to {system_home:?}");
+    if let Err(e) = fs::rename(&system_home_tmp, &system_home) {
+        eprintln!("Fatal: failed to rename {system_home_tmp:?} to {system_home:?}: {e}");
+        eprintln!("Restoring original home subvolume from {system_home_old:?}");
+        fs::rename(&system_home_old, &system_home)
+            .map_err(|re| format!("CRITICAL: failed to restore original home: {re}. System may be unbootable. Original home is at {system_home_old:?}"))?;
+        return Err(format!("Migration failed, original home restored: {e}").into());
+    }
+
+    // Only delete the old subvolume once we know the new layout is in place
+    println!("Deleting old home subvolume {system_home_old:?}");
+    let _ = DeleteSubvolumeOptions::new()
+        .recursive(true)
+        .delete(&system_home_old)
+        .inspect_err(|e| {
+            eprintln!("Warning: failed to delete old home subvolume {system_home_old:?}: {e}");
+            eprintln!("The migration succeeded but deleting the old subvolume failed. {system_home_old:?} can be manually deleted.");
+        });
+
+    Ok(())
+}
+
 fn main() -> Result<(), Box<dyn Error>> {
     let args: Vec<String> = env::args().collect();
     if args.len() < 2 {
@@ -245,11 +449,18 @@ fn main() -> Result<(), Box<dyn Error>> {
         return Err("Not enough arguments".into());
     }
 
-    println!("Migrating to v2 rootfs. This will take a while.");
-
     let root = Path::new(&args[1]);
+    let system_path = root.join("@system");
 
-    match run(root) {
+    let result = if system_path.exists() {
+        println!("Migrating to v3 rootfs. This will take a while.");
+        run_v3(root)
+    } else {
+        println!("Migrating to v2 rootfs. This will take a while.");
+        run(root)
+    };
+
+    match result {
         Ok(_) => {
             // Reactivate in case we deactivated it earlier
             let _ = Command::new("plymouth").arg("show-splash").status();
