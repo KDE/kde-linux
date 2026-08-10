@@ -119,6 +119,10 @@ stage() {
     # OpenQA to test the staged image and sysupdate channel.
     ISO_FILE=$(find upload-tree -maxdepth 1 -name '*.iso' | head -1 | xargs -r basename)
     echo "S3_TARGET_STAGING=$S3_TARGET_STAGING" >> build.env
+    # This is the public channel so we can do upgrade tests - openQA needs to
+    # download the current public release to then test if we can upgrade to the
+    # one that's just been built.
+    echo "ISO_CHANNEL_URL=${S3_CHANNEL_TARGET#s3+}" >> build.env
     echo "IMAGE_URL=${S3_TARGET_STAGING#s3+}/$ISO_FILE" >> build.env
     echo "STAGING_CHANNEL_URL=${S3_TARGET_STAGING#s3+}/sysupdate/v2/" >> build.env
     echo "SYSUPDATE_PUBKEY_B64=" >> build.env
