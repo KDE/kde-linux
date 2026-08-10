@@ -247,10 +247,23 @@ func deleteReleases(releases map[string]release, toKeep, toDelete []string) {
 	}
 }
 
-func generateSHA256s(releases map[string]release, toKeep []string, dir string) {
+func generateSHA256s(releases map[string]release, toKeep []string, dir string, suffixes ...string) {
 	sha256s := []string{}
 	for _, key := range toKeep {
 		for _, artifact := range releases[key].artifacts {
+			if len(suffixes) > 0 {
+				matches := false
+				for _, suffix := range suffixes {
+					if strings.HasSuffix(artifact.Path(), suffix) {
+						matches = true
+						break
+					}
+				}
+				if !matches {
+					continue
+				}
+			}
+
 			sha256 := artifact.SHA256()
 			if sha256 != "" {
 				sha256s = append(sha256s, sha256)
@@ -308,6 +321,8 @@ func main() {
 
 		toKeep, toDelete := buildDeletionSlice(releases, toProtect)
 		deleteReleases(releases, toKeep, toDelete)
+
+		generateSHA256s(releases, toKeep, dir, ".iso", ".torrent")
 	}
 
 	if os.Getenv("VACUUM_REALLY_DELETE") != "1" {

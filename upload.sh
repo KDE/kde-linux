@@ -85,11 +85,23 @@ stage() {
     # Stage the freshly built image into the bucket.
     sudo chown -R "$USER":"$USER" "$OUTDIR"
 
+    # Prepare the staging upload tree.
+    rm -rf upload-tree
+    mkdir -p "$V2_TREE"
+    mv "$OUTDIR"/*.iso "$OUTDIR"/*.torrent upload-tree/
+    mv "$OUTDIR"/*.efi "$OUTDIR"/*.tar.zst "$OUTDIR"/*.erofs "$OUTDIR"/*.caibx "$V2_TREE/"
+
     (
-        cd "$OUTDIR"
+        cd upload-tree
+        sha256sum -- *.iso *.torrent > SHA256SUMS
+        gpg --homedir="$GNUPGHOME" --output SHA256SUMS.gpg --detach-sign SHA256SUMS
+    )
+
+    (
+        cd "$V2_TREE"
         # We need shell globs here! More readable this way. Ignore shellcheck.
         # shellcheck disable=SC2129
-        sha256sum -- *.efi >> SHA256SUMS
+        sha256sum -- *.efi > SHA256SUMS
         sha256sum -- *.tar.zst >> SHA256SUMS
         sha256sum -- *.erofs >> SHA256SUMS
         # Don't put .erofs.caibx into the SHA256SUMS, it will break file matching.
@@ -98,13 +110,6 @@ stage() {
 
         gpg --homedir="$GNUPGHOME" --output SHA256SUMS.gpg --detach-sign SHA256SUMS
     )
-
-    # Prepare the staging upload tree.
-    rm -rf upload-tree
-    mkdir -p "$V2_TREE"
-    mv "$OUTDIR"/*.iso "$OUTDIR"/*.torrent upload-tree/
-    mv "$OUTDIR"/*.efi "$OUTDIR"/*.tar.zst "$OUTDIR"/*.erofs "$OUTDIR"/*.caibx "$V2_TREE/"
-    mv "$OUTDIR"/SHA256SUMS "$OUTDIR"/SHA256SUMS.gpg "$V2_TREE/"
 
     # Upload to the per-job staging prefix in the bucket.
     go -C ./token-redeemer/ run .
@@ -184,6 +189,15 @@ publish() {
     gpg --homedir="$GNUPGHOME" \
         --output "upload-tree/$PUBLISH_DIR/sysupdate/v2/SHA256SUMS.gpg" \
         --detach-sign "upload-tree/$PUBLISH_DIR/sysupdate/v2/SHA256SUMS"
+    gpg --homedir="$GNUPGHOME" \
+        --output "upload-tree/$PUBLISH_DIR/SHA256SUMS.gpg" \
+        --detach-sign "upload-tree/$PUBLISH_DIR/SHA256SUMS"
+
+    # Upload SHA256SUMS for .isos and .torrents to files.kde.org
+    scp -i "$SSH_IDENTITY" \
+        "upload-tree/$PUBLISH_DIR/SHA256SUMS" \
+        "upload-tree/$PUBLISH_DIR/SHA256SUMS.gpg" \
+        "$REMOTE_ROOT_PATH"
     go -C ./token-redeemer/ run .
     go -C ./uploader/ run . --remote "$S3_TARGET"
 }
