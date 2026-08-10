@@ -285,6 +285,10 @@ func main() {
 	os.Chdir("../") // We get started inside the vacuum dir, move to the root.
 
 	os.RemoveAll("upload-tree") // will be populated by generateSHA256s
+	publishDir := os.Getenv("PUBLISH_DIR")
+	if publishDir == "" {
+		publishDir = "testing"
+	}
 
 	config, err := readConfig(minioClient)
 	if err != nil {
@@ -300,7 +304,7 @@ func main() {
 	}
 
 	// Clean up the sysupdate directories
-	for _, dir := range []string{"testing/sysupdate/v2/"} {
+	for _, dir := range []string{publishDir + "/sysupdate/v2/"} {
 		releases, err := loadReleasesMinIO(minioClient, dir, config)
 		if err != nil {
 			log.Fatal(err)
@@ -313,7 +317,7 @@ func main() {
 	}
 
 	// Clean up the images (.raw and .torrent for download)
-	for _, dir := range []string{"testing/"} {
+	for _, dir := range []string{publishDir + "/"} {
 		releases, err := loadReleasesMinIO(minioClient, dir, config)
 		if err != nil {
 			log.Fatal(err)
