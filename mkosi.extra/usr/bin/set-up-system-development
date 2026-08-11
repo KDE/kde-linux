@@ -1,6 +1,7 @@
-#!/bin/sh
+#!/usr/bin/env sh
 # SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL
 # SPDX-FileCopyrightText: 2025 Nate Graham <nate@kde.org>
+# SPDX-FileCopyrightText: 2026 Hadi Chokr <hadichokr@icloud.com>
 
 # Set up the rudiments of a development environment for developing KDE software
 # that's shipped on the KDE Linux OS image
@@ -11,11 +12,14 @@ CONFIG_FILE_SOURCE=/usr/share/factory/etc/xdg/kde-builder.yaml
 CONFIG_FILE_DESTINATION=~/.config/kde-builder.yaml
 DID_SOMETHING=false
 
-SYSEXT_OUTPUT="$(set-up-systemd-extension)"
+# kde-builder installs into ~/kde (DESTDIR in kde-builder.yaml).
+SYSEXT_OUTPUT="$(set-up-systemd-extension -n kde)"
 echo "${SYSEXT_OUTPUT}"
-if [[ "${SYSEXT_OUTPUT}" =~ "Finished setting up extension" ]]; then
-    DID_SOMETHING=true
-fi
+case "${SYSEXT_OUTPUT}" in
+    *"Finished setting up extension"*)
+        DID_SOMETHING=true
+        ;;
+esac
 
 echo
 if [ -f "${HOME}/.local/bin/kde-builder" ]; then

@@ -37,6 +37,25 @@ fi
 
 OUTDIR=mkosi.output
 
+export PUBLISH_DIR="testing"
+if [ "${CI_COMMIT_BRANCH:-}" = "buildstream" ]; then
+    export PUBLISH_DIR="testing-buildstream"
+fi
+
+PUBLISH_RESOURCE_HOLDER_PID=""
+function finish {
+    set +e
+    if [ "$PUBLISH_RESOURCE_HOLDER_PID" != "" ]; then
+        kill ${PUBLISH_RESOURCE_HOLDER_PID} || true
+    fi
+}
+trap finish EXIT INT ABRT TERM
+
+curl https://resources.kde-linux.haraldsitter.eu/v1/locks
+git clone https://invent.kde.org/sitter/kde-linux-resource-semaphore
+kde-linux-resource-semaphore/resource-holder --resource image-storage-$PUBLISH_DIR &
+PUBLISH_RESOURCE_HOLDER_PID=$!
+
 # For the vacuum helper and this script
 export SSH_IDENTITY="$PWD/.secure_files/ssh.key"
 export SSH_USER=kdeos
@@ -50,7 +69,7 @@ export GNUPGHOME="$PWD/.secure_files/gpg"
 # upload tree built during staging
 V2_TREE="upload-tree/sysupdate/v2"
 S3_TARGET="s3+https://storage.kde.org/kde-linux/"
-S3_CHANNEL_TARGET="${S3_TARGET}testing/"
+S3_CHANNEL_TARGET="${S3_TARGET}${PUBLISH_DIR}/"
 S3_STORE="${S3_TARGET}sysupdate/store/"
 
 # files.kde.org scp targets. We don't stage on files.kde.org, only on the storage.kde.org bucket.
@@ -66,11 +85,23 @@ stage() {
     # Stage the freshly built image into the bucket.
     sudo chown -R "$USER":"$USER" "$OUTDIR"
 
+    # Prepare the staging upload tree.
+    rm -rf upload-tree
+    mkdir -p "$V2_TREE"
+    mv "$OUTDIR"/*.iso "$OUTDIR"/*.torrent upload-tree/
+    mv "$OUTDIR"/*.efi "$OUTDIR"/*.tar.zst "$OUTDIR"/*.erofs "$OUTDIR"/*.caibx "$V2_TREE/"
+
     (
-        cd "$OUTDIR"
+        cd upload-tree
+        sha256sum -- *.iso *.torrent > SHA256SUMS
+        gpg --homedir="$GNUPGHOME" --output SHA256SUMS.gpg --detach-sign SHA256SUMS
+    )
+
+    (
+        cd "$V2_TREE"
         # We need shell globs here! More readable this way. Ignore shellcheck.
         # shellcheck disable=SC2129
-        sha256sum -- *.efi >> SHA256SUMS
+        sha256sum -- *.efi > SHA256SUMS
         sha256sum -- *.tar.zst >> SHA256SUMS
         sha256sum -- *.erofs >> SHA256SUMS
         # Don't put .erofs.caibx into the SHA256SUMS, it will break file matching.
@@ -80,13 +111,6 @@ stage() {
         gpg --homedir="$GNUPGHOME" --output SHA256SUMS.gpg --detach-sign SHA256SUMS
     )
 
-    # Prepare the staging upload tree.
-    rm -rf upload-tree
-    mkdir -p "$V2_TREE"
-    mv "$OUTDIR"/*.iso "$OUTDIR"/*.torrent upload-tree/
-    mv "$OUTDIR"/*.efi "$OUTDIR"/*.tar.zst "$OUTDIR"/*.erofs "$OUTDIR"/*.caibx "$V2_TREE/"
-    mv "$OUTDIR"/SHA256SUMS "$OUTDIR"/SHA256SUMS.gpg "$V2_TREE/"
-
     # Upload to the per-job staging prefix in the bucket.
     go -C ./token-redeemer/ run .
     go -C ./uploader/ run . --remote "$S3_TARGET_STAGING"
@@ -95,6 +119,10 @@ stage() {
     # OpenQA to test the staged image and sysupdate channel.
     ISO_FILE=$(find upload-tree -maxdepth 1 -name '*.iso' | head -1 | xargs -r basename)
     echo "S3_TARGET_STAGING=$S3_TARGET_STAGING" >> build.env
+    # This is the public channel so we can do upgrade tests - openQA needs to
+    # download the current public release to then test if we can upgrade to the
+    # one that's just been built.
+    echo "ISO_CHANNEL_URL=${S3_CHANNEL_TARGET#s3+}" >> build.env
     echo "IMAGE_URL=${S3_TARGET_STAGING#s3+}/$ISO_FILE" >> build.env
     echo "STAGING_CHANNEL_URL=${S3_TARGET_STAGING#s3+}/sysupdate/v2/" >> build.env
     echo "SYSUPDATE_PUBKEY_B64=" >> build.env
@@ -163,8 +191,17 @@ publish() {
     go -C ./upload-vacuum-v3/ run .
 
     gpg --homedir="$GNUPGHOME" \
-        --output "upload-tree/testing/sysupdate/v2/SHA256SUMS.gpg" \
-        --detach-sign "upload-tree/testing/sysupdate/v2/SHA256SUMS"
+        --output "upload-tree/$PUBLISH_DIR/sysupdate/v2/SHA256SUMS.gpg" \
+        --detach-sign "upload-tree/$PUBLISH_DIR/sysupdate/v2/SHA256SUMS"
+    gpg --homedir="$GNUPGHOME" \
+        --output "upload-tree/$PUBLISH_DIR/SHA256SUMS.gpg" \
+        --detach-sign "upload-tree/$PUBLISH_DIR/SHA256SUMS"
+
+    # Upload SHA256SUMS for .isos and .torrents to files.kde.org
+    scp -i "$SSH_IDENTITY" \
+        "upload-tree/$PUBLISH_DIR/SHA256SUMS" \
+        "upload-tree/$PUBLISH_DIR/SHA256SUMS.gpg" \
+        "$REMOTE_ROOT_PATH"
     go -C ./token-redeemer/ run .
     go -C ./uploader/ run . --remote "$S3_TARGET"
 }

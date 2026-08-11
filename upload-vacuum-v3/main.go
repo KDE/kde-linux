@@ -247,10 +247,23 @@ func deleteReleases(releases map[string]release, toKeep, toDelete []string) {
 	}
 }
 
-func generateSHA256s(releases map[string]release, toKeep []string, dir string) {
+func generateSHA256s(releases map[string]release, toKeep []string, dir string, suffixes ...string) {
 	sha256s := []string{}
 	for _, key := range toKeep {
 		for _, artifact := range releases[key].artifacts {
+			if len(suffixes) > 0 {
+				matches := false
+				for _, suffix := range suffixes {
+					if strings.HasSuffix(artifact.Path(), suffix) {
+						matches = true
+						break
+					}
+				}
+				if !matches {
+					continue
+				}
+			}
+
 			sha256 := artifact.SHA256()
 			if sha256 != "" {
 				sha256s = append(sha256s, sha256)
@@ -272,6 +285,10 @@ func main() {
 	os.Chdir("../") // We get started inside the vacuum dir, move to the root.
 
 	os.RemoveAll("upload-tree") // will be populated by generateSHA256s
+	publishDir := os.Getenv("PUBLISH_DIR")
+	if publishDir == "" {
+		publishDir = "testing"
+	}
 
 	config, err := readConfig(minioClient)
 	if err != nil {
@@ -287,7 +304,7 @@ func main() {
 	}
 
 	// Clean up the sysupdate directories
-	for _, dir := range []string{"testing/sysupdate/v2/"} {
+	for _, dir := range []string{publishDir + "/sysupdate/v2/"} {
 		releases, err := loadReleasesMinIO(minioClient, dir, config)
 		if err != nil {
 			log.Fatal(err)
@@ -300,7 +317,7 @@ func main() {
 	}
 
 	// Clean up the images (.raw and .torrent for download)
-	for _, dir := range []string{"testing/"} {
+	for _, dir := range []string{publishDir + "/"} {
 		releases, err := loadReleasesMinIO(minioClient, dir, config)
 		if err != nil {
 			log.Fatal(err)
@@ -308,6 +325,8 @@ func main() {
 
 		toKeep, toDelete := buildDeletionSlice(releases, toProtect)
 		deleteReleases(releases, toKeep, toDelete)
+
+		generateSHA256s(releases, toKeep, dir, ".iso", ".torrent")
 	}
 
 	if os.Getenv("VACUUM_REALLY_DELETE") != "1" {

@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL
 // SPDX-FileCopyrightText: 2024 Harald Sitter <sitter@kde.org>
+// SPDX-FileCopyrightText: 2026 Hadi Chokr <hadichokr@icloud.com>
 
 import QtQuick
 import QtQuick.Layouts
@@ -9,26 +10,23 @@ import org.kde.kirigami as Kirigami
 import io.calamares.ui as Calamares
 
 RowLayout {
+    readonly property var stepIcons: ({
+        "welcome": "kde-symbolic",
+        "locale": "globe-symbolic",
+        "keyboard": "input-keyboard-symbolic",
+        "partition": "drive-multipartition-symbolic",
+        "users": "system-users-symbolic",
+        "exec": "run-install-symbolic",
+        "finished": "run-install-symbolic"
+    })
+
     RowLayout {
         Layout.fillWidth: true
         Kirigami.Icon {
             // TODO should be the page icon but calamares has no actual notion of icons for pages
             source: {
-                switch (control.currentIndex) {
-                case 0:
-                    return "kde-symbolic"
-                case 1:
-                    return "globe-symbolic"
-                case 2:
-                    return "input-keyboard-symbolic"
-                case 3:
-                    return "drive-multipartition-symbolic"
-                case 4:
-                    return "system-users-symbolic"
-                case 5:
-                    return "run-install-symbolic"
-                }
-                return "kde-symbolic"
+                const step = Calamares.ViewManager.currentStepName
+                return control.stepIcons[step] || "kde-symbolic"
             }
         }
         Kirigami.Heading {
@@ -45,6 +43,7 @@ RowLayout {
         spacing: Kirigami.Units.mediumSpacing
 
         property int currentIndex: Calamares.ViewManager.currentStepIndex
+        readonly property var stepIcons: parent.stepIcons
 
         Rectangle {
             id: backgroundLine

@@ -30,7 +30,7 @@ config:
     BUILD_ID="%{kde-linux-build-id}"
     ANSI_COLOR="38;2;61;174;233"
     HOME_URL="https://linux.kde.org"
-    DOCUMENTATION_URL="https://community.kde.org/KDE_Linux"
+    DOCUMENTATION_URL="https://linux.kde.org/docs/"
     SUPPORT_URL="https://kde.org/support/"
     BUG_REPORT_URL="https://invent.kde.org/kde-linux/kde-linux/-/issues"
     PRIVACY_POLICY_URL="https://kde.org/privacypolicy-apps/"

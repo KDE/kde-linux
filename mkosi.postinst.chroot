@@ -64,7 +64,13 @@ download_flatpaks() {
     flatpak install --or-update --noninteractive --assumeyes flathub \
         org.gtk.Gtk3theme.Breeze \
         org.kde.kwrite \
-        org.mozilla.firefox
+        org.mozilla.firefox \
+        org.fcitx.Fcitx5 \
+        org.fcitx.Fcitx5.Addon.ChineseAddons \
+        org.fcitx.Fcitx5.Addon.Chewing \
+        org.fcitx.Fcitx5.Addon.Mozc \
+        org.fcitx.Fcitx5.Addon.Hangul \
+        org.fcitx.Fcitx5.Addon.Unikey \
 
     # And restore default
     flatpak config --unset languages
@@ -104,6 +110,24 @@ for theme in $(plymouth-set-default-theme --list); do
         [[ -d "$theme_dir" ]] && rm -rf -- "$theme_dir"
     fi
 done
+
+cd /tmp
+
+# Delete af_alg et al. kernel modules; they're dangerous and unused by anything
+# relevant except for iwd and non-default cryptsetup algorithms, neither of which
+# are used on KDE Linux. Also delete rxrpc, which is only used for the AF_RXRPC
+# socket protocol by AFS/kAFS clients, which are not used on KDE Linux.
+# See also:
+# - https://www.secwest.net/copyfail-mitigation
+# - https://news.ycombinator.com/item?id=47956312
+rm -rf \
+    /usr/lib/modules/*/kernel/crypto/af_alg.ko.zst \
+    /usr/lib/modules/*/kernel/crypto/algif_aead.ko.zst \
+    /usr/lib/modules/*/kernel/crypto/algif_hash.ko.zst \
+    /usr/lib/modules/*/kernel/crypto/algif_rng.ko.zst \
+    /usr/lib/modules/*/kernel/crypto/algif_skcipher.ko.zst \
+    /usr/lib/modules/*/kernel/net/rxrpc/rxrpc.ko.zst \
+    /usr/lib/modules/*/kernel/fs/afs/kafs.ko.zst
 
 for f in /etc/fdsdk/initial_scripts/*; do
     $f /

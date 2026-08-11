@@ -21,8 +21,14 @@ SYSUPDATE_PUBKEY_B64=$(gpg --homedir="$GNUPGHOME" --export --armor "KDE Linux op
 mv upload-tree upload-tree-old || true
 if [ ! -d upload-tree ]; then
     mkdir -p upload-tree/sysupdate/v2
-    mv "$OUTDIR"/*.iso upload-tree/
+    mv "$OUTDIR"/*.iso "$OUTDIR"/*.torrent upload-tree/
     mv "$OUTDIR"/*.efi "$OUTDIR"/*.tar.zst "$OUTDIR"/*.erofs "$OUTDIR"/*.caibx upload-tree/sysupdate/v2/
+    (
+        cd upload-tree
+        sha256sum -- *.iso *.torrent > SHA256SUMS
+
+        gpg --homedir="$GNUPGHOME" --output SHA256SUMS.gpg --detach-sign SHA256SUMS
+    )
     (
         cd upload-tree/sysupdate/v2
         # shellcheck disable=SC2129
