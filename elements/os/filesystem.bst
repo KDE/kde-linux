@@ -43,5 +43,3 @@ config:
   # Debug utils. Super large and probably not useful 99.999999% of the time
   - rm /usr/bin/lto-dump
   - rm /usr/bin/llvm-exegesis
-  # This will get tmpfile'd
-  - rm /etc/resolv.conf
