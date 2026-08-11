@@ -11,6 +11,9 @@ variables:
 
 config:
   commands:
+  # Make sure resolv.conf exists, otherwise mkosi will put a dummy file there and break the resolv stack
+  - ln -s ../run/systemd/resolve/stub-resolv.conf /etc/resolv.conf
+
   # de-configure the audit system, we don't need it by default
   - rm --recursive --force /etc/audit/audit.rules # auto generated; may not exist
   - rm --recursive /etc/audit/plugins.d/*
