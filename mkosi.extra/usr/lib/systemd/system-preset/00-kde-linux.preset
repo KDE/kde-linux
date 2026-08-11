@@ -53,6 +53,10 @@ enable plasma-setup-live-system.service
 enable kmsconvt@
 enable kmsconvt@tty1.service
 
+# Snapper
+enable snapper-timeline.timer
+enable snapper-cleanup.timer
+
 # Disable stuff we don't want
 # ===========================
 # getty - we use kmscon
