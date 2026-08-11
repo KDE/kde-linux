@@ -1,0 +1,8 @@
+# SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL
+# SPDX-FileCopyrightText: 2026 Harald Sitter <sitter@kde.org>
+
+# Disable everything that wasn't explicitly enabled before. This means that unless
+# a service is explicitly marked enabled it will not be enabled through preset
+# application. This is important because we have certain services that would
+# interfere with others (e.g. kmscon.service with plasmalogin.service).
+disable *
