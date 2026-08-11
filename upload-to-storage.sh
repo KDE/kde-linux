@@ -50,6 +50,7 @@ go -C ./uploader/ run . --remote "s3+https://storage.kde.org/ci-artifacts/$CI_PR
 # Point OpenQA at the image we just uploaded.
 ISO_FILE=$(find upload-tree -maxdepth 1 -name '*.iso' | head -1 | xargs -r basename)
 echo "IMAGE_URL=https://storage.kde.org/ci-artifacts/$CI_PROJECT_PATH/j/$CI_JOB_ID/$ISO_FILE" >> build.env
+echo "ISO_CHANNEL_URL=https://storage.kde.org/kde-linux/testing/" >> build.env # For upgrade test flows
 echo "STAGING_CHANNEL_URL=https://storage.kde.org/ci-artifacts/$CI_PROJECT_PATH/j/$CI_JOB_ID/sysupdate/v2/" >> build.env
 echo "SYSUPDATE_PUBKEY_B64=$SYSUPDATE_PUBKEY_B64" >> build.env
 
