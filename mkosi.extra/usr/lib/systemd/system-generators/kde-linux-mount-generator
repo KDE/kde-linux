@@ -39,9 +39,9 @@ After=systemd-vconsole-setup.service
 [Service]
 ExecStart=/usr/lib/rootfs-transition
 Type=oneshot
-StandardOutput=tty
+StandardOutput=journal+console
+StandardError=journal+console
 StandardInput=tty
-StandardError=tty
 RemainAfterExit=yes
 EOF
 
