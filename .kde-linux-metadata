@@ -1,0 +1,9 @@
+# SPDX-License-Identifier: CC0-1.0
+# SPDX-FileCopyrightText: none
+
+# This file follows the os-release format which in turn is
+# environment-like shell-compatible variable assignments.
+#
+# This file is meant to be per-edition and should not ever get merged!
+
+KDE_LINUX_EDITION=testing
