@@ -468,10 +468,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         }
         Err(e) => {
             // Quit plymouth if there was a fatal problem so the user can see the output
-            Command::new("plymouth")
-                .arg("quit")
-                .status()
-                .expect("failed to execute plymouth show-splash");
+            let _ = Command::new("plymouth").arg("quit").status();
             Err(e)
         }
     }
