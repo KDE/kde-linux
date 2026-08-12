@@ -6,6 +6,10 @@
 # General things
 enable accounts-daemon.service
 
+# Make sure dbus broker is in use, not dbus-daemon
+disable dbus.service
+enable dbus-broker.service
+
 # Note that both avahi socket and service are needed. Client software on the system may only talk to the daemon but
 # fail to do so if the daemon is not up (avahi-browse for example just errors out instead of dbus-activating)
 enable avahi-daemon.service

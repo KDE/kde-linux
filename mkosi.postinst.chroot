@@ -12,7 +12,7 @@ export SYSTEMD_ESP_PATH="$BOOT_MNT"
 mkdir -p --mode 0700 "$SYSTEMD_ESP_PATH"
 bootctl install
 echo 'timeout 7' >> "$SYSTEMD_ESP_PATH/loader/loader.conf"
-cp /usr/share/ovmf/Shell.efi "$SYSTEMD_ESP_PATH/"
+
 rm -rf /usr/share/swcatalog
 
 mkdir -p /usr/share/icons/default/
