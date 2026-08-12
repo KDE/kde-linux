@@ -26,7 +26,7 @@ msgid ""
 msgstr ""
 "لا تتضمن كيدي لينكس أداة «{}».\n"
 "\n"
-"بدلاً من ذلك، جرب استخدام «{}»."
+"بدلًا من ذلك، جرب استخدام «{}»."
 
 #: mkosi.extra/usr/lib/command-not-found-handler.py:74
 msgid ""
