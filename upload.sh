@@ -37,10 +37,8 @@ fi
 
 OUTDIR=mkosi.output
 
-export PUBLISH_DIR="testing"
-if [ "${CI_COMMIT_BRANCH:-}" = "buildstream" ]; then
-    export PUBLISH_DIR="testing-buildstream"
-fi
+. .kde-linux-metadata
+export PUBLISH_DIR=$KDE_LINUX_EDITION
 
 PUBLISH_RESOURCE_HOLDER_PID=""
 function finish {

@@ -10,10 +10,7 @@
 
 set -ex
 
-S3_PACKAGES_URL="https://storage.kde.org/kde-linux-packages/testing"
-if [ "${CI_COMMIT_BRANCH:-}" == "buildstream" ]; then
-    S3_PACKAGES_URL="https://storage.kde.org/kde-linux-packages/testing-buildstream"
-fi
+. .kde-linux-metadata
 
 # Creates a sysext containing the KDE debug symbols, downloaded from the packages pipeline.
 make_debug_archive () {
@@ -22,9 +19,7 @@ make_debug_archive () {
   mkdir --parents /var/tmp/debugroot
 
   # Download and extract debug symbols produced by the packages pipeline.
-  url="${S3_PACKAGES_URL}/artifacts/debug.tar.zst"
-
-  curl --fail "$url" \
+  curl --fail https://storage.kde.org/kde-linux-packages/$KDE_LINUX_EDITION/artifacts/debug.tar.zst \
     | zstd --decompress | tar --extract --directory=/var/tmp/debugroot
 
   # systemd-sysext uses the os-release in extension-release.d to verify the sysext matches the base OS,
@@ -127,7 +122,7 @@ rm --recursive --force $BUILDSTREAM_ROOTFS/live/usr/lib/debug
 # Make sure permissions are sound
 ./permission-fix.sh
 
-wget --output-document=install.tar.zst "${S3_PACKAGES_URL}/artifacts/install.tar.zst"
+wget --output-document=install.tar.zst "https://storage.kde.org/kde-linux-packages/$KDE_LINUX_EDITION/artifacts/install.tar.zst"
 
 mkosi \
     --image-version="$VERSION" \
