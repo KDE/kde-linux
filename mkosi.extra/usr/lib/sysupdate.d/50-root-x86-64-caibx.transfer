@@ -7,7 +7,8 @@ AppStream=https://autoconfig.kde.org/kde-linux/%EDITION%/org.kde.linux.metainfo.
 
 [Source]
 Type=url-file
-Path=https://files.kde.org/kde-linux/sysupdate/v2/
+# %W is the VARIANT_ID
+Path=https://storage.kde.org/kde-linux/%W/sysupdate/v2/
 MatchPattern=kde-linux_@v_root-x86-64.caibx
 
 [Target]
