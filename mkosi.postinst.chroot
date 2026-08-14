@@ -60,6 +60,8 @@ PRIVACY_POLICY_URL="https://kde.org/privacypolicy-apps/"
 LOGO=/usr/share/pixmaps/kde-linux-logo.png
 IMAGE_ID=kde-linux
 IMAGE_VERSION=$IMAGE_VERSION
+VARIANT="$KDE_LINUX_EDITION"
+VARIANT_ID="$KDE_LINUX_EDITION"
 # KDE Linux specific keys.
 KDE_LINUX_COMMIT_SHA=$CI_COMMIT_SHA
 KDE_LINUX_COMMIT_SHORT_SHA=$CI_COMMIT_SHORT_SHA
