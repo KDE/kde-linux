@@ -2,12 +2,12 @@
 # SPDX-FileCopyrightText: 2026 Nate Graham <nate@kde.org>
 
 [Unit]
-Description=Install any new Flatpak apps added to booted OS version
-ConditionPathIsReadWrite=/etc
+Description=Apply to a running system any changes made in the Flatpak preinstall spec
+ConditionPathExists=/var/lib/kde-linux/preinstalled-flatpak-history.yaml
 ConditionKernelCommandLine=!kde-linux.live=1
 Wants=network-online.target
 After=network-online.target
 
 [Service]
 Type=oneshot
-ExecStart=/usr/lib/install-new-flatpaks
+ExecStart=/usr/lib/install-flatpaks-from-spec --spec-path /usr/share/kde-linux/preinstalled-flatpak-spec.yaml --history-path /var/lib/kde-linux/preinstalled-flatpak-history.yaml
