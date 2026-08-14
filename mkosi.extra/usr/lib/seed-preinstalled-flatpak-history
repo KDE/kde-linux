@@ -1,0 +1,90 @@
+#!/usr/bin/env python3
+# SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL
+# SPDX-FileCopyrightText: 2026 Philip Grant <pg_kde_invent@runbox.com>
+
+import os
+import shutil
+from collections.abc import Collection
+from typing import Any
+
+import yaml
+
+BUILD_TIME_HISTORY_PATH = "/usr/share/kde-linux/preinstalled-flatpak-history.yaml"
+RUN_TIME_HISTORY_PATH = "/var/lib/kde-linux/preinstalled-flatpak-history.yaml"
+LEGACY_HISTORY_PATH = "/var/lib/kde-linux/ever-preinstalled-flatpak-apps"
+PLASMA_SETUP_DONE_PATH = "/etc/plasma-setup-done"
+
+
+def is_fresh_install() -> bool:
+    return not os.path.isfile(PLASMA_SETUP_DONE_PATH)
+
+
+def legacy_app_ids() -> Collection[str]:
+    """ Get the IDs of the apps already preinstalled from the legacy history
+    file. We require this to exist on all non-fresh installs. The systemd
+    services are sequenced accordingly to ensure this, even in the case of
+    installs which weren't updated for a while and leapfrogged over the legacy
+    mechanism.
+    """
+    with open(LEGACY_HISTORY_PATH) as f:
+        apps = [line.strip() for line in f]
+    return {a for a in apps if a}
+
+
+def filter_app_data(history: dict[str, Any],
+                retain_apps: Collection[str]) -> None:
+    """ Remove any key under the "apps" key of <history> if that key
+    doesn't appear in <retain_apps>
+    """
+    apps = history.get("apps")
+    if apps:
+        for a in (apps.keys() - retain_apps):
+            del apps[a]
+
+
+def remove_completion_marker(history: dict[str, Any]) -> None:
+    """ Remove the key that indicates the preinstallation completed
+    successfully from the build-time run. (On a non-fresh system, the spec
+    may contain new apps that the runtime preinstall service needs to install.)
+    """
+    del history["last_completed_image_version"]
+
+
+def copy_history_verbatim() -> None:
+    """ Logic for fresh installs: we can just copy the history that was 
+    written at build time.
+    """
+    print(f"Fresh install of KDE Linux: "
+          f"Copying {BUILD_TIME_HISTORY_PATH} to {RUN_TIME_HISTORY_PATH}")
+    shutil.copy(BUILD_TIME_HISTORY_PATH, RUN_TIME_HISTORY_PATH)
+
+
+def copy_history_filtered() -> None:
+    """ Logic for pre-existing installs dating from before the spec-based
+    Flatpak preinstall code was introduced. Take the build-time history but
+    filter it down to only the apps that have been preinstalled according to
+    the legacy mechanism history. Also remove the completion marker,
+    because we're not necessarily done yet with preinstalls for this
+    system - the spec may contain new apps that the runtime preinstall
+    service needs to install.
+    """
+    previous_apps = legacy_app_ids()
+    with open(BUILD_TIME_HISTORY_PATH) as f:
+        history = yaml.safe_load(f)
+    filter_app_data(history, previous_apps)
+    remove_completion_marker(history)
+    print(f"Migrating preinstall Flatpak history "
+          f"from {LEGACY_HISTORY_PATH} to {RUN_TIME_HISTORY_PATH}")
+    with open(RUN_TIME_HISTORY_PATH, "w") as f:
+        yaml.dump(history, f)
+
+
+def main() -> None:
+    if is_fresh_install():
+        copy_history_verbatim()
+    else:
+        copy_history_filtered()
+
+
+if __name__ == '__main__':
+    main()
