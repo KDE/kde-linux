@@ -189,7 +189,7 @@ time mkfs.erofs -zzstd -C 65536 --chunksize 65536 \
 # Needs sudo so it can tinker with setuid files
 time sudo mkfs.erofs --all-root -zzstd \
     -C 65536 --chunksize 65536 \
-    -T$EPOCH" --ignore-mtime \
+    "-T$EPOCH" --ignore-mtime \
     "$ROOTFS_EROFS" "$OUTPUT" > erofs.log 2>&1
 # Then chown back the result
 sudo chown $UID:$UID "$ROOTFS_EROFS"
