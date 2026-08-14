@@ -70,12 +70,17 @@ S3_TARGET="s3+https://storage.kde.org/kde-linux/"
 S3_CHANNEL_TARGET="${S3_TARGET}${PUBLISH_DIR}/"
 S3_STORE="${S3_TARGET}sysupdate/store/"
 
-# files.kde.org scp targets. We don't stage on files.kde.org, only on the storage.kde.org bucket.
-# We download from the bucket then upload directly to files.kde.org to publish there.
-REMOTE_ROOT_PATH=$SSH_USER@$SSH_HOST:$SSH_ROOT_PATH
-REMOTE_SYSUPDATE_PATH=$SSH_USER@$SSH_HOST:$SSH_SYSUPDATE_PATH
-# You can use `ssh-keyscan tinami.kde.org` to get the host key
-echo "tinami.kde.org ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILUjdH4S7otYIdLUkOZK+owIiByjNQPzGi7GQ5HOWjO6" >> ~/.ssh/known_hosts
+UPLOAD_TO_FILES=
+if [ "$CI_DEFAULT_BRANCH" == "$CI_COMMIT_REF_NAME" ]; then
+    # Only use files.kde.org for master, it is not prepared for multiple editions and on the way out.
+    UPLOAD_TO_FILES=yes
+    # files.kde.org scp targets. We don't stage on files.kde.org, only on the storage.kde.org bucket.
+    # We download from the bucket then upload directly to files.kde.org to publish there.
+    REMOTE_ROOT_PATH=$SSH_USER@$SSH_HOST:$SSH_ROOT_PATH
+    REMOTE_SYSUPDATE_PATH=$SSH_USER@$SSH_HOST:$SSH_SYSUPDATE_PATH
+    # You can use `ssh-keyscan tinami.kde.org` to get the host key
+    echo "tinami.kde.org ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILUjdH4S7otYIdLUkOZK+owIiByjNQPzGi7GQ5HOWjO6" >> ~/.ssh/known_hosts
+fi
 
 stage() {
     S3_TARGET_STAGING="s3+https://storage.kde.org/ci-artifacts/$CI_PROJECT_PATH/p/$CI_PIPELINE_ID"
@@ -148,24 +153,26 @@ publish() {
     fi
 
     # Publish to files.kde.org.
-    go -C ./upload-vacuum/ build -o upload-vacuum .
-    (
-        cd publish-artifacts
-        ../upload-vacuum/upload-vacuum
+    if [ "$UPLOAD_TO_FILES" = "yes" ]; then
+        go -C ./upload-vacuum/ build -o upload-vacuum .
+        (
+            cd publish-artifacts
+            ../upload-vacuum/upload-vacuum
 
-        # shellcheck disable=SC2129
-        sha256sum -- *.efi >> SHA256SUMS
-        sha256sum -- *.tar.zst >> SHA256SUMS
-        sha256sum -- *.erofs >> SHA256SUMS
-        # https://github.com/systemd/systemd/issues/38605
-        sha256sum -- *-x86-64.caibx >> SHA256SUMS
+            # shellcheck disable=SC2129
+            sha256sum -- *.efi >> SHA256SUMS
+            sha256sum -- *.tar.zst >> SHA256SUMS
+            sha256sum -- *.erofs >> SHA256SUMS
+            # https://github.com/systemd/systemd/issues/38605
+            sha256sum -- *-x86-64.caibx >> SHA256SUMS
 
-        gpg --homedir="$GNUPGHOME" --output SHA256SUMS.gpg --detach-sign SHA256SUMS
+            gpg --homedir="$GNUPGHOME" --output SHA256SUMS.gpg --detach-sign SHA256SUMS
 
-        chmod 644 ./*.iso ./*.torrent ./*.efi ./*.tar.zst ./*.erofs ./*.caibx
-        scp -i "$SSH_IDENTITY" ./*.iso ./*.torrent "$REMOTE_ROOT_PATH"
-        scp -i "$SSH_IDENTITY" ./*.efi ./*.tar.zst ./*.erofs ./*.caibx "$REMOTE_SYSUPDATE_PATH"
-    )
+            chmod 644 ./*.iso ./*.torrent ./*.efi ./*.tar.zst ./*.erofs ./*.caibx
+            scp -i "$SSH_IDENTITY" ./*.iso ./*.torrent "$REMOTE_ROOT_PATH"
+            scp -i "$SSH_IDENTITY" ./*.efi ./*.tar.zst ./*.erofs ./*.caibx "$REMOTE_SYSUPDATE_PATH"
+        )
+    fi
 
     # Push the rootfs chunks into the S3 chunk store.
     go install -v github.com/folbricht/desync/cmd/desync@f67d01e
@@ -177,8 +184,10 @@ publish() {
         publish-artifacts/*-x86-64.caibx \
         publish-artifacts/*-x86-64.erofs
 
-    # Upload sums to files.kde.org only after the chunk store is ready.
-    scp -i "$SSH_IDENTITY" publish-artifacts/SHA256SUMS publish-artifacts/SHA256SUMS.gpg "$REMOTE_SYSUPDATE_PATH"
+    if [ "$UPLOAD_TO_FILES" = "yes" ]; then
+        # Upload sums to files.kde.org only after the chunk store is ready.
+        scp -i "$SSH_IDENTITY" publish-artifacts/SHA256SUMS publish-artifacts/SHA256SUMS.gpg "$REMOTE_SYSUPDATE_PATH"
+    fi
 
     # Merge the staged tree into the live S3 tree only after files.kde.org and the chunk store are ready.
     go -C ./token-redeemer/ run .
@@ -196,10 +205,12 @@ publish() {
         --detach-sign "upload-tree/$PUBLISH_DIR/SHA256SUMS"
 
     # Upload SHA256SUMS for .isos and .torrents to files.kde.org
-    scp -i "$SSH_IDENTITY" \
-        "upload-tree/$PUBLISH_DIR/SHA256SUMS" \
-        "upload-tree/$PUBLISH_DIR/SHA256SUMS.gpg" \
-        "$REMOTE_ROOT_PATH"
+    if [ "$UPLOAD_TO_FILES" = "yes" ]; then
+        scp -i "$SSH_IDENTITY" \
+            "upload-tree/$PUBLISH_DIR/SHA256SUMS" \
+            "upload-tree/$PUBLISH_DIR/SHA256SUMS.gpg" \
+            "$REMOTE_ROOT_PATH"
+    fi
     go -C ./token-redeemer/ run .
     go -C ./uploader/ run . --remote "$S3_TARGET"
 }

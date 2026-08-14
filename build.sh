@@ -130,19 +130,6 @@ mkosi \
     --extra-tree="$PWD/mkosi.extra" \
     "$@"
 
-# Adjust mtime to reduce unnecessary churn between images caused by us rebuilding repos that have possibly not changed in source or binary interfaces.
-if [ -f "$PWD/.secure_files/ssh.key" ]; then
-  # You can use `ssh-keyscan origin.files.kde.org` to get the host key
-  echo "origin.files.kde.org ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILUjdH4S7otYIdLUkOZK+owIiByjNQPzGi7GQ5HOWjO6" >> ~/.ssh/known_hosts
-
-  chmod 600 "$PWD/.secure_files/ssh.key"
-
-  scp -i "$PWD/.secure_files/ssh.key" kdeos@origin.files.kde.org:/home/kdeos/mtimer.json mtimer.json
-  # Note: use absolute paths. since we chdir via go
-  go -C ./mtimer/ run . -root "$OUTPUT" -json "$PWD/mtimer.json"
-  scp -i "$PWD/.secure_files/ssh.key" mtimer.json kdeos@origin.files.kde.org:/home/kdeos/mtimer.json
-fi
-
 chmod u+w "$OUTPUT" # mkosi tries to be nice by making it read-only
 # NOTE: /efi must be empty so auto mounting can happen. As such we put our templates in a different directory
 rm -rfv "${OUTPUT}/efi"
@@ -200,7 +187,10 @@ time mkfs.erofs -zzstd -C 65536 --chunksize 65536 \
     kde-linux.cache/live.raw live-root > erofs-live.log 2>&1
 
 # Needs sudo so it can tinker with setuid files
-time sudo mkfs.erofs --all-root -zzstd -C 65536 --chunksize 65536 "$ROOTFS_EROFS" "$OUTPUT" > erofs.log 2>&1
+time sudo mkfs.erofs --all-root -zzstd \
+    -C 65536 --chunksize 65536 \
+    -T$EPOCH" --ignore-mtime \
+    "$ROOTFS_EROFS" "$OUTPUT" > erofs.log 2>&1
 # Then chown back the result
 sudo chown $UID:$UID "$ROOTFS_EROFS"
 cp --reflink=auto "$ROOTFS_EROFS" kde-linux.cache/root.raw
