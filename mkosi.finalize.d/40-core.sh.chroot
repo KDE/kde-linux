@@ -166,6 +166,14 @@ EOF
 # See: https://wiki.archlinux.org/title/Locate#Btrfs
 if [ -f /etc/updatedb.conf ]; then
     sed -i 's/^PRUNE_BIND_MOUNTS = "yes"/PRUNE_BIND_MOUNTS = "no"/' /etc/updatedb.conf
+
+    # Keep the per-user home snapshots out of the index.
+    if grep -q '^PRUNENAMES' /etc/updatedb.conf; then
+        sed -i '/^PRUNENAMES/ s/"[[:space:]]*$/ .snapshots"/' /etc/updatedb.conf
+    else
+        echo 'PRUNENAMES = ".snapshots"' >> /etc/updatedb.conf
+    fi
+    grep '^PRUNENAMES' /etc/updatedb.conf | grep -q '\.snapshots' || exit 1
 fi
 
 # Clean up final remnants of the build process

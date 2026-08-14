@@ -1,0 +1,15 @@
+# SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL
+# SPDX-FileCopyrightText: 2026 Hadi Chokr <hadichokr@icloud.com>
+
+[Unit]
+Description=Delete Snapper Configs for Users That Are Gone
+Documentation=https://invent.kde.org/kde-linux/kde-linux/-/work_items/745
+ConditionPathIsReadWrite=/etc
+ConditionKernelCommandLine=!kde-linux.live=1
+After=local-fs.target
+Conflicts=shutdown.target
+Before=shutdown.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/lib/snapper-home-gc

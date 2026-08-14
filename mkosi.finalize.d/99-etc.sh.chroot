@@ -54,6 +54,14 @@ rm --force \
     hostname \
     locale.conf
 
+# Snapper rewrites this file every time a config is created or deleted, so it is
+# state, not configuration. Left in the factory, an image update could put the
+# empty version back and orphan every config. tmpfiles.d creates it instead.
+# Compatibility with Arch till we are on buildstream since Arch uses conf.d.
+rm --force \
+    /usr/share/factory/etc/conf.d/snapper \
+    /usr/share/factory/etc/sysconfig/snapper
+
     # These are actually needed and must be copied from the factory onto the host. If they are missing useradd will
     # not configure subuids, breaking podman for instance.
     # subuid \

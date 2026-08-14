@@ -1,0 +1,159 @@
+#!/usr/bin/env python3
+# SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL
+# SPDX-FileCopyrightText: 2026 Hadi Chokr <hadichokr@icloud.com>
+
+# Deletes home configs that have no user left, along with their snapshots and
+# the home subvolume. Runs off snapper-cleanup.timer through a drop-in.
+
+import os
+import pwd
+import re
+import subprocess
+import sys
+from pathlib import Path
+
+CONFIGS = Path("/etc/snapper/configs")
+NSSWITCH = Path("/etc/nsswitch.conf")
+
+# CONF_DIR is baked in at build time: /etc/conf.d on Arch, /etc/sysconfig on
+# buildstream, with a symlink between the two. Resolve to land on the real file.
+SYSCONFIG = (Path("/etc/conf.d/snapper"), Path("/etc/sysconfig/snapper"))
+
+# Same range snapper-home-config creates for.
+UID_MIN = 1000
+UID_MAX = 65534
+
+LOCAL_SOURCES = {"files", "altfiles", "systemd", "mymachines"}
+
+SUBVOLUME_RE = re.compile(r'^SUBVOLUME="(.*)"', re.MULTILINE)
+SNAPPER_CONFIGS_RE = re.compile(r'^SNAPPER_CONFIGS="([^"]*)"', re.MULTILINE)
+ACTION_RE = re.compile(r"\[[^]]*\]")
+
+
+def is_subvolume(path):
+    # Subvolume roots are inode 256. Unlike btrfs subvolume show, this tells
+    # "gone" apart from "cannot tell".
+    try:
+        return os.stat(path).st_ino == 256
+    except FileNotFoundError:
+        return False
+    except OSError:
+        return True
+
+
+def uid_of(config):
+    try:
+        uid = int(config[len("home_"):])
+    except ValueError:
+        return None
+    return uid if UID_MIN <= uid < UID_MAX else None
+
+
+def resolves(uid):
+    try:
+        pwd.getpwuid(uid)
+    except KeyError:
+        return False
+    return True
+
+
+def passwd_is_local():
+    # A failed getpwuid only means "deleted" if nothing remote answers for
+    # passwd. Anything unparseable counts as remote.
+    try:
+        text = NSSWITCH.read_text(errors="replace")
+    except OSError:
+        return False
+
+    for line in text.splitlines():
+        name, sep, sources = line.split("#", 1)[0].partition(":")
+        if sep and name.strip() == "passwd":
+            found = set(ACTION_RE.sub(" ", sources).split())
+            return bool(found) and found <= LOCAL_SOURCES
+    return False
+
+
+def prune_sysconfig(config):
+    path = next((path.resolve() for path in SYSCONFIG if path.exists()), None)
+    if path is None:
+        return
+
+    text = path.read_text()
+    match = SNAPPER_CONFIGS_RE.search(text)
+    if match is None:
+        return
+
+    names = " ".join(name for name in match.group(1).split() if name != config)
+    pruned = text[:match.start()] + f'SNAPPER_CONFIGS="{names}"' + text[match.end():]
+    if pruned == text:
+        return
+
+    tmp = path.with_name(path.name + ".kde-linux-gc")
+    tmp.write_text(pruned)
+    os.chmod(tmp, 0o644)
+    tmp.replace(path)
+
+
+def run(*args):
+    return subprocess.run(args).returncode == 0
+
+
+def main():
+    if not CONFIGS.is_dir():
+        return 0
+
+    if not is_subvolume("/"):
+        print("/ is not a btrfs subvolume, refusing to run", file=sys.stderr)
+        return 0
+
+    local = passwd_is_local()
+    if not local:
+        print("passwd is not answered locally, only deleting configs whose home is gone")
+
+    for path in sorted(CONFIGS.glob("home_*")):
+        config = path.name
+        uid = uid_of(config)
+        if uid is None or not path.is_file():
+            continue
+
+        try:
+            found = SUBVOLUME_RE.findall(path.read_text(errors="replace"))
+        except OSError as error:
+            print(f"Cannot read {path}: {error}", file=sys.stderr)
+            continue
+        if not found:
+            continue
+        subvolume = found[-1]
+
+        if not is_subvolume(subvolume):
+            # delete-config opens the subvolume and fails with ENOENT, so do the
+            # bookkeeping ourselves. The snapshots went with the subvolume.
+            print(f"Deleting snapper config {config}, {subvolume} is gone")
+            prune_sysconfig(config)
+            path.unlink(missing_ok=True)
+            continue
+
+        if not local or resolves(uid):
+            continue
+
+        print(f"Deleting snapper config {config}, uid {uid} is gone")
+        # --no-dbus because snapperd is not necessarily up.
+        if not run("snapper", "--no-dbus", "--config", config, "delete-config"):
+            print(f"Failed to delete snapper config {config}, leaving it behind",
+                  file=sys.stderr)
+            continue
+
+        # Only now, delete refuses while .snapshots is still nested in there.
+        print(f"Deleting {subvolume}")
+        if not run("btrfs", "subvolume", "delete", subvolume):
+            print(f"Failed to delete {subvolume}, leaving it behind", file=sys.stderr)
+
+    return 0
+
+
+if __name__ == "__main__":
+    try:
+        sys.exit(main())
+    except OSError as error:
+        print(error, file=sys.stderr)
+        sys.exit(1)
