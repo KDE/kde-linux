@@ -119,19 +119,6 @@ mkosi \
     --extra-tree="$PWD/install.tar.zst" --extra-tree="$PWD/mkosi.extra" \
     "$@"
 
-# Adjust mtime to reduce unnecessary churn between images caused by us rebuilding repos that have possibly not changed in source or binary interfaces.
-if [ -f "$PWD/.secure_files/ssh.key" ]; then
-  # You can use `ssh-keyscan origin.files.kde.org` to get the host key
-  echo "origin.files.kde.org ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILUjdH4S7otYIdLUkOZK+owIiByjNQPzGi7GQ5HOWjO6" >> ~/.ssh/known_hosts
-
-  chmod 600 "$PWD/.secure_files/ssh.key"
-
-  scp -i "$PWD/.secure_files/ssh.key" kdeos@origin.files.kde.org:/home/kdeos/mtimer.json mtimer.json
-  # Note: use absolute paths. since we chdir via go
-  go -C ./mtimer/ run . -root "$OUTPUT" -json "$PWD/mtimer.json"
-  scp -i "$PWD/.secure_files/ssh.key" mtimer.json kdeos@origin.files.kde.org:/home/kdeos/mtimer.json
-fi
-
 # NOTE: /efi must be empty so auto mounting can happen. As such we put our templates in a different directory
 rm -rfv "${OUTPUT}/efi"
 [ -d "${OUTPUT}/efi" ] || mkdir --mode 0700 "${OUTPUT}/efi"
@@ -196,7 +183,8 @@ mv "$OUTPUT/live" live-root
 time mkfs.erofs -zzstd -C 65536 --chunksize 65536 \
     kde-linux.cache/live.raw live-root > erofs-live.log 2>&1
 
-time mkfs.erofs -zzstd -C 65536 --chunksize 65536 "$ROOTFS_EROFS" "$OUTPUT" > erofs.log 2>&1
+time mkfs.erofs -zzstd -C 65536 --chunksize 65536 "-T$EPOCH" --ignore-mtime \
+    "$ROOTFS_EROFS" "$OUTPUT" > erofs.log 2>&1
 cp --reflink=auto "$ROOTFS_EROFS" kde-linux.cache/root.raw
 
 # Now assemble the image using systemd-repart and the definitions in mkosi.repart into $ISO.
