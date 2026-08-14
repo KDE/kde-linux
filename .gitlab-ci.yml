@@ -30,7 +30,7 @@ imaging:
       when: manual
       variables:
         IMAGING_MODE: test
-    - if: $CI_COMMIT_REF_PROTECTED == 'true' && $CI_DEFAULT_BRANCH == $CI_COMMIT_REF_NAME && $CI_PROJECT_PATH == 'kde-linux/kde-linux'
+    - if: $CI_COMMIT_REF_PROTECTED == 'true' && $CI_PROJECT_PATH == 'kde-linux/kde-linux'
       when: always
       variables:
         IMAGING_MODE: stage
@@ -123,7 +123,7 @@ publish:
     - VM
     - amd64
   rules:
-    - if: $CI_COMMIT_REF_PROTECTED == 'true' && $CI_DEFAULT_BRANCH == $CI_COMMIT_REF_NAME && $CI_PROJECT_PATH == 'kde-linux/kde-linux'
+    - if: $CI_COMMIT_REF_PROTECTED == 'true' && $CI_PROJECT_PATH == 'kde-linux/kde-linux'
       when: on_success
     - when: never
   needs:
@@ -152,7 +152,7 @@ publish-manual:
     - VM
     - amd64
   rules:
-    - if: $CI_COMMIT_REF_PROTECTED == 'true' && $CI_DEFAULT_BRANCH == $CI_COMMIT_REF_NAME && $CI_PROJECT_PATH == 'kde-linux/kde-linux'
+    - if: $CI_COMMIT_REF_PROTECTED == 'true' && $CI_PROJECT_PATH == 'kde-linux/kde-linux'
       when: manual
       allow_failure: true
     - when: never

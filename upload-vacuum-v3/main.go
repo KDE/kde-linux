@@ -287,7 +287,7 @@ func main() {
 	os.RemoveAll("upload-tree") // will be populated by generateSHA256s
 	publishDir := os.Getenv("PUBLISH_DIR")
 	if publishDir == "" {
-		publishDir = "testing"
+		log.Fatal("PUBLISH_DIR not set. Cannot publish! Check that .kde-linux-metadata gets applied correctly")
 	}
 
 	config, err := readConfig(minioClient)
