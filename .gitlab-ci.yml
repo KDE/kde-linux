@@ -81,9 +81,11 @@ trigger-openqa:
     strategy: depend
   variables:
     IMAGE_URL: $IMAGE_URL
-    ISO_CHANNEL_URL: $ISO_CHANNEL_URL
+    CHANNEL_URL: $CHANNEL_URL
+    VARIANT: $VARIANT
     STAGING_CHANNEL_URL: $STAGING_CHANNEL_URL
     SYSUPDATE_PUBKEY_B64: $SYSUPDATE_PUBKEY_B64
+    UPSTREAM_CI_PIPELINE_URL: $UPSTREAM_CI_PIPELINE_URL
     OPENQA_BRANCH: master
 
 # Collect the JUnit files produced by the triggered openQA pipeline.

@@ -8,6 +8,8 @@ set -eu
 # Output Directory
 OUTDIR="${OUTDIR:-mkosi.output}"
 
+. .kde-linux-metadata
+
 # We need to wire up an ephemeral image-signing key pair for OpenQA. We can't use the production key, but we still need
 # to test if the image can be upgraded to. Hence, create a key pair and pass it into OpenQA, where it will be injected
 # into the system.
@@ -50,9 +52,11 @@ go -C ./uploader/ run . --remote "s3+https://storage.kde.org/ci-artifacts/$CI_PR
 # Point OpenQA at the image we just uploaded.
 ISO_FILE=$(find upload-tree -maxdepth 1 -name '*.iso' | head -1 | xargs -r basename)
 echo "IMAGE_URL=https://storage.kde.org/ci-artifacts/$CI_PROJECT_PATH/j/$CI_JOB_ID/$ISO_FILE" >> build.env
-echo "ISO_CHANNEL_URL=https://storage.kde.org/kde-linux/testing/" >> build.env # For upgrade test flows
+echo "VARIANT=${KDE_LINUX_EDITION}" >> build.env
+echo "CHANNEL_URL=https://storage.kde.org/kde-linux/${KDE_LINUX_EDITION}/" >> build.env # For upgrade test flows
 echo "STAGING_CHANNEL_URL=https://storage.kde.org/ci-artifacts/$CI_PROJECT_PATH/j/$CI_JOB_ID/sysupdate/v2/" >> build.env
 echo "SYSUPDATE_PUBKEY_B64=$SYSUPDATE_PUBKEY_B64" >> build.env
+echo "UPSTREAM_CI_PIPELINE_URL=$CI_PIPELINE_URL" >> build.env
 
 echo "𓃀𓂝𓏏𓃀𓂝𓏏𓃀𓂝𓏏𓃀𓂝𓏏𓃀𓂝𓏏𓃀𓂝𓏏𓃀𓂝𓏏𓃀𓂝𓏏𓃀𓂝𓏏𓃀𓂝𓏏𓃀𓂝𓏏𓃀𓂝𓏏𓃀𓂝𓏏𓃀𓂝𓏏"
 echo "You can find the raw disk images and sysupdate tree at:"
