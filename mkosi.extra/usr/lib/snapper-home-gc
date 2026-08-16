@@ -26,6 +26,7 @@ UID_MAX = 65534
 LOCAL_SOURCES = {"files", "altfiles", "systemd", "mymachines"}
 
 SUBVOLUME_RE = re.compile(r'^SUBVOLUME="(.*)"', re.MULTILINE)
+ALLOW_USERS_RE = re.compile(r'^ALLOW_USERS=.*$', re.MULTILINE)
 SNAPPER_CONFIGS_RE = re.compile(r'^SNAPPER_CONFIGS="([^"]*)"', re.MULTILINE)
 ACTION_RE = re.compile(r"\[[^]]*\]")
 
@@ -94,6 +95,18 @@ def prune_sysconfig(config):
     tmp.replace(path)
 
 
+def clear_allow_users(path):
+    text = path.read_text(errors="replace")
+    cleared = ALLOW_USERS_RE.sub('ALLOW_USERS=""', text)
+    if cleared == text:
+        return
+
+    tmp = path.with_name(path.name + ".kde-linux-gc")
+    tmp.write_text(cleared)
+    os.chmod(tmp, 0o600)
+    tmp.replace(path)
+
+
 def run(*args):
     return subprocess.run(args).returncode == 0
 
@@ -137,6 +150,10 @@ def main():
             continue
 
         print(f"Deleting snapper config {config}, uid {uid} is gone")
+        # snapper resolves ALLOW_USERS when it loads a config and refuses to do
+        # anything with one naming a user that is gone, which is every config we
+        # get this far with.
+        clear_allow_users(path)
         # --no-dbus because snapperd is not necessarily up.
         if not run("snapper", "--no-dbus", "--config", config, "delete-config"):
             print(f"Failed to delete snapper config {config}, leaving it behind",
