@@ -56,7 +56,7 @@ SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted
   <summary xml:lang="ia">Un moderne distribution de Linux focalisate sur ambiente de scriptorio Plasma de KDE</summary>
   <summary xml:lang="is">Nútímaleg Linux-dreifing með áherslu á KDE Plasma skjáborðsumhverfið</summary>
   <summary xml:lang="it">Una distribuzione Linux moderna focalizzata sull'ambiente desktop KDE Plasma</summary>
-  <summary xml:lang="ja">KDE Plasma デスクトップ環境に重きを置くモダンな Linux ディストリビューション</summary>
+  <summary xml:lang="ja">KDE Plasma デスクトップ環境中心のモダンな Linux ディストリビューション</summary>
   <summary xml:lang="ka">თანამედროვე Linux-ის დისტრიბუტივი, სამუშაო გარემო KDE Plasma-ზე ფოკუსით</summary>
   <summary xml:lang="ko">KDE Plasma 데스크톱 환경에 초점을 맞춘 근대적인 리눅스 배포판</summary>
   <summary xml:lang="lt">Šiuolaikinis Linux platinamasis paketas, kurio dėmesys sutelktas į KDE Plasma darbalaukio aplinką</summary>
@@ -96,7 +96,7 @@ SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted
     <p xml:lang="ia">KDE Linux es un systema operative (o operational) facile a usar construite circa le ambiente de scriptorio de KDE Plasma. Il forni un complete experientia computational con un foco sur productivitate, personalisation, e facilitate de uso.</p>
     <p xml:lang="is">KDE Linux er notendavænt stýrikerfi sem byggt er í kringum KDE Plasma skjáborðsumhverfið. Það kemur með öllu sem nútímaleg tölvuumhverfi eiga að bera og leggur áherslu á afköst, sérsníðanleika og einfaldleika í notkun.</p>
     <p xml:lang="it">KDE Linux è un sistema operativo facile da utilizzare, costruito attorno all'ambiente desktop KDE Plasma. Offre un'esperienza informatica completa, con una particolare attenzione alla produttività, alla personalizzazione, e alla facilità d'uso.</p>
-    <p xml:lang="ja">KDE Linux は KDE ​​Plasma デスクトップ環境を基盤としたユーザーフレンドリーなオペレーティングシステムです。生産性、カスタマイズ性、そして使いやすさを重視し、充実したコンピューティング環境を用意しています。</p>
+    <p xml:lang="ja">KDE Linux は KDE Plasma デスクトップ環境を基盤としたユーザーフレンドリーなオペレーティングシステムです。生産性、カスタマイズ性、そして使いやすさを重視し、充実したコンピューティング環境を作り上げています。</p>
     <p xml:lang="ka">KDE Linux მოსახერხებელი ოპერაციული სისტემაა, რომელიც KDE Plasma-ის გარშემოა აგებული. ის მოგაწვდით სრულ გამოთვლის გარემოს ფოკუსით პროდუქტიულობაზე, მორგებადობაზე და გამოყენების სიადვილეზე.</p>
     <p xml:lang="ko">KDE 리눅스는 KDE Plasma 데스크톱 환경을 중심으로 구성된 사용자 친화적 운영 체제입니다. 생산성, 사용자 정의, 사용자 편의성에 초점을 맞춘 완전한 컴퓨팅 경험을 제공합니다.</p>
     <p xml:lang="lt">KDE Linux yra patogi operacinė sistema, sukurta remiantis KDE Plasma darbalaukio aplinka. Ji pateikia pilnavertį naudojimosi kompiuteriu patyrimą, skirdama daug dėmesio produktyvumui, tinkinimui ir lengvam naudojimui.</p>
@@ -202,7 +202,7 @@ SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted
       <li xml:lang="ia">Modello de liberation "Rolling" per actualistion de software</li>
       <li xml:lang="is">Rúllandi útgáfumódel til að halda hugbúnaði af nýjustu gerð</li>
       <li xml:lang="it">Modello rolling release per un software aggiornato</li>
-      <li xml:lang="ja">ローリングリリーズ方式によりソフトウェアは常に最新</li>
+      <li xml:lang="ja">ローリングリリース方式によりソフトウェアは常に最新</li>
       <li xml:lang="ka">უწყვეტი გამოცემა განახლებული პროგრამებით</li>
       <li xml:lang="ko">최신 소프트웨어를 사용하는 롤링 릴리스 모델</li>
       <li xml:lang="lt">Nuolat atnaujinamos laidos modelis kartu su naujausia programine įranga</li>
@@ -353,7 +353,7 @@ SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted
         <p xml:lang="ia">Version initial de KDE Linux con:</p>
         <p xml:lang="is">Upphafleg útgáfa KDE Linux með:</p>
         <p xml:lang="it">Rilascio iniziale di KDE Linux con:</p>
-        <p xml:lang="ja">KDE Linux の初期リリースの特徴:</p>
+        <p xml:lang="ja">KDE Linux 初期リリースの特徴:</p>
         <p xml:lang="ka">KDE Linux-ის პირველი ვერსია, ფუნქციებით:</p>
         <p xml:lang="ko">다음을 포함하는 KDE 리눅스의 첫 릴리스:</p>
         <p xml:lang="lt">Pradinė KDE Linux laida, kurioje yra:</p>
