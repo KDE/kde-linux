@@ -1,0 +1,11 @@
+# SPDX-License-Identifier: GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL
+# SPDX-FileCopyrightText: 2026 Nate Graham <nate@kde.org>
+
+[Desktop Entry]
+Categories=Qt;KDE;Documentation;
+Comment=Learn how to do things in KDE Linux
+Exec=xdg-open https://linux.kde.org/docs/
+GenericName=Documentation
+Icon=accessories-dictionary
+Name=Documentation
+Type=Application

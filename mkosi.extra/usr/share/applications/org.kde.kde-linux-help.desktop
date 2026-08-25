@@ -1,0 +1,11 @@
+# SPDX-License-Identifier: GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL
+# SPDX-FileCopyrightText: 2026 Nate Graham <nate@kde.org>
+
+[Desktop Entry]
+Categories=Qt;KDE;Documentation;
+Comment=Get help with an issue
+Exec=xdg-open https://linux.kde.org/help/
+GenericName=Help
+Icon=help-browser
+Name=Help & Support
+Type=Application
