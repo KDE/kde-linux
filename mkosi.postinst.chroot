@@ -43,13 +43,23 @@ cat <<- EOF > /usr/share/icons/default/index.theme
 Inherits=breeze_cursors
 EOF
 
+# IMAGE_VERSION is %Y%m%d%H%M and is exported by mkosi. Derive the readable
+# date from it here; passing it via mkosi's Environment= truncates at the
+# space because that setting is a space separated list of assignments.
+if [ "${#IMAGE_VERSION}" -ne 12 ]; then
+    echo "Unexpected IMAGE_VERSION '$IMAGE_VERSION'" >&2
+    exit 1
+fi
+VERSION_DATE="${IMAGE_VERSION:0:4}-${IMAGE_VERSION:4:2}-${IMAGE_VERSION:6:2} ${IMAGE_VERSION:8:2}:${IMAGE_VERSION:10:2}"
+
 # WARNING: only set up os-release after the build otherwise kde-build doesn't know how to handle the system currently
 cat <<- EOF > /usr/lib/os-release
 NAME="KDE Linux"
 PRETTY_NAME="KDE Linux"
 ID=kde-linux
 DEFAULT_HOSTNAME=kde-linux
-VERSION_ID="$VERSION_DATE"
+VERSION="$VERSION_DATE"
+VERSION_ID=$IMAGE_VERSION
 BUILD_ID=$CI_COMMIT_SHORT_SHA
 ANSI_COLOR="38;2;61;174;233"
 HOME_URL="https://linux.kde.org"
