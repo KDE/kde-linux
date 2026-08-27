@@ -5,7 +5,7 @@ go 1.25.0
 require (
 	github.com/minio/minio-go/v7 v7.0.100
 	github.com/pkg/sftp v1.13.6
-	golang.org/x/crypto v0.50.0
+	golang.org/x/crypto v0.52.0
 	invent.kde.org/kde-linux/kde-linux/minioauth v0.0.0
 	gopkg.in/ini.v1 v1.67.1
 	gopkg.in/yaml.v2 v2.4.0
@@ -28,7 +28,7 @@ require (
 	github.com/rs/xid v1.6.0 // indirect
 	github.com/tinylib/msgp v1.6.4 // indirect
 	go.yaml.in/yaml/v3 v3.0.4 // indirect
-	golang.org/x/net v0.53.0 // indirect
+	golang.org/x/net v0.56.0 // indirect
 	golang.org/x/sys v0.43.0 // indirect
-	golang.org/x/text v0.36.0 // indirect
+	golang.org/x/text v0.39.0 // indirect
 )
