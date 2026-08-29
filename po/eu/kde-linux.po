@@ -1,16 +1,23 @@
 # Translation for kde-linux.po to Euskara/Basque (eu).
 # Copyright (C) 2026 This file is copyright:
 # This file is distributed under the same license as the kde-linux package.
-# KDE euskaratzeko proiektuaren arduraduan <xalba@ni.eus>.
+# SPDX-FileCopyrightText: 2026 KDE euskaratzeko proiektuaren arduraduan <xalba@ni.eus>
 #
 # Translators:
 # SPDX-FileCopyrightText: 2026 Iñigo Salvador Azurmendi <xalba@ni.eus>
+#
+# Egoera:
+# Proiektu osoaren berrikuspen integrala: 2026-08-28.
+# Azken berrikuspena: 2026-08-28 — egoera ondua mantendu da.
+# Terminologia, estiloa, ortotipografia, kohesioa eta koherentzia berrikusi dira.
+# Erreferentzia-gida: —
+# Ikus, halaber: KDE-eu-berrikuspen-integralen-erregistroa.md
 msgid ""
 msgstr ""
 "Project-Id-Version: kde-linux\n"
 "Report-Msgid-Bugs-To: https://bugs.kde.org\n"
 "POT-Creation-Date: 2026-03-18 00:43+0000\n"
-"PO-Revision-Date: 2026-03-19 21:17+0100\n"
+"PO-Revision-Date: 2026-08-28 12:58+0200\n"
 "Last-Translator: Iñigo Salvador Azurmendi <xalba@ni.eus>\n"
 "Language-Team: Basque <kde-i18n-eu@kde.org>\n"
 "Language: eu\n"
@@ -18,7 +25,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Lokalize 25.12.3\n"
+"X-Generator: Lokalize 26.08.0\n"
 
 #: mkosi.extra/usr/lib/command-not-found-handler.py:72
 msgid ""
@@ -39,7 +46,7 @@ msgid ""
 msgstr ""
 "KDE Linuxek ez dakar “{}” pakete-kudeatzailea.\n"
 "\n"
-"Software grafikoa Discover aplikazio-gunearen bidez erabilgarri dago. "
+"Software grafikoa Discover aplikazio-gunearen bidez eskura daiteke. "
 "Discoverren erabilgarri ez dagoen softwarea nola instalatu jakiteko, "
 "begiratu {}."
 
@@ -65,4 +72,4 @@ msgstr ""
 "KDE Linuxek ez dakar “{}” komandoa.\n"
 "\n"
 "Existitzen dela badakizu, eta zure lan-fluxurako garrantzitsua bada, {}(e)n "
-"hura lortzeko aukerei buruzko informazioa."
+"hura lortzeko aukerei buruzko informazioa aurkituko duzu."
