@@ -5,10 +5,15 @@
 Description=Configuring Root Filesystem
 # live has an overlayed /, don't try to fiddle with it
 ConditionKernelCommandLine=!kde-linux.live=1
+ConditionPathIsReadWrite=/etc
+After=local-fs.target
 
 [Service]
 Type=oneshot
-ExecStart=/usr/bin/btrfs quota enable --simple /system
+RemainAfterExit=yes
+# The one time switch off simple quotas outlives DefaultTimeoutStartSec.
+TimeoutStartSec=300
+ExecStart=/usr/lib/btrfs-quota-setup
 
 [Install]
 WantedBy=multi-user.target

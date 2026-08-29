@@ -1,0 +1,120 @@
+#!/usr/bin/env python3
+# SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL
+# SPDX-FileCopyrightText: 2026 Hadi Chokr <hadichokr@icloud.com>
+
+# Puts /system on full btrfs qgroups. Simple quotas charge every extent to the
+# subvolume that allocated it first, for the lifetime of the extent, so a
+# snapshot accounts as empty no matter how much data it is the last owner of
+# and snapper's space aware cleanup can never fire.
+
+import re
+import subprocess
+import sys
+from pathlib import Path
+
+SYSTEM = Path("/system")
+CONFIGS = Path("/etc/snapper/configs")
+STATE = Path("/var/lib/kde-linux")
+STAMP = STATE / "btrfs-quota-mode"
+STAMP_VERSION = "qgroups-1"
+
+CONFIG_RE = re.compile(r"^home_(\d+)$")
+
+
+def run(*args):
+    args = [str(arg) for arg in args]
+    print("+", " ".join(args), flush=True)
+    return subprocess.run(args).returncode == 0
+
+
+def quota_enabled():
+    return subprocess.run(
+        ["btrfs", "qgroup", "show", str(SYSTEM)],
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
+    ).returncode == 0
+
+
+def quota_mode():
+    """"qgroup", "squota", or None when we cannot tell."""
+    result = subprocess.run(
+        ["findmnt", "--noheadings", "--output", "UUID", "--target", str(SYSTEM)],
+        capture_output=True,
+        text=True,
+    )
+    uuid = result.stdout.strip()
+    if result.returncode != 0 or not uuid:
+        return None
+
+    # Not the SIMPLE_QUOTA incompat bit: that stays set once a filesystem has
+    # had simple quotas, because its extents keep the owner refs either way.
+    # The mode is what says how accounting is being done now.
+    try:
+        return (Path("/sys/fs/btrfs") / uuid / "qgroups" / "mode").read_text().strip()
+    except OSError:
+        return None
+
+
+def enable_qgroups():
+    # There is no in-place switch between the modes, and disabling drops every
+    # qgroup, including the ones the home configs point at.
+    run("btrfs", "quota", "disable", SYSTEM)
+    if not run("btrfs", "quota", "enable", SYSTEM):
+        return False
+
+    # Accounting stays inconsistent until the extent tree has been walked.
+    # Nothing needs the numbers before the first cleanup run, so don't wait.
+    # Enabling schedules a rescan by itself, so this is only for kernels that
+    # do not, and says "Operation now in progress" when it was not needed.
+    print("+ btrfs quota rescan", SYSTEM, flush=True)
+    subprocess.run(
+        ["btrfs", "quota", "rescan", str(SYSTEM)],
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
+    )
+    return True
+
+
+def stamped():
+    try:
+        return STAMP.read_text().strip() == STAMP_VERSION
+    except OSError:
+        return False
+
+
+def main():
+    if not SYSTEM.is_mount():
+        print(f"{SYSTEM} is not a mount point")
+        return 0
+
+    if stamped() and quota_enabled():
+        return 0
+
+    if quota_enabled() and quota_mode() == "qgroup":
+        print("Qgroups are already enabled")
+    elif not enable_qgroups():
+        print(f"Failed to enable qgroups on {SYSTEM}", file=sys.stderr)
+        return 1
+
+    STATE.mkdir(parents=True, exist_ok=True)
+    STAMP.write_text(STAMP_VERSION + "\n")
+
+    if not CONFIGS.is_dir():
+        return 0
+
+    # The configs either predate qgroups or just lost theirs to the disable
+    # above. snapper-home-config is idempotent and puts them back.
+    for path in sorted(CONFIGS.glob("home_*")):
+        match = CONFIG_RE.match(path.name)
+        if match:
+            run("/usr/lib/snapper-home-config", match.group(1))
+
+    return 0
+
+
+if __name__ == "__main__":
+    try:
+        sys.exit(main())
+    except OSError as error:
+        print(error, file=sys.stderr)
+        sys.exit(1)

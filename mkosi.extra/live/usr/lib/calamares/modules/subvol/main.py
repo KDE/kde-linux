@@ -250,7 +250,9 @@ def _create_subvolumes(state: InstallState) -> None:
     _empty_directory(state.tmpdir)
     _run(["btrfs", "subvolume", "sync", tmp], check=False)
 
-    _run(["btrfs", "quota", "enable", "--simple", tmp])
+    # Full qgroups rather than --simple, snapper's space aware cleanup needs
+    # them to see what the home snapshots hold on to. See btrfs-quota-setup.
+    _run(["btrfs", "quota", "enable", tmp])
     _run(["btrfs", "subvolume", "create", f"{tmp}/@system"])
     _run(["btrfs", "subvolume", "create", f"{tmp}/@system/etc"])
     # A leftover @system/home subvolume would make the mkdir below a no-op and

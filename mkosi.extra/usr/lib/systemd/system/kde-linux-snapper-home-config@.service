@@ -8,6 +8,7 @@ Description=Create Snapper Config for UID %i
 Documentation=https://invent.kde.org/kde-linux/kde-linux/-/work_items/745
 ConditionPathIsReadWrite=/etc
 ConditionKernelCommandLine=!kde-linux.live=1
+After=kde-linux-btrfs.service
 Conflicts=shutdown.target
 Before=shutdown.target
 

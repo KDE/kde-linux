@@ -2,9 +2,9 @@
 # SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL
 # SPDX-FileCopyrightText: 2026 Hadi Chokr <hadichokr@icloud.com>
 
-# Creates the snapper config for one user's home subvolume. Run per login by
-# kde-linux-snapper-home-config@.service, which the user@.service drop-in pulls
-# in.
+# Creates the snapper config for one user's home subvolume and gives it a
+# qgroup. Run per login by kde-linux-snapper-home-config@.service, which the
+# user@.service drop-in pulls in, and per config by btrfs-quota-setup.
 
 import pwd
 import subprocess
@@ -13,6 +13,20 @@ from pathlib import Path
 
 CONFIGS = Path("/etc/snapper/configs")
 HOMES = Path("/home")
+
+# Level 0 is the subvolumes themselves, anything above that will do.
+QGROUP_LEVEL = 1
+
+# Configs written before we had qgroups have plain limits, and without ranges
+# snapper never runs the space aware pass. Keep in sync with the template.
+SPACE_AWARE_LIMITS = [
+    "TIMELINE_LIMIT_HOURLY=2-6",
+    "TIMELINE_LIMIT_DAILY=2-7",
+    "TIMELINE_LIMIT_WEEKLY=0-4",
+    "TIMELINE_LIMIT_MONTHLY=0-2",
+    "SPACE_LIMIT=0.1",
+    "FREE_LIMIT=0.2",
+]
 
 
 def is_subvolume(path):
@@ -26,6 +40,60 @@ def is_subvolume(path):
 def snapper(config, *args):
     # --no-dbus because snapperd is not necessarily up yet.
     subprocess.run(["snapper", "--no-dbus", "--config", config, *args], check=True)
+
+
+def config_value(config, key):
+    try:
+        text = (CONFIGS / config).read_text(errors="replace")
+    except OSError:
+        return None
+
+    value = None
+    for line in text.splitlines():
+        name, sep, rest = line.partition("=")
+        if sep and name.strip() == key:
+            value = rest.strip().strip('"')
+    return value
+
+
+def qgroup_exists(qgroup, path):
+    result = subprocess.run(
+        ["btrfs", "qgroup", "show", "--raw", str(path)],
+        capture_output=True,
+        text=True,
+    )
+    if result.returncode != 0:
+        return False
+    return any(
+        line.split()[0] == qgroup
+        for line in result.stdout.splitlines()
+        if line[:1].isdigit()
+    )
+
+
+def ensure_quota(config, uid, home):
+    # Keyed on the uid as well so no two configs share a qgroup.
+    qgroup = f"{QGROUP_LEVEL}/{uid}"
+
+    # snapper assigns every new snapshot to the qgroup as it creates it and
+    # errors out if the qgroup is not there, so create it first.
+    if not qgroup_exists(qgroup, home):
+        print(f"Creating qgroup {qgroup} for {home}")
+        if subprocess.run(["btrfs", "qgroup", "create", qgroup, str(home)]).returncode != 0:
+            print(f"Failed to create {qgroup}, leaving {config} without space aware cleanup",
+                  file=sys.stderr)
+            return
+
+    configured = config_value(config, "QGROUP")
+    if configured == qgroup:
+        return
+
+    values = [f"QGROUP={qgroup}"]
+    if not configured:
+        values += SPACE_AWARE_LIMITS
+
+    print(f"Setting {' '.join(values)} on {config}")
+    snapper(config, "set-config", *values)
 
 
 def main():
@@ -54,21 +122,22 @@ def main():
     # Keyed on the uid because config names become file names, and DOMAIN\user
     # and user@realm are ordinary enough with networked accounts.
     config = f"home_{uid}"
-    if (CONFIGS / config).exists():
-        return 0
 
     if not is_subvolume(home):
         return 0
 
-    print(f"Creating snapper config {config} for {home}")
-    snapper(config, "create-config", "--template", "home", str(home))
+    if not (CONFIGS / config).exists():
+        print(f"Creating snapper config {config} for {home}")
+        snapper(config, "create-config", "--template", "home", str(home))
 
-    # ALLOW_USERS
-    if "," in user.pw_name:
-        print(f"Not setting ALLOW_USERS, '{user.pw_name}' cannot be put in the list",
-              file=sys.stderr)
-    else:
-        snapper(config, "set-config", f"ALLOW_USERS={user.pw_name}")
+        # ALLOW_USERS
+        if "," in user.pw_name:
+            print(f"Not setting ALLOW_USERS, '{user.pw_name}' cannot be put in the list",
+                  file=sys.stderr)
+        else:
+            snapper(config, "set-config", f"ALLOW_USERS={user.pw_name}")
+
+    ensure_quota(config, uid, home)
 
     return 0
 

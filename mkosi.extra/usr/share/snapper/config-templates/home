@@ -2,23 +2,21 @@
 # SPDX-FileCopyrightText: 2026 Hadi Chokr <hadichokr@icloud.com>
 
 # Template for the per-user home configs created by snapper-home-config.
-# SUBVOLUME is filled in by snapper, ALLOW_USERS by the helper.
+# SUBVOLUME is filled in by snapper, ALLOW_USERS and QGROUP by the helper.
 
 SUBVOLUME=""
 FSTYPE="btrfs"
 
-# TODO
-# Space aware cleanup needs qgroup accounting. We run btrfs simple quotas
-# (kde-linux-btrfs.service), which account every extent to the subvolume that
-# allocated it first, so snapshots always look empty and the cleanup would
-# never fire. Stick to the count based limits below until that is sorted out.
-# With QGROUP empty neither of the two below does anything at all; they are
-# here as a starting point for when qgroups are sorted out. SPACE_LIMIT is the
-# share of the filesystem snapshots may occupy, FREE_LIMIT the share that has
-# to stay free.
+# Parent qgroup for this config's snapshots, set to 1/<uid> by
+# snapper-home-config. Only the snapshots are assigned to it, not the live
+# home, so its exclusive size is what deleting all of them would give back.
 QGROUP=""
+
+# SPACE_LIMIT is the share of the filesystem the snapshots may occupy,
+# FREE_LIMIT the share that has to stay free. Only snapshots that have a
+# cleanup algorithm set count towards SPACE_LIMIT.
 SPACE_LIMIT="0.1"
-FREE_LIMIT="0.4"
+FREE_LIMIT="0.2"
 
 # ALLOW_USERS is set per user. SYNC_ACL puts an ACL on .snapshots so the owner
 # can browse their own snapshots, in Dolphin or otherwise, without root.
@@ -34,13 +32,17 @@ NUMBER_MIN_AGE="1800"
 NUMBER_LIMIT="0"
 NUMBER_LIMIT_IMPORTANT="0"
 
+# The limits are ranges because that is what turns the space aware pass on:
+# snapper first deletes everything above the upper bound, and then, if the
+# snapshots are over SPACE_LIMIT or the filesystem is below FREE_LIMIT, keeps
+# deleting down to the lower bound. The upper bounds are what we kept before.
 TIMELINE_CREATE="yes"
 TIMELINE_CLEANUP="yes"
 TIMELINE_MIN_AGE="1800"
-TIMELINE_LIMIT_HOURLY="6"
-TIMELINE_LIMIT_DAILY="7"
-TIMELINE_LIMIT_WEEKLY="4"
-TIMELINE_LIMIT_MONTHLY="2"
+TIMELINE_LIMIT_HOURLY="2-6"
+TIMELINE_LIMIT_DAILY="2-7"
+TIMELINE_LIMIT_WEEKLY="0-4"
+TIMELINE_LIMIT_MONTHLY="0-2"
 TIMELINE_LIMIT_QUARTERLY="0"
 TIMELINE_LIMIT_YEARLY="0"
 
