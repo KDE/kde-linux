@@ -4,8 +4,26 @@
 [Desktop Entry]
 Categories=Qt;KDE;Documentation;
 Comment=Get help with an issue
+Comment[ca]=Aconseguir ajuda amb un problema
+Comment[es]=Obtener ayuda para un problema
+Comment[eu]=Arazo bat konpontzeko laguntza lortu
+Comment[nl]=Hulp krijgen bij een probleem
+Comment[tr]=Bir konu ile ilgili yardım alın
+Comment[uk]=Допомога з усуванням проблем
 Exec=xdg-open https://linux.kde.org/help/
 GenericName=Help
+GenericName[ca]=Ajuda
+GenericName[es]=Ayuda
+GenericName[eu]=Laguntza
+GenericName[nl]=Help
+GenericName[tr]=Yardım
+GenericName[uk]=Довідка
 Icon=help-browser
 Name=Help & Support
+Name[ca]=Ajuda i suport
+Name[es]=Ayuda y asistencia
+Name[eu]=Laguntza eta euskarria
+Name[nl]=Hulp & ondersteuning
+Name[tr]=Yardım ve Destek
+Name[uk]=Довідка і підтримка
 Type=Application

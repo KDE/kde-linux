@@ -4,8 +4,26 @@
 [Desktop Entry]
 Categories=Qt;KDE;Documentation;
 Comment=Learn how to do things in KDE Linux
+Comment[ca]=Apreneu com fer coses al KDE Linux
+Comment[es]=Aprender a hacer cosas en KDE Linux
+Comment[eu]=KDE Linuxen gauzak nola egin ikasi
+Comment[nl]=Leer hoe je dingen doet in KDE Linux
+Comment[tr]=KDE Linux’ta neleri nasıl yapacağınızı öğrenin
+Comment[uk]=Дізнайтеся про те, як працювати у KDE Linux
 Exec=xdg-open https://linux.kde.org/docs/
 GenericName=Documentation
+GenericName[ca]=Documentació
+GenericName[es]=Documentación
+GenericName[eu]=Dokumentazioa
+GenericName[nl]=Documentatie
+GenericName[tr]=Belgelendirme
+GenericName[uk]=Документація
 Icon=accessories-dictionary
 Name=Documentation
+Name[ca]=Documentació
+Name[es]=Documentación
+Name[eu]=Dokumentazioa
+Name[nl]=Documentatie
+Name[tr]=Belgelendirme
+Name[uk]=Документація
 Type=Application
