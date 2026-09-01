@@ -34,6 +34,9 @@ rm -rf /usr/share/swcatalog
 # Calamares
 cd /tmp
 git clone --depth 1 https://invent.kde.org/mirrors/calamares.git
+# Temporary apply patch which fixes calamares while it gets merged
+(cd calamares; curl https://codeberg.org/Calamares/calamares/commit/d6d0b2b0f0b8b900b31d960c7afb9d20e6848aab.patch | git apply -)
+
 cmake -S calamares -B calamares/build -DCMAKE_BUILD_TYPE=MinSizeRel -DCMAKE_INSTALL_PREFIX=/usr -DBUILD_TESTING=OFF -DWITH_QT6=ON
 cmake --build calamares/build "-j$(nproc)"
 DESTDIR=/live/ cmake --install calamares/build
