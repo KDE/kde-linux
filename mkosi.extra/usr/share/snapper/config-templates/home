@@ -12,10 +12,10 @@ FSTYPE="btrfs"
 # (kde-linux-btrfs.service), which account every extent to the subvolume that
 # allocated it first, so snapshots always look empty and the cleanup would
 # never fire. Stick to the count based limits below until that is sorted out.
-# With QGROUP empty neither of the two below does anything at all; they are
-# here as a starting point for when qgroups are sorted out. SPACE_LIMIT is the
-# share of the filesystem snapshots may occupy, FREE_LIMIT the share that has
-# to stay free.
+# With QGROUP empty, SPACE_LIMIT does nothing at all (FREE_LIMIT still works);
+# it is here as a starting point for when qgroups are sorted out.
+# SPACE_LIMIT is the share of the filesystem snapshots may occupy.
+# FREE_LIMIT the share that has to stay free.
 QGROUP=""
 SPACE_LIMIT="0.1"
 FREE_LIMIT="0.4"
@@ -37,10 +37,10 @@ NUMBER_LIMIT_IMPORTANT="0"
 TIMELINE_CREATE="yes"
 TIMELINE_CLEANUP="yes"
 TIMELINE_MIN_AGE="1800"
-TIMELINE_LIMIT_HOURLY="6"
-TIMELINE_LIMIT_DAILY="7"
-TIMELINE_LIMIT_WEEKLY="4"
-TIMELINE_LIMIT_MONTHLY="2"
+TIMELINE_LIMIT_HOURLY="0-6"
+TIMELINE_LIMIT_DAILY="0-7"
+TIMELINE_LIMIT_WEEKLY="0-4"
+TIMELINE_LIMIT_MONTHLY="0-2"
 TIMELINE_LIMIT_QUARTERLY="0"
 TIMELINE_LIMIT_YEARLY="0"
 

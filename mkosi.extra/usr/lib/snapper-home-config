@@ -6,6 +6,7 @@
 # kde-linux-snapper-home-config@.service, which the user@.service drop-in pulls
 # in.
 
+import json
 import pwd
 import subprocess
 import sys
@@ -25,7 +26,18 @@ def is_subvolume(path):
 
 def snapper(config, *args):
     # --no-dbus because snapperd is not necessarily up yet.
-    subprocess.run(["snapper", "--no-dbus", "--config", config, *args], check=True)
+    return subprocess.run(["snapper", "--no-dbus", "--json", "--config", config, *args], check=True, capture_output=True, text=True)
+
+
+def ensure_timeline_lower_limit(config_name):
+    config = json.loads(snapper(config_name, "get-config").stdout)
+    to_change = []
+    for key in config:
+        if key.startswith("TIMELINE_LIMIT_") and "-" not in config[key] and config[key] != "0":
+            to_change.append(key)
+    changes = [f'{key}=0-{config[key]}' for key in to_change]
+    if changes:
+        snapper(config_name, "set-config", *changes)
 
 
 def main():
@@ -54,7 +66,9 @@ def main():
     # Keyed on the uid because config names become file names, and DOMAIN\user
     # and user@realm are ordinary enough with networked accounts.
     config = f"home_{uid}"
+
     if (CONFIGS / config).exists():
+        ensure_timeline_lower_limit(config)
         return 0
 
     if not is_subvolume(home):
