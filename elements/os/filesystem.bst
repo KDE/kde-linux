@@ -37,9 +37,7 @@ config:
   # Definitely don't need installed tests
   - rm --recursive /usr/share/installed-tests
   # GTK Demo stuff
-  - rm /usr/bin/gtk4-demo*
   - rm /usr/share/applications/gtk3*.desktop
-  - rm /usr/share/applications/org.gtk.*.desktop
   # Excessive vim leakage
   - rm /usr/share/applications/gvim.desktop
   # Debug utils. Super large and probably not useful 99.999999% of the time
