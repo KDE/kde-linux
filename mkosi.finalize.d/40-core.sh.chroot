@@ -40,6 +40,37 @@ rm -rf \
 ## Pacman being present confuses users into thinking they can use it to install packages.
 rm -f /usr/bin/pacman
 
+# No SUID elevation path; run0 only. sudo stays as a symlink to the unprivileged
+# shim, pkexec is dropped and covered by the command-not-found handler.
+# Both pam.d locations are listed because 99-etc.sh.chroot moves /etc/pam.d to
+# /usr/lib/pam.d afterwards.
+rm -rf \
+    /usr/bin/cvtsudoers \
+    /usr/bin/pkexec \
+    /usr/bin/sudo \
+    /usr/bin/sudoedit \
+    /usr/bin/sudoreplay \
+    /usr/bin/visudo \
+    /usr/lib/sudo \
+    /etc/pam.d/sudo \
+    /etc/pam.d/sudo-i \
+    /usr/lib/pam.d/sudo \
+    /usr/lib/pam.d/sudo-i \
+    /etc/sudoers \
+    /etc/sudoers.d \
+    /usr/share/man/man*/cvtsudoers* \
+    /usr/share/man/man*/pkexec* \
+    /usr/share/man/man*/sudo* \
+    /usr/share/man/man*/visudo* \
+    /usr/share/polkit-1/actions/org.freedesktop.policykit.exec.policy
+
+ln -sfv run0-sudo-shim /usr/bin/sudo
+
+if [ -e /usr/bin/pkexec ] || [ -u /usr/bin/sudo ]; then
+    echo "pkexec or SUID sudo still present" >&2
+    exit 1
+fi
+
 # Remove all excess things we don't want in the final image
 
 ## locale-gen doesn't work because /usr is read-only. Removing it means calamares won't attempt to use it.
