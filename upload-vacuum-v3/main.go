@@ -123,6 +123,13 @@ func downloadCaibxFiles(client *minio.Client) (caibxFiles []string, err error) {
 		}
 	}
 
+	switch len(caibxFiles) {
+	case 0:
+		err = errors.New("No caibx files found! This needs immediate investigation.")
+	case 1:
+		err = errors.New("Only a single caibx found. This is incredibly unlikely and points at an issue. Immediately investigate.")
+	}
+
 	return
 }
 

@@ -1,0 +1,48 @@
+# SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL
+# SPDX-FileCopyrightText: 2026 Hadi Chokr <hadichokr@icloud.com>
+
+# Template for the per-user home configs created by snapper-home-config.
+# SUBVOLUME is filled in by snapper, ALLOW_USERS by the helper.
+
+SUBVOLUME=""
+FSTYPE="btrfs"
+
+# TODO
+# Space aware cleanup needs qgroup accounting. We run btrfs simple quotas
+# (kde-linux-btrfs.service), which account every extent to the subvolume that
+# allocated it first, so snapshots always look empty and the cleanup would
+# never fire. Stick to the count based limits below until that is sorted out.
+# With QGROUP empty, SPACE_LIMIT does nothing at all (FREE_LIMIT still works);
+# it is here as a starting point for when qgroups are sorted out.
+# SPACE_LIMIT is the share of the filesystem snapshots may occupy.
+# FREE_LIMIT the share that has to stay free.
+QGROUP=""
+SPACE_LIMIT="0.1"
+FREE_LIMIT="0.4"
+
+# ALLOW_USERS is set per user. SYNC_ACL puts an ACL on .snapshots so the owner
+# can browse their own snapshots, in Dolphin or otherwise, without root.
+ALLOW_USERS=""
+ALLOW_GROUPS=""
+SYNC_ACL="yes"
+
+BACKGROUND_COMPARISON="no"
+
+# No pre/post snapshots here, there is no package manager to hook.
+NUMBER_CLEANUP="no"
+NUMBER_MIN_AGE="1800"
+NUMBER_LIMIT="0"
+NUMBER_LIMIT_IMPORTANT="0"
+
+TIMELINE_CREATE="yes"
+TIMELINE_CLEANUP="yes"
+TIMELINE_MIN_AGE="1800"
+TIMELINE_LIMIT_HOURLY="0-6"
+TIMELINE_LIMIT_DAILY="0-7"
+TIMELINE_LIMIT_WEEKLY="0-4"
+TIMELINE_LIMIT_MONTHLY="0-2"
+TIMELINE_LIMIT_QUARTERLY="0"
+TIMELINE_LIMIT_YEARLY="0"
+
+EMPTY_PRE_POST_CLEANUP="yes"
+EMPTY_PRE_POST_MIN_AGE="1800"

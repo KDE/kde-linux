@@ -125,10 +125,12 @@ stage() {
     # This is the public channel so we can do upgrade tests - openQA needs to
     # download the current public release to then test if we can upgrade to the
     # one that's just been built.
-    echo "ISO_CHANNEL_URL=${S3_CHANNEL_TARGET#s3+}" >> build.env
+    echo "CHANNEL_URL=${S3_CHANNEL_TARGET#s3+}" >> build.env
+    echo "VARIANT=${KDE_LINUX_EDITION}" >> build.env
     echo "IMAGE_URL=${S3_TARGET_STAGING#s3+}/$ISO_FILE" >> build.env
     echo "STAGING_CHANNEL_URL=${S3_TARGET_STAGING#s3+}/sysupdate/v2/" >> build.env
     echo "SYSUPDATE_PUBKEY_B64=" >> build.env
+    echo "UPSTREAM_CI_PIPELINE_URL=$CI_PIPELINE_URL" >> build.env
 }
 
 publish() {

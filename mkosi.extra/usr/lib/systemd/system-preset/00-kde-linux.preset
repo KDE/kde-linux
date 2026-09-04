@@ -23,6 +23,8 @@ enable pcscd.socket
 enable plasma-setup.service
 enable plasmalogin.service
 enable ratbagd.service
+enable snapper-cleanup.timer
+enable snapper-timeline.timer
 enable systemd-oomd.service
 enable systemd-zram-setup@zram0.service
 enable thermald.service
@@ -48,6 +50,7 @@ enable kde-linux-configure-firefox.path
 enable kde-linux-iw-set-regdomain.path
 enable kde-linux-openqa-setup.service
 enable kde-linux-powertop.service
+enable kde-linux-snapper-home-gc.path
 enable kde-linux-volatile-var-lib-flatpak.service
 enable kde-linux-sysupdated.socket
 enable kde-linux-opt-cleaner-mask.service

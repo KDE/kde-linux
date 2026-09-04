@@ -35,7 +35,6 @@ make_debug_archive () {
 }
 
 EPOCH=$(date --utc +%s) # The epoch (only used to then construct the various date strings)
-VERSION_DATE=$(date --utc --date="@$EPOCH" --rfc-3339=seconds)
 VERSION=$(date --utc --date="@$EPOCH" +%Y%m%d%H%M)
 OUTPUT="mkosi.output/kde-linux_$VERSION"   # Built rootfs path (mkosi uses this directory by default)
 
@@ -128,6 +127,9 @@ rm --recursive --force $BUILDSTREAM_ROOTFS/live/usr/lib/debug
 wget --output-document=install.tar.zst "https://storage.kde.org/kde-linux-packages/$KDE_LINUX_EDITION/artifacts/install.tar.zst"
 
 mkosi \
+    --environment="CI_COMMIT_SHORT_SHA=${CI_COMMIT_SHORT_SHA:-unknownSHA}" \
+    --environment="CI_COMMIT_SHA=${CI_COMMIT_SHA:-unknownSHA}" \
+    --environment="CI_PIPELINE_URL=${CI_PIPELINE_URL:-https://invent.kde.org}" \
     --image-version="$VERSION" \
     --extra-tree="$PWD/install.tar.zst" \
     --extra-tree="$PWD/mkosi.extra" \

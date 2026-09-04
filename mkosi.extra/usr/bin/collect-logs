@@ -55,15 +55,15 @@ s/[A-Za-z0-9._%+-]\{1,\}@[A-Za-z0-9.-]\{1,\}\.[A-Za-z]\{2,\}/<email-redacted>/g'
     host="$(hostname 2>/dev/null || uname -n)"
     if [ -n "${host}" ]; then
         prog="${prog}
-s|$(sed_escape "${host}")|<hostname-redacted>|g"
+s|\b$(sed_escape "${host}")\b|<hostname-redacted>|g"
     fi
 
     user="$(id -un 2>/dev/null || true)"
     if [ -n "${user}" ] && [ "${user}" != root ]; then
         esc_user="$(sed_escape "${user}")"
         prog="${prog}
-s|/home/${esc_user}|/home/<user-redacted>|g
-s|${esc_user}|<user-redacted>|g"
+s|/home/${esc_user}\b|/home/<user-redacted>|g
+s|\b${esc_user}\b|<user-redacted>|g"
     fi
 
     find "${report_dir}" -type f -exec sed -i "${prog}" {} +

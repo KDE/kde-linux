@@ -1,0 +1,17 @@
+# SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL
+# SPDX-FileCopyrightText: 2026 Hadi Chokr <hadichokr@icloud.com>
+
+# Nothing runs at userdel time, so catch the passwd write instead. The cleanup
+# timer still covers homes that went away without passwd changing.
+
+[Unit]
+Description=Watch for Deleted Users
+ConditionPathIsReadWrite=/etc
+ConditionKernelCommandLine=!kde-linux.live=1
+
+[Path]
+PathChanged=/etc/passwd
+Unit=kde-linux-snapper-home-gc.service
+
+[Install]
+WantedBy=multi-user.target

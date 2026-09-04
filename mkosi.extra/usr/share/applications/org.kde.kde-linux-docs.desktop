@@ -1,0 +1,56 @@
+# SPDX-License-Identifier: GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL
+# SPDX-FileCopyrightText: 2026 Nate Graham <nate@kde.org>
+
+[Desktop Entry]
+Categories=Qt;KDE;Documentation;
+Comment=Learn how to do things in KDE Linux
+Comment[ar]=تعرف على كيف تقوم بالأشياء في كيدي لينكس
+Comment[ca]=Apreneu com fer coses al KDE Linux
+Comment[ca@valencia]=Apreneu com fer coses en la KDE Linux
+Comment[es]=Aprender a hacer cosas en KDE Linux
+Comment[eu]=KDE Linuxen gauzak nola egin ikasi
+Comment[fr]=Apprenez à faire des choses sous KDE Linux
+Comment[he]=איך עושים דברים בלינוקס KDE
+Comment[ia]=Apprender como facer cosas in KDE Linux
+Comment[it]=Impara a come fare le cose in KDE Linux
+Comment[ka]=ისწავლეთ, როგორ გააკეთოთ საქმეები KDE Linux-ში
+Comment[nl]=Leer hoe je dingen doet in KDE Linux
+Comment[sl]=Naučite se, kako početi stvari v KDE Linuxu
+Comment[tr]=KDE Linux’ta neleri nasıl yapacağınızı öğrenin
+Comment[uk]=Дізнайтеся про те, як працювати у KDE Linux
+Comment[zh_CN]=学习如何在 KDE Linux 中操作各项功能
+Exec=xdg-open https://linux.kde.org/docs/
+GenericName=Documentation
+GenericName[ar]=التّوثيق
+GenericName[ca]=Documentació
+GenericName[ca@valencia]=Documentació
+GenericName[es]=Documentación
+GenericName[eu]=Dokumentazioa
+GenericName[fr]=Documentation
+GenericName[he]=תיעוד
+GenericName[ia]=Documentation
+GenericName[it]=Documentazione
+GenericName[ka]=დოკუმენტაცია
+GenericName[nl]=Documentatie
+GenericName[sl]=Dokumentacija
+GenericName[tr]=Belgelendirme
+GenericName[uk]=Документація
+GenericName[zh_CN]=文档
+Icon=accessories-dictionary
+Name=Documentation
+Name[ar]=التّوثيق
+Name[ca]=Documentació
+Name[ca@valencia]=Documentació
+Name[es]=Documentación
+Name[eu]=Dokumentazioa
+Name[fr]=Documentation
+Name[he]=תיעוד
+Name[ia]=Documentation
+Name[it]=Documentazione
+Name[ka]=დოკუმენტაცია
+Name[nl]=Documentatie
+Name[sl]=Dokumentacija
+Name[tr]=Belgelendirme
+Name[uk]=Документація
+Name[zh_CN]=文档
+Type=Application

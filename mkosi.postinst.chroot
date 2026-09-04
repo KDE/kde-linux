@@ -21,6 +21,39 @@ cat <<- EOF > /usr/share/icons/default/index.theme
 Inherits=breeze_cursors
 EOF
 
+# IMAGE_VERSION is %Y%m%d%H%M and is exported by mkosi. Derive the readable
+# date from it here; passing it via mkosi's Environment= truncates at the
+# space because that setting is a space separated list of assignments.
+if [ "${#IMAGE_VERSION}" -ne 12 ]; then
+    echo "Unexpected IMAGE_VERSION '$IMAGE_VERSION'" >&2
+    exit 1
+fi
+VERSION_DATE="${IMAGE_VERSION:0:4}-${IMAGE_VERSION:4:2}-${IMAGE_VERSION:6:2} ${IMAGE_VERSION:8:2}:${IMAGE_VERSION:10:2}"
+
+# WARNING: only set up os-release after the build otherwise kde-build doesn't know how to handle the system currently
+cat <<- EOF > /usr/lib/os-release
+NAME="KDE Linux"
+PRETTY_NAME="KDE Linux"
+ID=kde-linux
+DEFAULT_HOSTNAME=kde-linux
+VERSION="$VERSION_DATE"
+VERSION_ID=$IMAGE_VERSION
+BUILD_ID=$CI_COMMIT_SHORT_SHA
+ANSI_COLOR="38;2;61;174;233"
+HOME_URL="https://linux.kde.org"
+DOCUMENTATION_URL="https://linux.kde.org/docs/"
+SUPPORT_URL="https://kde.org/support/"
+BUG_REPORT_URL="https://invent.kde.org/kde-linux/kde-linux/-/issues"
+PRIVACY_POLICY_URL="https://kde.org/privacypolicy-apps/"
+LOGO=/usr/share/pixmaps/kde-linux-logo.png
+IMAGE_ID=kde-linux
+IMAGE_VERSION=$IMAGE_VERSION
+# KDE Linux specific keys.
+KDE_LINUX_COMMIT_SHA=$CI_COMMIT_SHA
+KDE_LINUX_COMMIT_SHORT_SHA=$CI_COMMIT_SHORT_SHA
+KDE_LINUX_CI_URL=$CI_PIPELINE_URL
+KDE_LINUX_SYSUPDATE_ENDPOINT=sysupdate/v2
+EOF
 [ -f /usr/lib/os-release ] || false
 cat /usr/lib/os-release
 
