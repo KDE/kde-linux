@@ -7,8 +7,10 @@ set -ex
 env
 
 # Safety nets to prevent excessive breakage
-## sudo should have sticky bit set
-[ -u /usr/bin/sudo ] || exit 1
+## the shim is unprivileged, run0 enforces the boundary
+[ -x /usr/bin/run0-sudo-shim ] || exit 1
+[ ! -u /usr/bin/run0-sudo-shim ] || exit 1
+[ -e /usr/bin/run0 ] || exit 1
 ## newuidmap should have a capability set
 [ "$(getcap /usr/bin/newuidmap)" != "" ] || exit 1
 
@@ -40,6 +42,12 @@ git clone --depth 1 https://invent.kde.org/mirrors/calamares.git
 cmake -S calamares -B calamares/build -DCMAKE_BUILD_TYPE=MinSizeRel -DCMAKE_INSTALL_PREFIX=/usr -DBUILD_TESTING=OFF -DWITH_QT6=ON
 cmake --build calamares/build "-j$(nproc)"
 DESTDIR=/live/ cmake --install calamares/build
+
+# Upstream shells out to pkexec; /opt/local/bin/calamares handles elevation instead.
+desktop-file-edit --set-key=Exec --set-value=calamares \
+    /live/usr/share/applications/calamares.desktop
+rm -f /live/usr/share/polkit-1/actions/*calamares*.policy
+grep -q '^Exec=calamares$' /live/usr/share/applications/calamares.desktop || exit 1
 
 cat <<- EOF > /usr/share/icons/default/index.theme
 [Icon Theme]

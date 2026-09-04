@@ -1,0 +1,11 @@
+// SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL
+// SPDX-FileCopyrightText: none
+
+// Ships in the live sysext, so it cannot reach an installed system. The live
+// user has an empty password and could not be authenticated anyway.
+
+polkit.addRule(function(action, subject) {
+    if (action.id == "org.freedesktop.systemd1.manage-units" && subject.isInGroup("wheel")) {
+        return polkit.Result.YES;
+    }
+});

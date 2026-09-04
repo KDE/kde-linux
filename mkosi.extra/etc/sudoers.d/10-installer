@@ -1,4 +1,0 @@
-# SPDX-License-Identifier: BSD-2-Clause
-# SPDX-FileCopyrightText: none
-
-%wheel      ALL=(ALL:ALL) ALL
