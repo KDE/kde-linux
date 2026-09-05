@@ -113,6 +113,7 @@ mkosi \
     --environment="CI_COMMIT_SHORT_SHA=${CI_COMMIT_SHORT_SHA:-unknownSHA}" \
     --environment="CI_COMMIT_SHA=${CI_COMMIT_SHA:-unknownSHA}" \
     --environment="CI_PIPELINE_URL=${CI_PIPELINE_URL:-https://invent.kde.org}" \
+    --environment="KDE_LINUX_EDITION=$KDE_LINUX_EDITION" \
     --image-version="$VERSION" \
     --extra-tree="$PWD/install.tar.zst" --extra-tree="$PWD/mkosi.extra" \
     "$@"

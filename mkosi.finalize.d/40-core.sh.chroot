@@ -176,6 +176,12 @@ if [ -f /etc/updatedb.conf ]; then
     grep '^PRUNENAMES' /etc/updatedb.conf | grep -q '\.snapshots' || exit 1
 fi
 
+# Configure systemd-sysupdate Appstream URL according to edition
+sed -i "s/%EDITION%/$KDE_LINUX_EDITION/" \
+    /usr/lib/sysupdate.d/50-root-x86-64-caibx.transfer \
+    /usr/lib/sysupdate.d/50-root-x86-64-erofs.transfer \
+    /usr/lib/sysupdate.d/60-esp.transfer
+
 # Clean up final remnants of the build process
 rm -rf \
     /buildroot \
