@@ -105,21 +105,16 @@ bst build \
     os/filesystem.bst \
     os/initrd.bst \
     os/systemd-initrd-payload.bst \
-    kde-linux-packages.bst:kde-buildstream.bst:components/calamares.bst \
     kde-linux-packages.bst:kde-buildstream.bst:freedesktop-sdk.bst:components/ovmf-maybe.bst \
     kde-linux-packages.bst:kde-buildstream.bst:freedesktop-sdk.bst:vm/prepare-image.bst
 bst artifact checkout os/filesystem.bst --directory $BUILDSTREAM_ROOTFS
 bst artifact checkout os/initrd.bst --directory $BUILDSTREAM_BOOTFS
 bst artifact checkout os/systemd-initrd-payload.bst --directory $BUILDSTREAM_INITRDFS
-bst artifact checkout kde-linux-packages.bst:kde-buildstream.bst:components/calamares.bst --deps none --directory $BUILDSTREAM_ROOTFS/live
 bst artifact checkout kde-linux-packages.bst:kde-buildstream.bst:freedesktop-sdk.bst:vm/prepare-image.bst --deps none --directory $BUILDSTREAM_TOOLFS
 bst artifact checkout kde-linux-packages.bst:kde-buildstream.bst:freedesktop-sdk.bst:components/ovmf-maybe.bst --directory $BUILDSTREAM_EFI
 
 mkdir -p $BUILDSTREAM_ROOTFS/usr/share/ovmf/
 cp $BUILDSTREAM_EFI/usr/share/ovmf/Shell.efi $BUILDSTREAM_ROOTFS/usr/share/ovmf/Shell.efi
-
-# Remove debug symbols from live directory. It'd be inconvenient to do this in bst right now.
-rm --recursive --force $BUILDSTREAM_ROOTFS/live/usr/lib/debug
 
 # Make sure permissions are sound
 ./permission-fix.sh
