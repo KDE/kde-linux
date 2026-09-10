@@ -6,8 +6,8 @@ set -eux
 
 # Move pam files to non-legacy location.
 if [ -d /etc/pam.d ]; then
-    find /etc/pam.d -mindepth 1 -exec mv {} /usr/lib/pam.d \;
-    rmdir /etc/pam.d
+    find /etc/pam.d -mindepth 1 -exec mv -n {} /usr/lib/pam.d \;
+    rm --recursive --force /etc/pam.d
 fi
 
 # Turn off 3-second lockout after failed password because it's super annoying
