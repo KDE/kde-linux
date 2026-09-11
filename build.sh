@@ -108,6 +108,9 @@ bst build \
     kde-linux-packages.bst:kde-buildstream.bst:freedesktop-sdk.bst:components/ovmf-maybe.bst \
     kde-linux-packages.bst:kde-buildstream.bst:freedesktop-sdk.bst:vm/prepare-image.bst
 bst artifact checkout os/filesystem.bst --directory $BUILDSTREAM_ROOTFS
+# KDE Linux owns the login PAM policy. Do not let the freedesktop-sdk
+# shadow configuration get mixed with our Arch-derived pambase stack.
+rm --force "$BUILDSTREAM_ROOTFS/etc/pam.d/login"
 bst artifact checkout os/initrd.bst --directory $BUILDSTREAM_BOOTFS
 bst artifact checkout os/systemd-initrd-payload.bst --directory $BUILDSTREAM_INITRDFS
 bst artifact checkout kde-linux-packages.bst:kde-buildstream.bst:freedesktop-sdk.bst:vm/prepare-image.bst --deps none --directory $BUILDSTREAM_TOOLFS
