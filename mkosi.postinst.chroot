@@ -24,8 +24,9 @@ echo 'timeout 7' >> "$SYSTEMD_ESP_PATH/loader/loader.conf"
 pacman --remove --noconfirm qt6-doc qt6-examples || true
 # FIXME: needed by cxx-rust-cssparser; can't remove these for now
 # pacman --remove --noconfirm corrosion rust || true
-# FIXME: pulled in as a secret service provider
-pacman --remove --noconfirm --assume-installed org.freedesktop.secrets gnome-keyring
+# Remove whatever is being pulled as a secret service provider
+# FIXME: find a way to not pull in a secret service provider to begin with
+pacman --remove --noconfirm --assume-installed org.freedesktop.secrets $(pacman --query --quiet org.freedesktop.secrets || true) || true
 
 # No packagekit support or AppStream metadata in discover please! We don't want discover talking about pacman things.
 pacman --remove --noconfirm packagekit libpackagekit-glib archlinux-appstream-data || true
