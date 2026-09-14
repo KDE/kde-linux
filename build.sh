@@ -162,7 +162,7 @@ mv "$LIVE_UKI" "${OUTPUT}/usr/share/factory/boot/EFI/Linux/$LIVE_EFI"
 cd kde-linux.cache
 
 # Create a FAT32 filesystem inside of esp.raw, just large enough to hold our initrd
-fallocate -l 160M esp.raw
+fallocate -l 256M esp.raw
 mkfs.fat -F 32 esp.raw
 # We use mcopy so we don't have to mount the image (which would require sudo) and have less code
 mcopy -i esp.raw -s "${OUTPUT}/usr/share/factory/boot/"* ::/
