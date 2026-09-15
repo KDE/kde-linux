@@ -7,7 +7,7 @@ kind: compose
 # but get loaded after the switch-root.
 build-depends:
 - kde-linux-packages.bst:kde-buildstream.bst:freedesktop-sdk.bst:components/systemd.bst
-- kde-linux-packages.bst:kde-buildstream.bst:freedesktop-sdk.bst:components/plymouth.bst
+- os/plymouth-freetype.bst
 - kde-linux-packages.bst:kde-buildstream.bst:freedesktop-sdk.bst:components/lvm2.bst
 - kde-linux-packages.bst:kde-buildstream.bst:freedesktop-sdk.bst:components/linux.bst
 - kde-linux-packages.bst:kde-buildstream.bst:freedesktop-sdk.bst:components/linux-firmware.bst

@@ -16,3 +16,6 @@ config:
     install -Dm644 -t "%{install-root}/usr/share/fonts/noto" \
       /usr/share/fonts/noto/NotoSans-Regular.ttf \
       /usr/share/fonts/noto/NotoSans-Light.ttf
+    install -Dm644 \
+      /usr/share/fonts/noto/NotoSans-Regular.ttf \
+      "%{install-root}/usr/share/fonts/Plymouth.ttf"
