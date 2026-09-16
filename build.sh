@@ -84,6 +84,19 @@ pacman --sync --refresh --refresh --noconfirm
 cargo build --release --manifest-path btrfs-migrator/Cargo.toml
 cp -v btrfs-migrator/target/release/btrfs-migrator mkosi.extra/usr/lib/
 
+# Unprivileged sudo(1) CLI that rewrites its arguments into a run0 invocation.
+# Tarball of commit 9fa985d == tag 1.4.2; digest checked against a git fetch of that commit.
+RUN0_SUDO_SHIM_COMMIT=9fa985ddb9dc7f4d66aa7bfc3bc3188e4aa1d727
+RUN0_SUDO_SHIM_SHA256=efd4eac1ba02777f22f228f6d733a287e14bbef7fd2b9a4818b2afadca719ea1
+rm --recursive --force run0-sudo-shim run0-sudo-shim.tar.gz
+curl -fsSL --output run0-sudo-shim.tar.gz \
+    "https://github.com/lordgrimmauld/run0-sudo-shim/archive/$RUN0_SUDO_SHIM_COMMIT.tar.gz"
+echo "$RUN0_SUDO_SHIM_SHA256  run0-sudo-shim.tar.gz" | sha256sum --check --strict -
+mkdir run0-sudo-shim
+tar --extract --gzip --strip-components=1 --directory run0-sudo-shim --file run0-sudo-shim.tar.gz
+cargo build --release --locked --manifest-path run0-sudo-shim/Cargo.toml
+install -Dm755 run0-sudo-shim/target/release/run0-sudo-shim mkosi.extra/usr/bin/run0-sudo-shim
+
 rm --recursive --force kde-linux-sysupdated
 git clone https://invent.kde.org/kde-linux/kde-linux-sysupdated
 DESTDIR=$PWD/mkosi.extra make --directory=kde-linux-sysupdated install
