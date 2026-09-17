@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: kde-linux\n"
 "Report-Msgid-Bugs-To: https://bugs.kde.org\n"
-"POT-Creation-Date: 2026-03-18 00:43+0000\n"
+"POT-Creation-Date: 2026-09-17 00:42+0000\n"
 "PO-Revision-Date: 2026-03-18 16:17+0200\n"
 "Last-Translator: Yaron Shahrabani <sh.yaron@gmail.com>\n"
 "Language-Team: צוות התרגום של KDE ישראל\n"
@@ -18,7 +18,7 @@ msgstr ""
 "n % 10 == 0) ? 2 : 3));\n"
 "X-Generator: Lokalize 25.12.3\n"
 
-#: mkosi.extra/usr/lib/command-not-found-handler.py:72
+#: mkosi.extra/usr/lib/command-not-found-handler.py:74
 msgid ""
 "KDE Linux does not include the “{}” tool.\n"
 "\n"
@@ -28,7 +28,7 @@ msgstr ""
 "\n"
 "במקום, כדאי לנסות להשתמש ב־„{}”."
 
-#: mkosi.extra/usr/lib/command-not-found-handler.py:74
+#: mkosi.extra/usr/lib/command-not-found-handler.py:76
 msgid ""
 "KDE Linux does not include the “{}” package manager.\n"
 "\n"
@@ -40,7 +40,7 @@ msgstr ""
 "תוכנות גרפיות זמינות דרך מרכז היישומים Discover. כדי ללמוד איך להתקין את "
 "התוכנה שאינה זמינה ב־Discover, יש לגשת אל {}"
 
-#: mkosi.extra/usr/lib/command-not-found-handler.py:76
+#: mkosi.extra/usr/lib/command-not-found-handler.py:78
 msgid ""
 "KDE Linux does not pre-install the “{}” package manager, but it can be added "
 "manually.\n"
@@ -51,7 +51,7 @@ msgstr ""
 "\n"
 "כדי לבצע את זה, יש לפעול לפי ההנחיות שמופיעות כאן: {}"
 
-#: mkosi.extra/usr/lib/command-not-found-handler.py:78
+#: mkosi.extra/usr/lib/command-not-found-handler.py:80
 msgid ""
 "KDE Linux does not include the “{}” command.\n"
 "\n"

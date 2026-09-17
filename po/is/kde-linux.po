@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: kde-linux\n"
 "Report-Msgid-Bugs-To: https://bugs.kde.org\n"
-"POT-Creation-Date: 2026-03-18 00:43+0000\n"
+"POT-Creation-Date: 2026-09-17 00:42+0000\n"
 "PO-Revision-Date: 2026-04-16 11:33+0000\n"
 "Last-Translator: Sveinn í Felli <sv1@fellsnet.is>\n"
 "Language-Team: Icelandic\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Plural-Forms: Plural-Forms: nplurals=2; plural=n != 1;\n"
 "X-Generator: Lokalize 23.08.5\n"
 
-#: mkosi.extra/usr/lib/command-not-found-handler.py:72
+#: mkosi.extra/usr/lib/command-not-found-handler.py:74
 msgid ""
 "KDE Linux does not include the “{}” tool.\n"
 "\n"
@@ -27,7 +27,7 @@ msgstr ""
 "\n"
 "Prófaðu þá frekar að nota “{}”."
 
-#: mkosi.extra/usr/lib/command-not-found-handler.py:74
+#: mkosi.extra/usr/lib/command-not-found-handler.py:76
 msgid ""
 "KDE Linux does not include the “{}” package manager.\n"
 "\n"
@@ -40,7 +40,7 @@ msgstr ""
 "sjá hvernig eigi að setja upp hugbúnað sem ekki er tiltækur í Discover "
 "ættirðu að skoða {}"
 
-#: mkosi.extra/usr/lib/command-not-found-handler.py:76
+#: mkosi.extra/usr/lib/command-not-found-handler.py:78
 msgid ""
 "KDE Linux does not pre-install the “{}” package manager, but it can be added "
 "manually.\n"
@@ -52,7 +52,7 @@ msgstr ""
 "\n"
 "Til að gera það skaltu fara eftir leiðbeiningunum á {}"
 
-#: mkosi.extra/usr/lib/command-not-found-handler.py:78
+#: mkosi.extra/usr/lib/command-not-found-handler.py:80
 msgid ""
 "KDE Linux does not include the “{}” command.\n"
 "\n"

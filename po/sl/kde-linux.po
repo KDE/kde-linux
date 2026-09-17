@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: kde-linux\n"
 "Report-Msgid-Bugs-To: https://bugs.kde.org\n"
-"POT-Creation-Date: 2026-03-18 00:43+0000\n"
+"POT-Creation-Date: 2026-09-17 00:42+0000\n"
 "PO-Revision-Date: 2026-03-19 06:53+0100\n"
 "Last-Translator: Matjaž Jeran <matjaz.jeran@amis.net>\n"
 "Language-Team: Slovenian <lugos-slo@lugos.si>\n"
@@ -18,7 +18,7 @@ msgstr ""
 "Plural-Forms: nplurals=4; plural=(n%100==1 ? 1 : n%100==2 ? 2 : n%100==3 || n"
 "%100==4 ? 3 : 0);\n"
 
-#: mkosi.extra/usr/lib/command-not-found-handler.py:72
+#: mkosi.extra/usr/lib/command-not-found-handler.py:74
 msgid ""
 "KDE Linux does not include the “{}” tool.\n"
 "\n"
@@ -28,7 +28,7 @@ msgstr ""
 "\n"
 "Namesto tega poskusite uporabiti “{}”."
 
-#: mkosi.extra/usr/lib/command-not-found-handler.py:74
+#: mkosi.extra/usr/lib/command-not-found-handler.py:76
 msgid ""
 "KDE Linux does not include the “{}” package manager.\n"
 "\n"
@@ -41,7 +41,7 @@ msgstr ""
 "želite izvedeti več o namestitvi programske opreme, ki ni na voljo v "
 "Discoverju, glejte {}"
 
-#: mkosi.extra/usr/lib/command-not-found-handler.py:76
+#: mkosi.extra/usr/lib/command-not-found-handler.py:78
 msgid ""
 "KDE Linux does not pre-install the “{}” package manager, but it can be added "
 "manually.\n"
@@ -53,7 +53,7 @@ msgstr ""
 "\n"
 "Če želite to narediti, sledite navodilom na {}"
 
-#: mkosi.extra/usr/lib/command-not-found-handler.py:78
+#: mkosi.extra/usr/lib/command-not-found-handler.py:80
 msgid ""
 "KDE Linux does not include the “{}” command.\n"
 "\n"

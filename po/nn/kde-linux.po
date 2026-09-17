@@ -5,7 +5,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: kde-linux\n"
 "Report-Msgid-Bugs-To: https://bugs.kde.org\n"
-"POT-Creation-Date: 2026-03-18 00:43+0000\n"
+"POT-Creation-Date: 2026-09-17 00:42+0000\n"
 "PO-Revision-Date: 2026-04-18 16:25+0200\n"
 "Last-Translator: Karl Ove Hufthammer <karl@huftis.org>\n"
 "Language-Team: Norwegian Nynorsk <l10n-no@nuug.no>\n"
@@ -19,7 +19,7 @@ msgstr ""
 "X-Accelerator-Marker: &\n"
 "X-Text-Markup: kde4\n"
 
-#: mkosi.extra/usr/lib/command-not-found-handler.py:72
+#: mkosi.extra/usr/lib/command-not-found-handler.py:74
 msgid ""
 "KDE Linux does not include the “{}” tool.\n"
 "\n"
@@ -29,7 +29,7 @@ msgstr ""
 "\n"
 "Bruk heller «{}»."
 
-#: mkosi.extra/usr/lib/command-not-found-handler.py:74
+#: mkosi.extra/usr/lib/command-not-found-handler.py:76
 msgid ""
 "KDE Linux does not include the “{}” package manager.\n"
 "\n"
@@ -42,7 +42,7 @@ msgstr ""
 "informasjon om korleis du kan installera program som ikkje er tilgjengelege "
 "via Discover."
 
-#: mkosi.extra/usr/lib/command-not-found-handler.py:76
+#: mkosi.extra/usr/lib/command-not-found-handler.py:78
 msgid ""
 "KDE Linux does not pre-install the “{}” package manager, but it can be added "
 "manually.\n"
@@ -54,7 +54,7 @@ msgstr ""
 "\n"
 "Sjå instruksjonane på {} for meir informasjon."
 
-#: mkosi.extra/usr/lib/command-not-found-handler.py:78
+#: mkosi.extra/usr/lib/command-not-found-handler.py:80
 msgid ""
 "KDE Linux does not include the “{}” command.\n"
 "\n"

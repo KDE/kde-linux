@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: kde-linux\n"
 "Report-Msgid-Bugs-To: https://bugs.kde.org\n"
-"POT-Creation-Date: 2026-03-18 00:43+0000\n"
+"POT-Creation-Date: 2026-09-17 00:42+0000\n"
 "PO-Revision-Date: 2026-06-22 13:16+0200\n"
 "Last-Translator: Philipp Kiemle <l10n.daphipz@fastmail.de>\n"
 "Language-Team: German <kde-i18n-de@kde.org>\n"
@@ -18,7 +18,7 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Generator: Lokalize 26.04.2\n"
 
-#: mkosi.extra/usr/lib/command-not-found-handler.py:72
+#: mkosi.extra/usr/lib/command-not-found-handler.py:74
 msgid ""
 "KDE Linux does not include the “{}” tool.\n"
 "\n"
@@ -28,7 +28,7 @@ msgstr ""
 "\n"
 "Versuchen Sie stattdessen, „{}“ zu verwenden."
 
-#: mkosi.extra/usr/lib/command-not-found-handler.py:74
+#: mkosi.extra/usr/lib/command-not-found-handler.py:76
 msgid ""
 "KDE Linux does not include the “{}” package manager.\n"
 "\n"
@@ -41,7 +41,7 @@ msgstr ""
 "Informationen zur Installation von Software, die nicht in Discover verfügbar "
 "ist, finden Sie unter {}"
 
-#: mkosi.extra/usr/lib/command-not-found-handler.py:76
+#: mkosi.extra/usr/lib/command-not-found-handler.py:78
 msgid ""
 "KDE Linux does not pre-install the “{}” package manager, but it can be added "
 "manually.\n"
@@ -53,7 +53,7 @@ msgstr ""
 "\n"
 "Befolgen Sie dazu die Anweisungen unter {}"
 
-#: mkosi.extra/usr/lib/command-not-found-handler.py:78
+#: mkosi.extra/usr/lib/command-not-found-handler.py:80
 msgid ""
 "KDE Linux does not include the “{}” command.\n"
 "\n"
