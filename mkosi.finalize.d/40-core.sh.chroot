@@ -157,7 +157,8 @@ if [ -f /etc/updatedb.conf ]; then
 fi
 
 # Configure systemd-sysupdate Appstream URL according to edition
-sed -i "s/%EDITION%/$KDE_LINUX_EDITION/" \
+# FIXME: switch 'testing' to '$KDE_LINUX_EDITION' when editions are available in autoconfig website
+sed -i "s/%EDITION%/testing/" \
     /usr/lib/sysupdate.d/50-root-x86-64-caibx.transfer \
     /usr/lib/sysupdate.d/50-root-x86-64-erofs.transfer \
     /usr/lib/sysupdate.d/60-esp.transfer
