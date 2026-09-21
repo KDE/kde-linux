@@ -167,6 +167,10 @@ sed -i 's%^GROUP=users%GROUP=users\nGROUPS=sambashare%' /etc/default/useradd
 # Our Plymouth Theme
 KEEP_THEME="breeze-bgrt"
 
+# keymap-render.png offsets are tied to the installed plymouth build, so take it
+# from spinner instead of shipping a static copy that goes stale
+cp /usr/share/plymouth/themes/spinner/keymap-render.png /usr/share/plymouth/themes/breeze-bgrt/
+
 # Set default Plymouth Theme
 plymouth-set-default-theme "$KEEP_THEME"
 
