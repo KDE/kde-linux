@@ -52,9 +52,10 @@ if [ "$#" -gt 0 ]; then
 fi
 
 # Only prompt if there's a terminal to prompt on; other callers get the default.
+# Prompts go to stderr so they stay visible even when stdout is captured.
 if [ -z "${SYSEXT_NAME}" ]; then
     if [ -t 0 ]; then
-        printf '%s' 'Extension name [press Enter to use “kde”]: '
+        printf '%s' 'Extension name [press Enter to use “kde”]: ' >&2
         read -r SYSEXT_NAME || SYSEXT_NAME=
     fi
     SYSEXT_NAME="${SYSEXT_NAME:-kde}"
@@ -69,7 +70,7 @@ case "${SYSEXT_NAME}" in
 esac
 
 if [ -z "${SYSEXT_DIR}" ] && [ -t 0 ]; then
-    printf '%s' 'Extension directory [press Enter to use your home directory]: '
+    printf '%s' 'Extension directory [press Enter to use your home directory]: ' >&2
     read -r SYSEXT_DIR || SYSEXT_DIR=
 fi
 
@@ -115,6 +116,5 @@ chattr +i "${SYSEXT_LOCATION}/extension-release.${SYSEXT_NAME}"
 systemd-sysext refresh || systemd-sysext merge
 EOF
 
-    # set-up-system-development greps for "Finished setting up extension".
     echo "Finished setting up extension “${SYSEXT_NAME}”! When you put files in ${SYSEXT_BASE_LOCATION} and run 'run0 systemd-sysext refresh', they will appear in /usr/. See https://linux.kde.org/docs/override-usr/ for more information."
 fi

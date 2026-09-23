@@ -12,14 +12,14 @@ CONFIG_FILE_SOURCE=/usr/share/factory/etc/xdg/kde-builder.yaml
 CONFIG_FILE_DESTINATION=~/.config/kde-builder.yaml
 DID_SOMETHING=false
 
-# kde-builder installs into ~/kde (DESTDIR in kde-builder.yaml).
-SYSEXT_OUTPUT="$(set-up-systemd-extension -n kde)"
-echo "${SYSEXT_OUTPUT}"
-case "${SYSEXT_OUTPUT}" in
-    *"Finished setting up extension"*)
-        DID_SOMETHING=true
-        ;;
-esac
+# kde-builder installs into ~/kde (DESTDIR in kde-builder.yaml), so the
+# extension name and location are fixed here rather than asked for.
+SYSEXT_RELEASE_FILE="${HOME}/kde/usr/lib/extension-release.d/extension-release.kde"
+if [ ! -f "${SYSEXT_RELEASE_FILE}" ]; then
+    DID_SOMETHING=true
+fi
+# Run directly (not captured) so its output and prompts stream live.
+set-up-systemd-extension -n kde -d "${HOME}"
 
 echo
 if [ -f "${HOME}/.local/bin/kde-builder" ]; then
