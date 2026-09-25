@@ -4,8 +4,6 @@
 
 set -ex
 
-. /etc/os-release
-
 kernel_version="$1"
 if [ -z "$kernel_version" ]; then
   versions=(/usr/lib/modules/*.*.*)
@@ -18,9 +16,32 @@ if [ -z "$kernel_version" ]; then
   exit 1
 fi
 
-initrd=/boot/initramfs-$kernel_version.img
+uki=$(bootctl --print-stub-path 2>/dev/null) || uki=
+# Boot assessment may have renamed the booted UKI since the EFI variable was set.
+if [[ ! -f "$uki" ]]; then
+    uki=$(bootctl --json=short list | jq -er '[.[] | select(.isSelected) | .path] | if length == 1 then .[0] else empty end') || uki=
+fi
+output=$PWD
+work=$(mktemp -d /var/tmp/rebuild-efi.XXXXXX)
+trap 'rm -rf -- "$work"' EXIT
 
-# NOTE: plymouth MUST be after systemd as per the wiki!
+cd "$work"
+ukify --section=.initrd:binary@initrd --section=.osrel:binary@os-release \
+    --section=.ucode:binary@microcode inspect "$uki"
+mkdir root
+bsdtar -xpf initrd -C root
+rm -rf root/usr/lib/modules
+mkosi --distribution custom --format cpio --compress-output zstd --bootable no \
+    --include /usr/lib/kde-linux/mkosi-initrd-modules.conf \
+    --base-tree "$work/root" \
+    --extra-tree /usr/lib/modules/$kernel_version:/usr/lib/modules/$kernel_version \
+    --output rebuilt build
+initrd=$work/rebuilt.cpio.zst
+uki_options="--os-release @os-release --uname $kernel_version"
+if [[ -s microcode ]]; then
+    uki_options+=" --microcode microcode"
+fi
+
 echo "rw \
   systemd.volatile=overlay systemd.firstboot=false systemd.hostname=kde-linux kde-linux.live=1 plasma.live.user=live \
   lsm=landlock,lockdown,yama,integrity,bpf \
@@ -32,10 +53,11 @@ echo "rw \
   nowatchdog \
   vt.global_cursor_default=0 quiet splash plymouth.ignore-serial-consoles loglevel=3" > cmdline
 ukify build \
+  $uki_options \
   --linux /usr/lib/modules/$kernel_version/vmlinuz \
   --initrd "$initrd" \
   --cmdline @cmdline \
-  --output live.efi
+  --output "$output/live.efi"
 
 # "preempt=full threadirqs" reduces latency especially for audio and gaming workflows.
 
@@ -64,12 +86,13 @@ echo "rw rootflags=subvol=@system,compress=zstd:-4,lazytime \
   nowatchdog \
   vt.global_cursor_default=0 quiet splash plymouth.ignore-serial-consoles loglevel=3" > cmdline
 ukify build \
+  $uki_options \
   --linux /usr/lib/modules/$kernel_version/vmlinuz \
   --initrd "$initrd" \
   --cmdline @cmdline \
-  --output kde-linux.efi
+  --output "$output/kde-linux.efi"
 
 # Mock artifact for upgrades, see build.sh
 ukify build \
   --cmdline "kde-linux.erofs.silence" \
-  --output erofs.addon.efi
+  --output "$output/erofs.addon.efi"
