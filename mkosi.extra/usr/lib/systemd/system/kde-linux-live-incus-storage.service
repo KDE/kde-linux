@@ -1,0 +1,13 @@
+# SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL
+# SPDX-FileCopyrightText: 2026 Lasath Fernando <devel@lasath.org>
+
+[Unit]
+Description=Prepare ephemeral Incus storage for the KDE Linux live session
+Requires=run-kde\x2dlinux\x2dincus.mount
+After=local-fs.target run-kde\x2dlinux\x2dincus.mount
+Before=incus.service incus.socket incus-user.socket kapsule-daemon.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/lib/kde-linux-live-incus-storage
+RemainAfterExit=yes
