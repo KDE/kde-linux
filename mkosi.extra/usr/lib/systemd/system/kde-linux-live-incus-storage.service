@@ -3,9 +3,10 @@
 
 [Unit]
 Description=Prepare ephemeral Incus storage for the KDE Linux live session
+DefaultDependencies=no
 Requires=run-kde\x2dlinux\x2dincus.mount
 After=local-fs.target run-kde\x2dlinux\x2dincus.mount
-Before=incus.service incus.socket incus-user.socket kapsule-daemon.service
+Before=sockets.target incus.service incus.socket incus-user.socket kapsule-daemon.service
 
 [Service]
 Type=oneshot
