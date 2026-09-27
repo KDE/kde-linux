@@ -8,8 +8,14 @@ image=/run/kde-linux-incus/incus.btrfs
 tmpfs_size=$(findmnt --bytes --noheadings --output SIZE /run/kde-linux-incus)
 image_size=$((tmpfs_size * 9 / 10))
 
+# Avoid clobbering existing incus/kapsule state if this unit gets restarted
+if mountpoint -q /var/lib/incus; then
+    exit 0
+fi
+
 rm -rf /var/lib/incus
 install -d -m 0711 /var/lib/incus
+
 truncate -s "$image_size" "$image"
 mkfs.btrfs -f -L kde-linux-incus "$image"
 mount -o loop,compress=zstd:1,noatime "$image" /var/lib/incus
