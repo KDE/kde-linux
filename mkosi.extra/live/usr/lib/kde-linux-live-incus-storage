@@ -5,9 +5,11 @@
 set -eu
 
 image=/run/kde-linux-incus/incus.btrfs
+tmpfs_size=$(findmnt --bytes --noheadings --output SIZE /run/kde-linux-incus)
+image_size=$((tmpfs_size * 9 / 10))
 
 rm -rf /var/lib/incus
 install -d -m 0711 /var/lib/incus
-truncate -s 2G "$image"
+truncate -s "$image_size" "$image"
 mkfs.btrfs -f -L kde-linux-incus "$image"
 mount -o loop,compress=zstd:1,noatime "$image" /var/lib/incus
