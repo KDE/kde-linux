@@ -18,8 +18,6 @@ config:
   - rm --recursive --force /etc/audit/audit.rules # auto generated; may not exist
   - rm --recursive /etc/audit/plugins.d/*
   - rm --recursive /etc/audit/rules.d/*
-  # Don't need the uncompressed kernel
-  - rm /usr/lib/modules/*/vmlinux
   # Drop some static libs.
   # Be very careful with what you add here.
   # Some things are actually needed to build stuff! (notably some gcc .a files)
