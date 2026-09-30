@@ -27,8 +27,7 @@ if [ -f "${HOME}/.local/bin/kde-builder" ]; then
 else
     echo "== kde-builder build tool: needs setup =="
     echo 'Downloading and installing...'
-    curl 'https://invent.kde.org/sdk/kde-builder/-/raw/master/scripts/initial_setup.sh' > /tmp/initial_setup.sh
-    bash /tmp/initial_setup.sh
+    uv tool install git+https://invent.kde.org/sdk/kde-builder.git
     DID_SOMETHING=true
 fi
 
