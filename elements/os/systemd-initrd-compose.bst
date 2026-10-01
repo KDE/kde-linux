@@ -11,7 +11,7 @@ build-depends:
 - kde-linux-packages.bst:kde-buildstream.bst:freedesktop-sdk.bst:components/lvm2.bst
 - kde-linux-packages.bst:kde-buildstream.bst:freedesktop-sdk.bst:components/linux.bst
 - kde-linux-packages.bst:kde-buildstream.bst:freedesktop-sdk.bst:components/linux-firmware.bst
-- kde-linux-packages.bst:kde-buildstream.bst:gnome-build-meta.bst:gnomeos-deps/intel-ucode.bst
+- kde-linux-packages.bst:kde-buildstream.bst:freedesktop-sdk-extra.bst:components/intel-ucode-maybe.bst
 - os/os-release.bst
 - os/systemd-initrd-fonts.bst
 - os/systemd-initrd-mkosi-extra.bst
