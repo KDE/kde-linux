@@ -97,7 +97,7 @@ func downloadCaibxFiles(client *minio.Client) (caibxFiles []string, err error) {
 		}
 
 		if object.Key == "sysupdate/" {
-			// The store itself wont contain any caibx files.
+			// The store itself won't contain any caibx files.
 			continue
 		}
 

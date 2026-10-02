@@ -99,9 +99,9 @@ global:
 
   # Projects that are not supported or needed on KDE Linux
   ignore-projects:
-  - packagekit-qt
-  # Not supported on immutable distros like KDE Linux
-  - plymouth-kcm
+    - packagekit-qt
+    # Not supported on immutable distros like KDE Linux
+    - plymouth-kcm
 
 # With base options set, the remainder of the file is used to define projects to build, in the
 # desired order, and set any project-specific options.
@@ -128,7 +128,7 @@ include ${build-configs-dir}/kde6.yaml: ""
 #      repository: https://github.com/YourUser/YourProject.git
 
 override discover:
-    cmake-options: -DBUILD_SystemdSysupdateBackend=ON
+  cmake-options: -DBUILD_SystemdSysupdateBackend=ON
 
 override plasma-login-manager:
-    cmake-options: -DPAM_OS_CONFIGURATION=kde-linux
+  cmake-options: -DPAM_OS_CONFIGURATION=kde-linux
