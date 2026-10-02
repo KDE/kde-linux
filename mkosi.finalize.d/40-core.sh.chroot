@@ -157,13 +157,14 @@ rm -rf \
 ## /boot is now the preferred mount point for systemd and BLS:
 ## https://uapi-group.org/specifications/specs/boot_loader_specification/#mount-points
 ## However, its content are no longer necessary, since we've already created our initrd.
-# shellcheck disable=SC2114
+# shellcheck disable=SC2115
 rm -rf /boot/*
 
 ## Don't expose any X11 sessions; we're all-in on Wayland.
 rm -rf /usr/share/xsessions/
 
 ## Get rid of /usr/local for /opt/local
+# shellcheck disable=SC2114
 rm -rf /usr/local
 
 # Prevent tuned from messing with the vm.swappiness parameter we already set

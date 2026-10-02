@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # SPDX-FileCopyrightText: 2023 Bruno Gonçalves <www.biglinux.com.br>
 
-if [ -z "$(df --output=source '/' | grep $1)" ]; then
-    echo 1 > /sys/block/$1/bdi/strict_limit
-    echo 16777216 > /sys/block/$1/bdi/max_bytes
+if ! df --output=source / | grep -q "$1"; then
+    echo 1 > "/sys/block/$1/bdi/strict_limit"
+    echo 16777216 > "/sys/block/$1/bdi/max_bytes"
 fi

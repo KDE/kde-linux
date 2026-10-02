@@ -58,7 +58,7 @@ if [ "$CONTAINER_RUNTIME" = "podman" ]; then
 fi
 
 # Exit if Docker or Podman are not available.
-if ! command -v "$CONTAINER_RUNTIME" 2>&1 > /dev/null; then
+if ! command -v "$CONTAINER_RUNTIME" > /dev/null 2>&1; then
   echo "$CONTAINER_RUNTIME not available on the system! Make sure it is installed."
   exit 1
 fi
@@ -113,6 +113,7 @@ then
   ENV_OPTIONS="$ENV_OPTIONS -e PARALLEL_DOWNLOADS=$PARALLEL_DOWNLOADS"
 fi
 
+# shellcheck disable=SC2086
 # Spin up a new Arch Linux container and run the in_docker.sh script inside of it,
 # passing any command line arguments to it and mounting $SCRIPT_DIR to /workspace.
 $CONTAINER_RUNTIME run \

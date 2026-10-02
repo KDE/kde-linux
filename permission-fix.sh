@@ -10,8 +10,8 @@
 # do not recurse into generated trees such as a stale mkosi.output because
 # that can make this step unexpectedly expensive.
 
-DIRS="mkosi.conf.d mkosi.extra mkosi.finalize.d mkosi.repart mkosi.sandbox mkosi.skeleton"
+DIRS=(mkosi.conf.d mkosi.extra mkosi.finalize.d mkosi.repart mkosi.sandbox mkosi.skeleton)
 
-find $DIRS -type d -exec chmod 755 {} + # ensure all directories are rwxr-xr-x
-find $DIRS -type f -perm /111 -exec chmod 755 {} + # ensure all executable files (-perm filters by permission) has rwxr-xr-x
-find $DIRS -type f ! -perm /111 -exec chmod 644 {} +
+find "${DIRS[@]}" -type d -exec chmod 755 {} + # ensure all directories are rwxr-xr-x
+find "${DIRS[@]}" -type f -perm /111 -exec chmod 755 {} + # ensure all executable files (-perm filters by permission) has rwxr-xr-x
+find "${DIRS[@]}" -type f ! -perm /111 -exec chmod 644 {} +

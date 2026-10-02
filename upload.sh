@@ -51,7 +51,7 @@ trap finish EXIT INT ABRT TERM
 
 curl https://resources.kde-linux.haraldsitter.eu/v1/locks
 git clone https://invent.kde.org/sitter/kde-linux-resource-semaphore
-kde-linux-resource-semaphore/resource-holder --resource image-storage-$PUBLISH_DIR &
+kde-linux-resource-semaphore/resource-holder --resource "image-storage-$PUBLISH_DIR" &
 PUBLISH_RESOURCE_HOLDER_PID=$!
 
 # For the vacuum helper and this script

@@ -51,7 +51,7 @@ fn main() {
     };
 
     // Delete it recursively. This internally implements all the right logic to
-    // delete the subvolume and all its children even inside a docker container where the paths are nonesense.
+    // delete the subvolume and all its children even inside a docker container where the paths are nonsense.
     match DeleteSubvolumeOptions::new().recursive(true).delete(&subvolume_path) {
         Ok(_) => println!("Deleted subvolume: {subvolume_path:?}"),
         Err(error) => println!("Problem deleting subvolume {subvolume_path:?}: {error:?}")

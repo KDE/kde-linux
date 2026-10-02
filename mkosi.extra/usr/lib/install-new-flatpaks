@@ -8,7 +8,7 @@ FACTORY_DIR="/usr/share/factory/var/lib/flatpak/app"
 FACTORY_RUNTIME_DIR="/usr/share/factory/var/lib/flatpak/runtime"
 REPO_CONFIG="/usr/share/factory/var/lib/flatpak/repo/config"
 DEFAULT_REMOTE="flathub"
-INSTALLED_APPS=$(tr '\n' ' ' <<< $(flatpak list --columns=application))
+INSTALLED_APPS=$(tr '\n' ' ' <<< "$(flatpak list --columns=application)")
 EVER_PREINSTALLED_APPS_FILE="/var/lib/kde-linux/ever-preinstalled-flatpak-apps"
 EVER_PREINSTALLED_APPS=$(tr '\n' ' ' < $EVER_PREINSTALLED_APPS_FILE)
 
@@ -55,5 +55,5 @@ for APP in $APPS $ADDONS; do
     # If the app is successfully installed, record that we preinstalled it,
     # so that we know not to reverse a future uninstall by the user.
     flatpak install --system --noninteractive --assumeyes "$REMOTE" "$APP" &&
-        echo $APP >> $EVER_PREINSTALLED_APPS_FILE
+        echo "$APP" >> "$EVER_PREINSTALLED_APPS_FILE"
 done
