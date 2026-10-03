@@ -3,7 +3,7 @@
 
 remotes:
   - name: flathub
-    url: https://dl.flathub.org/repo/flathub.flatpakrepo
+    repofile_url: https://dl.flathub.org/repo/flathub.flatpakrepo
     collection_id: org.flathub.Stable
     # 'apps' here can also include non-app Flatpak refs, notably the Fcitx
     # runtime addons
@@ -24,37 +24,37 @@ remotes:
             - filesystem=xdg-run/speech-dispatcher:ro
 
   - name: ark-nightly
-    url: https://cdn.kde.org/flatpak/ark-nightly/ark-nightly.flatpakrepo
+    repofile_url: https://cdn.kde.org/flatpak/ark-nightly/ark-nightly.flatpakrepo
     apps:
       - org.kde.ark
 
   - name: gwenview-nightly
-    url: https://cdn.kde.org/flatpak/gwenview-nightly/gwenview-nightly.flatpakrepo
+    repofile_url: https://cdn.kde.org/flatpak/gwenview-nightly/gwenview-nightly.flatpakrepo
     apps:
       - org.kde.gwenview
 
   - name: kcalc-nightly
-    url: https://cdn.kde.org/flatpak/kcalc-nightly/kcalc-nightly.flatpakrepo
+    repofile_url: https://cdn.kde.org/flatpak/kcalc-nightly/kcalc-nightly.flatpakrepo
     apps:
       - org.kde.kcalc
 
   - name: keepsecret-nightly
-    url: https://cdn.kde.org/flatpak/keepsecret-nightly/keepsecret-nightly.flatpakrepo
+    repofile_url: https://cdn.kde.org/flatpak/keepsecret-nightly/keepsecret-nightly.flatpakrepo
     apps:
       - org.kde.keepsecret
 
   - name: haruna-nightly
-    url: https://cdn.kde.org/flatpak/haruna-nightly/haruna-nightly.flatpakrepo
+    repofile_url: https://cdn.kde.org/flatpak/haruna-nightly/haruna-nightly.flatpakrepo
     apps:
       - org.kde.haruna
 
   - name: okular-nightly
-    url: https://cdn.kde.org/flatpak/okular-nightly/okular-nightly.flatpakrepo
+    repofile_url: https://cdn.kde.org/flatpak/okular-nightly/okular-nightly.flatpakrepo
     apps:
       - org.kde.okular
 
   - name: qrca-nightly
-    url: https://cdn.kde.org/flatpak/qrca-nightly/qrca-nightly.flatpakrepo
+    repofile_url: https://cdn.kde.org/flatpak/qrca-nightly/qrca-nightly.flatpakrepo
     apps:
       - org.kde.qrca
 
