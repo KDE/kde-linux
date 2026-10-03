@@ -219,7 +219,7 @@ class PreinstallationHistory:
                                  version: str) -> Generator[None, None, None]:
         """ Context manager to record in the history that a run was attempted
         against a specific image version, and (if applicable) that it
-        completed successfully. 
+        completed successfully.
         """
         self.record_last_attempted_image_version(version)
         self.write()
@@ -254,7 +254,7 @@ class PreinstallationHistory:
                              overrides: Iterable[str],
                              app: str) -> None:
         if not overrides:
-            # For brevity in the saved file, record the absence of overrides 
+            # For brevity in the saved file, record the absence of overrides
             # through the absence of the key, rather than setting value to []
             self.data.get("apps", {}).get(app, {}).pop("overrides", None)
         else:
@@ -293,10 +293,10 @@ class RemoteSpec:
     repofile_url: str
     collection_id: str | None = None
     apps: Iterable[str | dict[str, dict[str, Any]]] | None = None
-    
+
     def app_specs(self) -> Iterable[AppSpec]:
-        # An app can be represented in the original YAML either by a string, 
-        # or by a mapping of a strings to a mapping (where the only currently 
+        # An app can be represented in the original YAML either by a string,
+        # or by a mapping of a strings to a mapping (where the only currently
         # valid key in the submapping is "overrides"). Translate both those
         # cases to AppSpec objects.
         if self.apps:
@@ -508,7 +508,7 @@ class Preinstaller:
         # installed from both remotes simultaneously. So we:
         # 1. Install the app from the new remote
         # 2. Uninstall the app from the old remote
-        # This should be the safer order, since the uninstall is less likely 
+        # This should be the safer order, since the uninstall is less likely
         # to fail than the install.
         FlatpakCommandWrapper.install(new_remote, [app])
         FlatpakCommandWrapper.uninstall([current_ref])
@@ -532,7 +532,7 @@ class Preinstaller:
 
         preinstalled_remote = self.history.remote_for_app(app_spec.name)
         preinstalled_overrides = self.history.overrides_for_app(app_spec.name)
-        
+
         if current_remote:
             # --- Already installed app
 
@@ -550,8 +550,8 @@ class Preinstaller:
 
             # If the app is already installed from the remote in the spec,
             # but the history doesn't reflect that, then update the history.
-            # This could be because the history failed to be written, or 
-            # because user had already installed the app before we added it 
+            # This could be because the history failed to be written, or
+            # because user had already installed the app before we added it
             # to the preinstall spec - in which case we "adopt" the app and
             # manage it as if it had been preinstalled.
             if (app_spec.remote != preinstalled_remote and
@@ -566,8 +566,8 @@ class Preinstaller:
             if set(preinstalled_overrides) != set(app_spec.overrides):
                 yield (Action.APPLY_OVERRIDES, {})
         else:
-            # --- Not currently installed app 
-            # Install it only if we hadn't previously preinstalled it - i.e. 
+            # --- Not currently installed app
+            # Install it only if we hadn't previously preinstalled it - i.e.
             # if the user had intentionally uninstalled it, we don't alter that
             if not preinstalled_remote:
                 yield (Action.INSTALL, {})
@@ -603,7 +603,7 @@ class Preinstaller:
                                        app_spec.remote,
                                        details["current_remote"],
                                        details["current_ref"])
-        
+
         for app_spec, _ in action_queues[Action.APPLY_OVERRIDES]:
             self.override_for_app(app_spec.name, app_spec.overrides)
 
