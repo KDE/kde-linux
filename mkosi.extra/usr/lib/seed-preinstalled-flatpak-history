@@ -5,21 +5,34 @@
 import os
 import shutil
 from collections.abc import Collection
+from pathlib import Path
 from typing import Any
 
 import yaml
 
-BUILD_TIME_HISTORY_PATH = "/usr/share/kde-linux/preinstalled-flatpak-history.yaml"
-RUN_TIME_HISTORY_PATH = "/var/lib/kde-linux/preinstalled-flatpak-history.yaml"
-LEGACY_HISTORY_PATH = "/var/lib/kde-linux/ever-preinstalled-flatpak-apps"
-PLASMA_SETUP_DONE_PATH = "/etc/plasma-setup-done"
+BUILD_TIME_HISTORY_PATH = Path("/usr/share/kde-linux/preinstalled-flatpak-history.yaml")
+RUN_TIME_HISTORY_PATH = Path("/var/lib/kde-linux/preinstalled-flatpak-history.yaml")
+RUN_TIME_HISTORY_PATH_TEMP = RUN_TIME_HISTORY_PATH.with_suffix(".tmp")
+LEGACY_HISTORY_PATH = Path("/var/lib/kde-linux/ever-preinstalled-flatpak-apps")
+PLASMA_SETUP_DONE_PATH = Path("/etc/plasma-setup-done")
+PLASMA_SETUP_MARKER = Path("/var/lib/kde-linux/installed-with-plasma-setup")
 
 
 def is_fresh_install() -> bool:
-    return not os.path.isfile(PLASMA_SETUP_DONE_PATH)
+    return (os.path.isfile(PLASMA_SETUP_MARKER)
+            and not os.path.isfile(PLASMA_SETUP_DONE_PATH))
 
 
-def legacy_app_ids() -> Collection[str]:
+def use_legacy_history() -> bool:
+    # On systems older than the introduction of Plasma setup, the
+    # legacy history may be wrong, because the history script
+    # assumed that a system without /etc/plasma-setup-done was new.
+    # In that case, ignore the history file.
+    return (os.path.isfile(LEGACY_HISTORY_PATH) and
+            os.path.isfile(PLASMA_SETUP_MARKER))
+
+
+def app_ids_from_legacy_history() -> Collection[str]:
     """ Get the IDs of the apps already preinstalled from the legacy history
     file. We require this to exist on all non-fresh installs. The systemd
     services are sequenced accordingly to ensure this, even in the case of
@@ -31,8 +44,25 @@ def legacy_app_ids() -> Collection[str]:
     return {a for a in apps if a}
 
 
+def original_app_ids() -> Collection[str]:
+    """ Get the IDs of the Flatpak apps preinstalled as of Nov 2025. Where
+    we don't have a reliable history, we assume that these are the preinstalled
+    apps that the system has already "seen", so we don't try to reintall them if
+    they aren't there
+    """
+    return {"org.kde.gwenview",
+            "org.kde.okular",
+            "org.kde.kwrite",
+            "org.kde.haruna",
+            "org.kde.ark",
+            "org.kde.kcalc",
+            "org.mozilla.firefox",
+            "org.gtk.Gtk3theme.Breeze",
+           }
+
+
 def filter_app_data(history: dict[str, Any],
-                retain_apps: Collection[str]) -> None:
+                    retain_apps: Collection[str]) -> None:
     """ Remove any key under the "apps" key of <history> if that key
     doesn't appear in <retain_apps>
     """
@@ -51,32 +81,45 @@ def remove_completion_marker(history: dict[str, Any]) -> None:
 
 
 def copy_history_verbatim() -> None:
-    """ Logic for fresh installs: we can just copy the history that was 
+    """ Logic for fresh installs: we can just copy the history that was
     written at build time.
     """
     print(f"Fresh install of KDE Linux: "
           f"Copying {BUILD_TIME_HISTORY_PATH} to {RUN_TIME_HISTORY_PATH}")
-    shutil.copy(BUILD_TIME_HISTORY_PATH, RUN_TIME_HISTORY_PATH)
+    shutil.copy(BUILD_TIME_HISTORY_PATH, RUN_TIME_HISTORY_PATH_TEMP)
+    os.rename(RUN_TIME_HISTORY_PATH_TEMP, RUN_TIME_HISTORY_PATH)
 
 
 def copy_history_filtered() -> None:
     """ Logic for pre-existing installs dating from before the spec-based
     Flatpak preinstall code was introduced. Take the build-time history but
-    filter it down to only the apps that have been preinstalled according to
-    the legacy mechanism history. Also remove the completion marker,
-    because we're not necessarily done yet with preinstalls for this
-    system - the spec may contain new apps that the runtime preinstall
-    service needs to install.
+    filter it down to only the apps that should have already been preinstalled,
+    either according to the legacy mechanism history (if it exists and is
+    reliable), or else the list of apps that we'll assume to have been
+    preinstalled on all systems. Any additional preinstalled apps that we find
+    on the system will be added by the update service.
+    Also remove the completion marker, because we're not necessarily done yet
+    with preinstalls for this system - the spec may contain new apps that the
+    runtime preinstall service needs to install.
     """
-    previous_apps = legacy_app_ids()
     with open(BUILD_TIME_HISTORY_PATH) as f:
         history = yaml.safe_load(f)
+
+    if use_legacy_history():
+        print(f"Migrating preinstalled Flatpak history "
+              f"from {LEGACY_HISTORY_PATH} to {RUN_TIME_HISTORY_PATH}")
+        previous_apps = app_ids_from_legacy_history()
+    else:
+        print(f"Creating preinstalled Flatpak history at {RUN_TIME_HISTORY_PATH} "
+              f"from list of original apps")
+        previous_apps = original_app_ids()
+
     filter_app_data(history, previous_apps)
     remove_completion_marker(history)
-    print(f"Migrating preinstall Flatpak history "
-          f"from {LEGACY_HISTORY_PATH} to {RUN_TIME_HISTORY_PATH}")
-    with open(RUN_TIME_HISTORY_PATH, "w") as f:
+
+    with open(RUN_TIME_HISTORY_PATH_TEMP, "w") as f:
         yaml.dump(history, f)
+    os.rename(RUN_TIME_HISTORY_PATH_TEMP, RUN_TIME_HISTORY_PATH)
 
 
 def main() -> None:
@@ -86,5 +129,5 @@ def main() -> None:
         copy_history_filtered()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
