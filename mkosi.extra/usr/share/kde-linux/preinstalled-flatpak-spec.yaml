@@ -61,4 +61,3 @@ remotes:
 global_overrides:
   # Global overrides can be added here, e.g.
   # - filesystem=~/.themes:ro
-  
