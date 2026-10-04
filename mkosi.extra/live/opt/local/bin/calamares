@@ -4,13 +4,43 @@
 # SPDX-FileCopyrightText: 2026 Hadi Chokr <hadichokr@icloud.com>
 # SPDX-FileCopyrightText: 2026 Thomas Duckworth <tduck@filotimoproject.org>
 
-if [ "$(id -u)" != "0" ]; then
-    exec pkexec /opt/local/bin/calamares "$@"
-fi
+set -euo pipefail
 
-# Find the user's AT-SPI bus and export it here for Calamares to use.
-# Unfortunately, Calamares has to run entirely as root, UI and all, so we have to do this.
-export AT_SPI_BUS_ADDRESS="$(busctl --machine="$PKEXEC_UID"@.host --user call org.a11y.Bus /org/a11y/bus org.a11y.Bus GetAddress --json=short | jq -r '.data[0]')"
+if [ "$(id -u)" != "0" ]; then
+    # run0 inherits nothing from the caller as a security measure, so everything Calamares needs has to
+    # be passed explicitly. Calamares runs entirely as root.
+
+    # Root cannot reach org.a11y.Bus on the caller's session bus, so resolve the
+    # address on this side. OpenQA depends on it.
+    if [ -z "${AT_SPI_BUS_ADDRESS:-}" ]; then
+        AT_SPI_BUS_ADDRESS="$(busctl --user --json=short call \
+            org.a11y.Bus /org/a11y/bus org.a11y.Bus GetAddress 2>/dev/null \
+            | jq --raw-output '.data[0] // empty' 2>/dev/null)" \
+            || AT_SPI_BUS_ADDRESS=
+    fi
+
+    # XDG_RUNTIME_DIR points elsewhere for root, so a relative socket name would
+    # not resolve there.
+    case "${WAYLAND_DISPLAY:-}" in
+        "" | /*) ;;
+        *) WAYLAND_DISPLAY="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/${WAYLAND_DISPLAY}" ;;
+    esac
+
+    if [ -n "${WAYLAND_DISPLAY:-}" ]; then
+        QT_QPA_PLATFORM=wayland
+    fi
+
+    run0_args=()
+    for name in WAYLAND_DISPLAY QT_QPA_PLATFORM AT_SPI_BUS_ADDRESS \
+                QT_ACCESSIBILITY QT_LINUX_ACCESSIBILITY_ALWAYS_ON; do
+        if [ -n "${!name:-}" ]; then
+            run0_args+=("--setenv=$name=${!name}")
+        fi
+    done
+
+    exec run0 --setenv=SUDO_UID="$(id -u)" "${run0_args[@]}" \
+        /opt/local/bin/calamares "$@"
+fi
 
 export KDE_FULL_SESSION=TRUE
 export KDE_SESSION_VERSION=6

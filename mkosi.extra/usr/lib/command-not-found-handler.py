@@ -29,8 +29,10 @@ known_alternatives = {
     "nameif" : "ip link",
     "netstat" : "ss",
     "nslookup" : "resolvectl query",
+    "pkexec" : "run0",
     "route" : "ip route",
     "service" : "systemctl",
+    "sudoedit" : "run0 nano",
     "traceroute" : "tracepath"
 }
 

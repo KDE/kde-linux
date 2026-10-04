@@ -37,7 +37,6 @@ SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted
   <name xml:lang="sq">KDE Linux</name>
   <name xml:lang="sv">KDE Linux</name>
   <name xml:lang="tr">KDE Linux</name>
-  <name xml:lang="ug">KDE Linux</name>
   <name xml:lang="uk">KDE Linux</name>
   <name xml:lang="zh-CN">KDE Linux</name>
   <name xml:lang="zh-TW">KDE Linux</name>
@@ -400,7 +399,6 @@ SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted
           <li xml:lang="sl">KDE Plasma</li>
           <li xml:lang="sv">KDE Plasma</li>
           <li xml:lang="tr">KDE Plasma</li>
-          <li xml:lang="ug">KDE Plasma</li>
           <li xml:lang="uk">Плазма KDE</li>
           <li xml:lang="zh-CN">KDE Plasma 桌面环境</li>
           <li xml:lang="zh-TW">KDE Plasma</li>
@@ -432,7 +430,6 @@ SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted
           <li xml:lang="sl">Linux kernel 6.7</li>
           <li xml:lang="sv">Linux-kärna 6.7</li>
           <li xml:lang="tr">Linux 6.7</li>
-          <li xml:lang="ug">Linux kernel 6.7</li>
           <li xml:lang="uk">Ядро Linux 6.7</li>
           <li xml:lang="zh-CN">Linux 内核 6.7</li>
           <li xml:lang="zh-TW">Linux 核心 6.7</li>

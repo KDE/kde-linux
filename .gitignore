@@ -15,7 +15,9 @@
 /upload-vacuum/vendor/
 /btrfs-cleanup/target/
 /btrfs-migrator/target/
+/run0-sudo-shim/
 
+/mkosi.extra/usr/bin/run0-sudo-shim
 /mkosi.extra/usr/lib/btrfs-migrator
 /mkosi.extra/usr/lib/etc-factory
 /mkosi.extra/usr/lib/kde-linux-sysupdated
