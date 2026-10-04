@@ -7,8 +7,11 @@
 # variable and the `.exrc` file, which are required by POSIX.
 # Accepts further options.
 
+set -e
+
 if [[ -n "${EXINIT}" ]]; then
-  readonly VIMRC="$(mktemp)"
+  VIMRC="$(mktemp)"
+  readonly VIMRC
   trap 'rm "${VIMRC}"' EXIT
   printf '%s\n' "${EXINIT}" > "${VIMRC}"
 elif [[ -f "${HOME}/.exrc" ]]; then

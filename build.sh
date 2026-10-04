@@ -204,6 +204,7 @@ time mkfs.erofs -zzstd -C 65536 --chunksize 65536 \
     kde-linux.cache/live.raw live-root > erofs-live.log 2>&1
 
 # Needs sudo so it can tinker with setuid files
+# shellcheck disable=SC2024
 time sudo mkfs.erofs --all-root -zzstd \
     -C 65536 --chunksize 65536 \
     "-T$EPOCH" --ignore-mtime \

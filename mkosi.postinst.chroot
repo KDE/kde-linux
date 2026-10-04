@@ -9,7 +9,8 @@ env
 mkdir --mode 0700 /system # for the kde-linux-overlay.service
 
 export SYSTEMD_ESP_PATH="$BOOT_MNT"
-mkdir -p --mode 0700 "$SYSTEMD_ESP_PATH"
+# shellcheck disable=SC2174
+mkdir --parents --mode 0700 "$SYSTEMD_ESP_PATH"
 bootctl install
 echo 'timeout 7' >> "$SYSTEMD_ESP_PATH/loader/loader.conf"
 
