@@ -83,7 +83,7 @@ if [ "$CI_DEFAULT_BRANCH" == "$CI_COMMIT_REF_NAME" ]; then
 fi
 
 stage() {
-    S3_TARGET_STAGING="s3+https://storage.kde.org/ci-artifacts/$CI_PROJECT_PATH/p/$CI_PIPELINE_ID"
+    S3_TARGET_STAGING="s3+https://storage.kde.org/ci-artifacts/${CI_MERGE_REQUEST_SOURCE_PROJECT_PATH:-${CI_PROJECT_PATH}}/p/$CI_PIPELINE_ID"
 
     # Stage the freshly built image into the bucket.
     sudo chown -R "$USER":"$USER" "$OUTDIR"
