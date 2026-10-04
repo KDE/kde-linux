@@ -26,6 +26,8 @@ if [ "$(id -u)" != "0" ]; then
         *) WAYLAND_DISPLAY="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/${WAYLAND_DISPLAY}" ;;
     esac
 
+    # Read below through ${!name}.
+    # shellcheck disable=SC2034
     if [ -n "${WAYLAND_DISPLAY:-}" ]; then
         QT_QPA_PLATFORM=wayland
     fi

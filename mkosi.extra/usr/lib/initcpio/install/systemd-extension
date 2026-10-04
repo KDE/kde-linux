@@ -26,7 +26,7 @@ build() {
 
     # Make double sure the dissection rule is present. Without it booting doesn't work because we can't find a root.
     # Notably not getting added by the release initcpio combined with aur systemd-git at the time of writing.
-    # 60-cdrom will make parsing the ISO in the Initrd easier and 99-systemd will triger the loop service for GPT mismatch
+    # 60-cdrom will make parsing the ISO in the Initrd easier and 99-systemd will trigger the loop service for GPT mismatch
     map add_udev_rule \
         60-cdrom_id.rules \
         90-image-dissect.rules \

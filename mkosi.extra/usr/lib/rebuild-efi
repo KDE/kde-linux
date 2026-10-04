@@ -32,7 +32,7 @@ echo "rw \
   nowatchdog \
   vt.global_cursor_default=0 quiet splash plymouth.ignore-serial-consoles loglevel=3" > cmdline
 ukify build \
-  --linux /usr/lib/modules/$kernel_version/vmlinuz \
+  --linux "/usr/lib/modules/$kernel_version/vmlinuz" \
   --initrd "$initrd" \
   --cmdline @cmdline \
   --output live.efi
@@ -64,7 +64,7 @@ echo "rw rootflags=subvol=@system,compress=zstd:-4,lazytime \
   nowatchdog \
   vt.global_cursor_default=0 quiet splash plymouth.ignore-serial-consoles loglevel=3" > cmdline
 ukify build \
-  --linux /usr/lib/modules/$kernel_version/vmlinuz \
+  --linux "/usr/lib/modules/$kernel_version/vmlinuz" \
   --initrd "$initrd" \
   --cmdline @cmdline \
   --output kde-linux.efi

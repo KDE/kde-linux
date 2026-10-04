@@ -71,13 +71,13 @@ if command in related_commands:
     command = related_commands[command]
 
 if command in known_alternatives:
-    message = gettext.gettext("KDE Linux does not include the “{}” tool.\n\nInstead, try using “{}”.".format(command, known_alternatives[command]))
+    message = gettext.gettext("KDE Linux does not include the “{}” tool.\n\nInstead, try using “{}”.").format(command, known_alternatives[command])
 elif command in unsupported_package_managers:
-    message = gettext.gettext("KDE Linux does not include the “{}” package manager.\n\nGraphical software is available using the Discover app center. To learn how to install software that’s not available in Discover, see {}".format(command, moreSoftwareUrl))
+    message = gettext.gettext("KDE Linux does not include the “{}” package manager.\n\nGraphical software is available using the Discover app center. To learn how to install software that’s not available in Discover, see {}").format(command, moreSoftwareUrl)
 elif command in available_package_managers:
-    message = gettext.gettext("KDE Linux does not pre-install the “{}” package manager, but it can be added manually.\n\nTo do so, follow the instructions at {}".format(command, available_package_managers[command]))
+    message = gettext.gettext("KDE Linux does not pre-install the “{}” package manager, but it can be added manually.\n\nTo do so, follow the instructions at {}").format(command, available_package_managers[command])
 else:
-    message = gettext.gettext("KDE Linux does not include the “{}” command.\n\nIf you know it exists, and it’s important for your workflow, learn about options for getting it at {}".format(command, moreSoftwareOtherUrl))
+    message = gettext.gettext("KDE Linux does not include the “{}” command.\n\nIf you know it exists, and it’s important for your workflow, learn about options for getting it at {}").format(command, moreSoftwareOtherUrl)
 
 print("\n" + message + "\n")
-exit(127)
+sys.exit(127)

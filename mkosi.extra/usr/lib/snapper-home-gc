@@ -108,7 +108,7 @@ def clear_allow_users(path):
 
 
 def run(*args):
-    return subprocess.run(args).returncode == 0
+    return subprocess.run(args, check=False).returncode == 0
 
 
 def main():

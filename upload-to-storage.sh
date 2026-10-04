@@ -47,18 +47,18 @@ if [ ! -d upload-tree ]; then
 fi
 
 go -C ./token-redeemer/ run .
-go -C ./uploader/ run . --remote "s3+https://storage.kde.org/ci-artifacts/$CI_PROJECT_PATH/j/$CI_JOB_ID"
+go -C ./uploader/ run . --remote "s3+https://storage.kde.org/ci-artifacts/${CI_MERGE_REQUEST_SOURCE_PROJECT_PATH:-${CI_PROJECT_PATH}}/j/$CI_JOB_ID"
 
 # Point OpenQA at the image we just uploaded.
 ISO_FILE=$(find upload-tree -maxdepth 1 -name '*.iso' | head -1 | xargs -r basename)
-echo "IMAGE_URL=https://storage.kde.org/ci-artifacts/$CI_PROJECT_PATH/j/$CI_JOB_ID/$ISO_FILE" >> build.env
+echo "IMAGE_URL=https://storage.kde.org/ci-artifacts/${CI_MERGE_REQUEST_SOURCE_PROJECT_PATH:-${CI_PROJECT_PATH}}/j/$CI_JOB_ID/$ISO_FILE" >> build.env
 echo "VARIANT=${KDE_LINUX_EDITION}" >> build.env
 echo "CHANNEL_URL=https://storage.kde.org/kde-linux/${KDE_LINUX_EDITION}/" >> build.env # For upgrade test flows
-echo "STAGING_CHANNEL_URL=https://storage.kde.org/ci-artifacts/$CI_PROJECT_PATH/j/$CI_JOB_ID/sysupdate/v2/" >> build.env
+echo "STAGING_CHANNEL_URL=https://storage.kde.org/ci-artifacts/${CI_MERGE_REQUEST_SOURCE_PROJECT_PATH:-${CI_PROJECT_PATH}}/j/$CI_JOB_ID/sysupdate/v2/" >> build.env
 echo "SYSUPDATE_PUBKEY_B64=$SYSUPDATE_PUBKEY_B64" >> build.env
 echo "UPSTREAM_CI_PIPELINE_URL=$CI_PIPELINE_URL" >> build.env
 
 echo "𓃀𓂝𓏏𓃀𓂝𓏏𓃀𓂝𓏏𓃀𓂝𓏏𓃀𓂝𓏏𓃀𓂝𓏏𓃀𓂝𓏏𓃀𓂝𓏏𓃀𓂝𓏏𓃀𓂝𓏏𓃀𓂝𓏏𓃀𓂝𓏏𓃀𓂝𓏏𓃀𓂝𓏏"
 echo "You can find the raw disk images and sysupdate tree at:"
-echo "https://qoomon.github.io/aws-s3-bucket-browser/index.html?bucket=https://storage.kde.org/ci-artifacts/#$CI_PROJECT_PATH/j/$CI_JOB_ID/"
+echo "https://qoomon.github.io/aws-s3-bucket-browser/index.html?bucket=https://storage.kde.org/ci-artifacts/#${CI_MERGE_REQUEST_SOURCE_PROJECT_PATH:-${CI_PROJECT_PATH}}/j/$CI_JOB_ID/"
 echo "𓃀𓂝𓏏𓃀𓂝𓏏𓃀𓂝𓏏𓃀𓂝𓏏𓃀𓂝𓏏𓃀𓂝𓏏𓃀𓂝𓏏𓃀𓂝𓏏𓃀𓂝𓏏𓃀𓂝𓏏𓃀𓂝𓏏𓃀𓂝𓏏𓃀𓂝𓏏𓃀𓂝𓏏"

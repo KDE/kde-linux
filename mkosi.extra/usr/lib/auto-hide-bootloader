@@ -9,7 +9,7 @@ case "${1:-}" in
         /usr/bin/bootctl set-timeout ""
         ;;
     hide)
-        OTHER_OS_COUNT="$(bootctl list | grep "^\s*id:" | grep -vE "kde-linux_.*\.efi|auto-efi-shell|auto-reboot-to-firmware-setup" | wc -l)"
+        OTHER_OS_COUNT="$(bootctl list | grep "^\s*id:" | grep -cvE "kde-linux_.*\.efi|auto-efi-shell|auto-reboot-to-firmware-setup" || true)"
         if [ "$OTHER_OS_COUNT" -gt 0 ]; then
             echo "Multiple operating systems detected, not hiding bootloader."
             exit 0

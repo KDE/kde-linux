@@ -51,7 +51,7 @@ trap finish EXIT INT ABRT TERM
 
 curl https://resources.kde-linux.haraldsitter.eu/v1/locks
 git clone https://invent.kde.org/sitter/kde-linux-resource-semaphore
-kde-linux-resource-semaphore/resource-holder --resource image-storage-$PUBLISH_DIR &
+kde-linux-resource-semaphore/resource-holder --resource "image-storage-$PUBLISH_DIR" &
 PUBLISH_RESOURCE_HOLDER_PID=$!
 
 # For the vacuum helper and this script
@@ -83,7 +83,7 @@ if [ "$CI_DEFAULT_BRANCH" == "$CI_COMMIT_REF_NAME" ]; then
 fi
 
 stage() {
-    S3_TARGET_STAGING="s3+https://storage.kde.org/ci-artifacts/$CI_PROJECT_PATH/p/$CI_PIPELINE_ID"
+    S3_TARGET_STAGING="s3+https://storage.kde.org/ci-artifacts/${CI_MERGE_REQUEST_SOURCE_PROJECT_PATH:-${CI_PROJECT_PATH}}/p/$CI_PIPELINE_ID"
 
     # Stage the freshly built image into the bucket.
     sudo chown -R "$USER":"$USER" "$OUTDIR"

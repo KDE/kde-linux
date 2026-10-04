@@ -209,7 +209,7 @@ If nothing critically important is managed by fstab you can let the auto-migrati
         println!("Snapshotting {} to {}", root.join(subvol).display(), target);
         let target_path = Path::new(target);
 
-        // Inside var the target_path may already exist if they predate the subvolumes. Originally contianers and docker were not subvolumes.
+        // Inside var the target_path may already exist if they predate the subvolumes. Originally containers and docker were not subvolumes.
         // Make sure to throw the data away before trying to snapshot, otherwise the snapshot will fail.
         if target_path.exists() {
             println!("Removing pre-existing directory {target_path:?}");

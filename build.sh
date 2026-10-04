@@ -19,7 +19,7 @@ make_debug_archive () {
   mkdir --parents /var/tmp/debugroot
 
   # Download and extract debug symbols produced by the packages pipeline.
-  curl --fail https://storage.kde.org/kde-linux-packages/$KDE_LINUX_EDITION/artifacts/debug.tar.zst \
+  curl --fail "https://storage.kde.org/kde-linux-packages/$KDE_LINUX_EDITION/artifacts/debug.tar.zst" \
     | zstd --decompress | tar --extract --directory=/var/tmp/debugroot
 
   # systemd-sysext uses the os-release in extension-release.d to verify the sysext matches the base OS,
@@ -227,7 +227,7 @@ systemd-repart \
     --el-torito-publisher="KDE" \
     "$ISO"
 
-# Incase the owner is root
+# In case the owner is root
 chown -R user:user mkosi.output
 
 # Create a torrent for the image
@@ -241,8 +241,8 @@ cp "$ROOTFS_CAIBX" "$ROOTFS_EROFS.caibx"
 
 # Fake artifacts to keep older systems happy to upgrade to newer versions.
 # Can be removed once we have started having revisions in our update trees.
-tar -cf ${OUTPUT}_root-x86-64.tar -T /dev/null
-zstd --threads=0 --rm ${OUTPUT}_root-x86-64.tar
+tar -cf "${OUTPUT}"_root-x86-64.tar -T /dev/null
+zstd --threads=0 --rm "${OUTPUT}"_root-x86-64.tar
 
 # TODO before accepting new uploads perform sanity checks on the artifacts (e.g. the tar being well formed)
 
