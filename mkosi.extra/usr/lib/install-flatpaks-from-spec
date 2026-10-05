@@ -72,7 +72,7 @@ class FlatpakCommandWrapper:
 
     @classmethod
     def list(cls) -> tuple[str, str]:
-        return cls._run(["flatpak", "list",
+        return cls._run(["flatpak", "list", "--system",
                          "--columns=application,origin,ref"],
                          log_stdout=False)
 
@@ -80,7 +80,7 @@ class FlatpakCommandWrapper:
     def remote_add(cls,
                    name: str,
                    url: str) -> tuple[str, str]:
-        return cls._run(["flatpak", "remote-add",
+        return cls._run(["flatpak", "remote-add", "--system",
                          "--if-not-exists", name, url])
 
     @classmethod
@@ -88,15 +88,15 @@ class FlatpakCommandWrapper:
                       remote: str,
                       opts: Iterable[str]) -> tuple[str, str]:
         args = cls._double_dash(opts)
-        return cls._run(["flatpak", "remote-modify", "--gpg-verify",
-                         *args,
-                         remote])
+        return cls._run(["flatpak", "remote-modify", "--system",
+                         "--gpg-verify", *args, remote])
 
     @classmethod
     def remote_info(cls,
                     remote: str,
                     app: str) -> tuple[str, str]:
-        return cls._run(["flatpak", "remote-info", "--show-ref", remote, app])
+        return cls._run(["flatpak", "remote-info", "--system",
+                         "--show-ref", remote, app])
 
     @classmethod
     def install(cls,
@@ -104,7 +104,7 @@ class FlatpakCommandWrapper:
                 apps: Iterable[str],
                 opts: Iterable[str] = ()) -> tuple[str, str]:
         args = cls._double_dash(opts)
-        return cls._run(["flatpak", "install",
+        return cls._run(["flatpak", "install", "--system",
                          "--noninteractive", "--assumeyes", *args,
                          remote, *apps])
 
@@ -113,7 +113,7 @@ class FlatpakCommandWrapper:
                   apps: Iterable[str],
                   opts: Iterable[str] = ()) -> tuple[str, str]:
         args = cls._double_dash(opts)
-        return cls._run(["flatpak", "uninstall",
+        return cls._run(["flatpak", "uninstall", "--system",
                          "--noninteractive", "--assumeyes", *args,
                          *apps])
 
@@ -129,7 +129,7 @@ class FlatpakCommandWrapper:
 
     @classmethod
     def repair(cls) -> tuple[str, str]:
-        return cls._run(["flatpak", "repair"])
+        return cls._run(["flatpak", "repair", "--system"])
 
 
 class InstalledState:
