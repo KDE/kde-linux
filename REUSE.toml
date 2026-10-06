@@ -34,3 +34,23 @@ SPDX-License-Identifier = "CC0-1.0"
 path = "mkosi.extra/usr/share/firefox-config/policies.json"
 SPDX-FileCopyrightText = "2025 Thomas Duckworth <tduck@filotimoproject.org>"
 SPDX-License-Identifier = "GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL"
+
+[[annotations]]
+path = "mkosi.extra/live/usr/calamares/slides/katie.png"
+SPDX-FileCopyrightText = "2026 Tyson Tan <tysontan@mail.com>"
+SPDX-License-Identifier = "CC-BY-SA-4.0"
+
+[[annotations]]
+path = "mkosi.extra/live/usr/calamares/slides/konqi-plasma.png"
+SPDX-FileCopyrightText = "2014 Tyson Tan <tysontan@mail.com>"
+SPDX-License-Identifier = "CC-BY-SA-4.0"
+
+[[annotations]]
+path = "mkosi.extra/live/usr/calamares/slides/konqi-setup.png"
+SPDX-FileCopyrightText = "2014 Tyson Tan <tysontan@mail.com>"
+SPDX-License-Identifier = "CC-BY-SA-4.0"
+
+[[annotations]]
+path = "mkosi.extra/live/usr/calamares/slides/konqi.png"
+SPDX-FileCopyrightText = "2014 Tyson Tan <tysontan@mail.com>"
+SPDX-License-Identifier = "CC-BY-SA-4.0"
