@@ -1,0 +1,31 @@
+#!/usr/bin/env sh
+# SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL
+# SPDX-FileCopyrightText: 2026 Hadi Chokr <hadichokr@icloud.com>
+
+# Runs a linter for pre-commit. Without arguments, as the git pre-commit
+# hook installed by build.sh, it runs pre-commit itself. Installed tools
+# are used as they are, missing ones are fetched with uv.
+
+if [ $# -eq 0 ]; then
+    set -- pre-commit run
+fi
+
+tool=$1
+shift
+
+if command -v "$tool" >/dev/null 2>&1; then
+    exec "$tool" "$@"
+fi
+
+if ! command -v uvx >/dev/null 2>&1; then
+    echo "$tool is not installed. Install it, or install uv to fetch it automatically." >&2
+    exit 1
+fi
+
+case "$tool" in
+    shellcheck) package=shellcheck-py ;;
+    check-*) package=pre-commit-hooks ;;
+    *) package=$tool ;;
+esac
+
+exec uvx --from "$package" "$tool" "$@"

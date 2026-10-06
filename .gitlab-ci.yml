@@ -4,10 +4,6 @@
 include:
   - project: sysadmin/ci-utilities
     file:
-      - /gitlab-templates/reuse-lint.yml
-      - /gitlab-templates/json-validation.yml
-      - /gitlab-templates/xml-lint.yml
-      - /gitlab-templates/yaml-lint.yml
       - /gitlab-templates/pre-commit.yml
       - /gitlab-templates/blocks/workflow.yml
 

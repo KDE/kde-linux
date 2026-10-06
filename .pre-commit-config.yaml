@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: CC0-1.0
 # SPDX-FileCopyrightText: none
 
-# The tools are provided by the CI image, nothing is downloaded at runtime.
+# Tools come from the CI image; locally, missing ones are fetched with uv.
 exclude: go\.sum$|^mkosi\.extra/usr/(lib/iw-set-regdomain|share/fontconfig/conf\.default/56-kde-linux-noto\.conf)$
 
 repos:
@@ -9,20 +9,32 @@ repos:
     hooks:
       - id: check-toml
         name: check toml
-        entry: check-toml
+        entry: .gitlab-ci/scripts/pre-commit-tool check-toml
         language: system
         types: [toml]
 
+      - id: check-json
+        name: check json
+        entry: .gitlab-ci/scripts/pre-commit-tool check-json
+        language: system
+        types: [json]
+
+      - id: check-xml
+        name: check xml
+        entry: .gitlab-ci/scripts/pre-commit-tool check-xml
+        language: system
+        types: [xml]
+
       - id: check-merge-conflict
         name: check for merge conflicts
-        entry: check-merge-conflict
+        entry: .gitlab-ci/scripts/pre-commit-tool check-merge-conflict
         args: [--assume-in-merge]
         language: system
         types: [text]
 
       - id: shellcheck
         name: shellcheck
-        entry: shellcheck
+        entry: .gitlab-ci/scripts/pre-commit-tool shellcheck
         args: [--severity=style, "--exclude=SC1091,SC1111,SC2129"]
         language: system
         types: [shell]
@@ -31,16 +43,29 @@ repos:
 
       - id: ruff-check
         name: ruff check
-        entry: ruff check --force-exclude
+        entry: .gitlab-ci/scripts/pre-commit-tool ruff check --force-exclude
         args: ["--extend-ignore=BLE001,EXE001,I001"]
         language: system
         types_or: [python, pyi]
         require_serial: true
 
+      - id: yamllint
+        name: yamllint
+        entry: .gitlab-ci/scripts/pre-commit-tool yamllint
+        args: [-d, "{extends: default, rules: {document-start: disable, truthy: {check-keys: false}, line-length: {max: 120, level: warning}, comments: {level: warning}}}"]
+        language: system
+        types: [yaml]
+
       - id: codespell
         name: codespell
-        entry: codespell
+        entry: .gitlab-ci/scripts/pre-commit-tool codespell
         args: ["--ignore-words-list=overlayed,unparseable"]
         language: system
         types: [text]
         exclude: ^po/|\.(desktop|metainfo\.xml)$
+
+      - id: reuse
+        name: reuse
+        entry: .gitlab-ci/scripts/pre-commit-tool reuse lint-file
+        language: system
+        exclude: ^po/

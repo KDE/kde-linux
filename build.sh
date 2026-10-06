@@ -12,6 +12,11 @@ set -ex
 
 . .kde-linux-metadata
 
+# Install the git pre-commit hook. CI runs the linters separately.
+if [ -z "${CI:-}" ] && [ -d .git/hooks ] && [ ! -e .git/hooks/pre-commit ] && [ ! -L .git/hooks/pre-commit ]; then
+  ln --symbolic --relative .gitlab-ci/scripts/pre-commit-tool .git/hooks/pre-commit
+fi
+
 # Creates a sysext containing the KDE debug symbols, downloaded from the packages pipeline.
 make_debug_archive () {
   # Create an empty directory at /var/tmp/debugroot to extract the debug symbols into before compressing.
