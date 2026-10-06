@@ -54,7 +54,7 @@ git clone https://invent.kde.org/sitter/kde-linux-resource-semaphore
 kde-linux-resource-semaphore/resource-holder --resource "image-storage-$PUBLISH_DIR" &
 PUBLISH_RESOURCE_HOLDER_PID=$!
 
-# For the vacuum helper and this script
+# Exports are for the vacuum helper and this script
 export SSH_IDENTITY="$PWD/.secure_files/ssh.key"
 export SSH_USER=kdeos
 export SSH_HOST=tinami.kde.org
@@ -65,7 +65,7 @@ export VACUUM_REALLY_DELETE=1
 export GNUPGHOME="$PWD/.secure_files/gpg"
 
 S3_CHANNEL_TARGET="s3+https://storage.kde.org/kde-linux/${PUBLISH_DIR}/"
-S3_STORE="${S3_CHANNEL_TARGET}sysupdate/store/"
+export S3_STORE="${S3_CHANNEL_TARGET}sysupdate/store/"
 
 # upload tree built during staging
 V2_TREE="upload-tree/sysupdate/v2"

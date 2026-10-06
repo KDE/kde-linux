@@ -297,6 +297,11 @@ func main() {
 		log.Fatal("PUBLISH_DIR not set. Cannot publish! Check that .kde-linux-metadata gets applied correctly")
 	}
 
+	storeUrl := os.Getenv("S3_STORE")
+	if storeUrl == "" {
+		log.Fatal("S3_STORE not set. Cannot publish! Check that upload.sh is well formed")
+	}
+
 	config, err := readConfig(minioClient)
 	if err != nil {
 		log.Fatal(err)
@@ -350,7 +355,7 @@ func main() {
 		}
 
 		log.Println("Pruning desync store with caibx files", caibxFiles)
-		args := []string{"prune", "--yes", "--error-retry-base-interval=8s", "--store", "s3+https://storage.kde.org/kde-linux/sysupdate/store"}
+		args := []string{"prune", "--yes", "--error-retry-base-interval=8s", "--store", storeUrl}
 		args = append(args, caibxFiles...)
 		cmd := exec.Command("desync", args...)
 		cmd.Stdout = os.Stdout
