@@ -6,6 +6,20 @@
 # hook installed by build.sh, it runs pre-commit itself. Installed tools
 # are used as they are, missing ones are fetched with uv.
 
+# Git tools running as Flatpak can't see the host's tools, so run there.
+if [ -n "${FLATPAK_ID-}" ] && [ -e /.flatpak-info ]; then
+    if ! flatpak-spawn --host true 2>/dev/null; then
+        echo "The linters need to run on the host. Allow it once with:" >&2
+        echo "  flatpak override --user --talk-name=org.freedesktop.Flatpak $FLATPAK_ID" >&2
+        exit 1
+    fi
+    set -- "$PWD/.gitlab-ci/scripts/pre-commit-tool" "$@"
+    if [ -n "${GIT_INDEX_FILE-}" ]; then
+        set -- "--env=GIT_INDEX_FILE=$GIT_INDEX_FILE" "$@"
+    fi
+    exec flatpak-spawn --host --watch-bus --directory="$PWD" "$@"
+fi
+
 if [ $# -eq 0 ]; then
     set -- pre-commit run
 fi

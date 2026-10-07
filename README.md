@@ -43,7 +43,7 @@ The KDE Linux team is super excited to receive new contributors! The OS is easy 
 
 See https://linux.kde.org/docs/kde-linux-dev for details.
 
-Building the image installs a git pre-commit hook that runs the linters from `.pre-commit-config.yaml`. Installed tools are used as they are, missing ones are fetched with `uv`. To lint the whole tree, run `.gitlab-ci/scripts/pre-commit-tool pre-commit run --all-files`.
+Building the image installs a git pre-commit hook that runs the linters from `.pre-commit-config.yaml`. Installed tools are used as they are, missing ones are fetched with `uv`. Git tools installed as Flatpak need host access for the hook; it prints the command to allow it. To lint the whole tree, run `.gitlab-ci/scripts/pre-commit-tool pre-commit run --all-files`.
 
 Not sure what to work on?
 - [newcomer-friendly issues](https://invent.kde.org/kde-linux/kde-linux/-/work_items?sort=created_date&state=opened&label_name%5B%5D=Newcomer&first_page_size=100)
