@@ -1,0 +1,65 @@
+# Translation of kde-linux into Russian.
+# This file is distributed under the same license as the kde-linux package.
+# Alexander Yavorsky <kekcuha@gmail.com>, 2026.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: kde-linux\n"
+"Report-Msgid-Bugs-To: https://bugs.kde.org\n"
+"POT-Creation-Date: 2026-09-17 00:42+0000\n"
+"PO-Revision-Date: 2026-10-09 19:38+0200\n"
+"Last-Translator: Alexander Yavorsky <kekcuha@gmail.com>\n"
+"Language-Team: Russian <kde-russian@lists.kde.ru>\n"
+"Language: ru\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=4; plural=n==1 ? 3 : n%10==1 && n%100!=11 ? 0 : n"
+"%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
+
+#: mkosi.extra/usr/lib/command-not-found-handler.py:74
+msgid ""
+"KDE Linux does not include the “{}” tool.\n"
+"\n"
+"Instead, try using “{}”."
+msgstr ""
+"В KDE Linux нет инструмента «{}».\n"
+"\n"
+"Вместо него попробуйте «{}»."
+
+#: mkosi.extra/usr/lib/command-not-found-handler.py:76
+msgid ""
+"KDE Linux does not include the “{}” package manager.\n"
+"\n"
+"Graphical software is available using the Discover app center. To learn how "
+"to install software that’s not available in Discover, see {}"
+msgstr ""
+"В KDE Linux нет менеджера пакетов «{}».\n"
+"\n"
+"Приложения с графическим интерфейсом можно установить из центра приложений "
+"Discover. О том, как установить программное обеспечение, которого нет в "
+"Discover, см. {}"
+
+#: mkosi.extra/usr/lib/command-not-found-handler.py:78
+msgid ""
+"KDE Linux does not pre-install the “{}” package manager, but it can be added "
+"manually.\n"
+"\n"
+"To do so, follow the instructions at {}"
+msgstr ""
+"В KDE Linux менеджер пакетов «{}» заранее не установлен, но его можно "
+"добавить вручную.\n"
+"\n"
+"Для этого следуйте инструкциям по адресу {}"
+
+#: mkosi.extra/usr/lib/command-not-found-handler.py:80
+msgid ""
+"KDE Linux does not include the “{}” command.\n"
+"\n"
+"If you know it exists, and it’s important for your workflow, learn about "
+"options for getting it at {}"
+msgstr ""
+"В KDE Linux нет команды «{}».\n"
+"\n"
+"Если эта команда существует и важна для вашей работы, способы её получения "
+"описаны по адресу {}"
