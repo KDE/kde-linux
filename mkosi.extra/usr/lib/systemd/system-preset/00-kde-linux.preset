@@ -20,6 +20,7 @@ enable cups.socket
 enable ModemManager.service
 enable NetworkManager.service
 enable pcscd.socket
+enable polkit-agent-helper.socket
 enable plasma-setup.service
 enable plasmalogin.service
 enable ratbagd.service
