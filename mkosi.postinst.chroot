@@ -78,6 +78,8 @@ cat /usr/lib/os-release
 mv -v /usr/share/applications/kde-mimeapps.list /usr/share/applications/mimeapps.list
 mv -v /usr/share/applications/kde-linux-mimeapps.list /usr/share/applications/kde-mimeapps.list
 
+update-desktop-database /usr/share/applications
+
 download_flatpaks() {
     flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
     # Do this separately, when used as part of remote-add it complains about GPG for unknown reasons
