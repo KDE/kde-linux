@@ -229,7 +229,7 @@ systemd-repart \
     "$ISO"
 
 # In case the owner is root
-chown -R user:user mkosi.output
+chown -R $UID:$UID mkosi.output
 
 # Create a torrent for the image
 ./torrent-create.rb "$VERSION" "$OUTPUT" "$ISO"
