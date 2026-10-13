@@ -7,7 +7,7 @@ sources:
 - kind: git_repo
   url: invent:kde-linux/kde-linux-packages.git
   track: buildstream
-  ref: 9b52f9b2f51702a803a3f4d9b2746b153a8abd20
+  ref: d1e9a07bc28d2b1fcbdcca3c841ed75a5b3f3453
 
 config:
   overrides:
