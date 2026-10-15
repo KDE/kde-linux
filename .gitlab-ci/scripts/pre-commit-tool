@@ -39,6 +39,8 @@ fi
 case "$tool" in
     shellcheck) package=shellcheck-py ;;
     check-*) package=pre-commit-hooks ;;
+    # Without it reuse needs libmagic, which isn't found on e.g. NixOS
+    reuse) package='reuse[charset-normalizer]' ;;
     *) package=$tool ;;
 esac
 
