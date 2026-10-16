@@ -88,7 +88,7 @@ if [ -r /etc/fstab ]; then
 fi
 
 collect dmesg.txt run0 dmesg
-journalctl -b 0 -p 4 --no-pager > "${report_dir}/journal-current-boot.txt" 2>&1 || true
+journalctl -b 0 --no-pager > "${report_dir}/journal-current-boot.txt" 2>&1 || true
 journalctl -b -1 -p 4 --no-pager > "${report_dir}/journal-previous-boot.txt" 2>&1 || true
 
 if command -v brew >/dev/null 2>&1; then
