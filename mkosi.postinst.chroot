@@ -96,12 +96,18 @@ cat /usr/lib/os-release
 mv -v /usr/share/applications/kde-mimeapps.list /usr/share/applications/mimeapps.list
 mv -v /usr/share/applications/kde-linux-mimeapps.list /usr/share/applications/kde-mimeapps.list
 
+# Install our Python package for the flatpak-installer
+# --offline so it uses pyyaml from the packages pipeline, doesn't attempt to pull deps
+cd /tmp
+git clone --depth 1 https://invent.kde.org/kde-linux/flatpak-installer-tooling.git
+uv pip install --system --break-system-packages --offline ./flatpak-installer-tooling
+
 download_flatpaks() {
     # Setting "*" will let Flatpak download all languages at once
     flatpak config --set languages "*"
 
     # Install Flatpaks as per the preinstall config
-    /usr/lib/install-flatpaks-from-spec \
+    install-flatpaks-from-spec \
         --spec-path /usr/share/kde-linux/preinstalled-flatpak-spec.yaml \
         --history-path /usr/share/kde-linux/preinstalled-flatpak-history.yaml
 
