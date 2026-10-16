@@ -10,4 +10,4 @@ After=network-online.target
 
 [Service]
 Type=oneshot
-ExecStart=/usr/lib/install-flatpaks-from-spec --spec-path /usr/share/kde-linux/preinstalled-flatpak-spec.yaml --history-path /var/lib/kde-linux/preinstalled-flatpak-history.yaml
+ExecStart=install-flatpaks-from-spec --spec-path /usr/share/kde-linux/preinstalled-flatpak-spec.yaml --history-path /var/lib/kde-linux/preinstalled-flatpak-history.yaml
