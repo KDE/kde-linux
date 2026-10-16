@@ -103,6 +103,10 @@ global:
     # Not supported on immutable distros like KDE Linux
     - plymouth-kcm
 
+  # Refresh sysext after building so the newly installed content is used
+  post-install-commands:
+    - run0 systemd-sysext refresh --always-refresh=yes
+
 # With base options set, the remainder of the file is used to define projects to build, in the
 # desired order, and set any project-specific options.
 
