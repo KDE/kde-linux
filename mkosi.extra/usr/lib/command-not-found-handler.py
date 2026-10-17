@@ -2,8 +2,10 @@
 # SPDX-License-Identifier: GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL
 # SPDX-FileCopyrightText: 2025 Nate Graham <nate@kde.org>
 
-import sys
 import gettext
+import os
+import subprocess
+import sys
 
 gettext.install("kde-linux")
 
@@ -11,6 +13,12 @@ moreSoftwareUrl = "https://linux.kde.org/docs/more-software"
 moreSoftwareHomebrewUrl = moreSoftwareUrl + "/#homebrew"
 moreSoftwareNixUrl = moreSoftwareUrl + "/#nix"
 moreSoftwareOtherUrl = moreSoftwareUrl + "/#software-not-listed-above"
+
+# Executables here get a go at unknown commands, in order, called with the command
+# and its arguments. Exiting with 3 passes the command on; any other status is
+# returned as the command's.
+hooks = "/usr/lib/command-not-found.d"
+passed_on = 3
 
 known_alternatives = {
     "adduser" : "useradd",
@@ -77,6 +85,20 @@ elif command in unsupported_package_managers:
 elif command in available_package_managers:
     message = gettext.gettext("KDE Linux does not pre-install the “{}” package manager, but it can be added manually.\n\nTo do so, follow the instructions at {}").format(command, available_package_managers[command])
 else:
+    try:
+        names = sorted(os.listdir(hooks))
+    except OSError:
+        names = []
+    for name in names:
+        hook = os.path.join(hooks, name)
+        if not os.access(hook, os.X_OK):
+            continue
+        try:
+            status = subprocess.run([hook, *sys.argv[1:]], check=False).returncode
+        except KeyboardInterrupt:
+            sys.exit(130)
+        if status != passed_on:
+            sys.exit(status)
     message = gettext.gettext("KDE Linux does not include the “{}” command.\n\nIf you know it exists, and it’s important for your workflow, learn about options for getting it at {}").format(command, moreSoftwareOtherUrl)
 
 print("\n" + message + "\n")

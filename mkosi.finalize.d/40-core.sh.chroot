@@ -190,7 +190,7 @@ setcap 'cap_perfmon=+ep' /usr/lib/ksystemstats_intel_helper
 cat <<- EOF >> /etc/bash.bashrc
 
 command_not_found_handle () {
-    python3 /usr/lib/command-not-found-handler.py "\$1"
+    python3 /usr/lib/command-not-found-handler.py "\$@"
 }
 EOF
 
