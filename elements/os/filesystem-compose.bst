@@ -4,6 +4,10 @@
 kind: compose
 
 build-depends:
+- os/btrfs-migrator.bst
+- os/run0-sudo-shim.bst
+- os/etc-factory.bst
+- os/kde-linux-sysupdated.bst
 - kde-linux-packages.bst:kde-buildstream.bst:os/deps.bst
 - os/initial-scripts.bst
 - os/os-release.bst
