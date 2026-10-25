@@ -34,14 +34,6 @@ func connectToMinIO() *minio.Client {
 		log.Fatalln("Failed to connect to MinIO:", err)
 	}
 
-	buckets, err := minioauth.ListBuckets(minioClient)
-	if err != nil {
-		log.Fatalln("Failed to list buckets:", err)
-	}
-	for _, bucket := range buckets {
-		log.Println(bucket)
-	}
-
 	return minioClient
 }
 
