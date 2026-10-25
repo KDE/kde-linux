@@ -60,5 +60,5 @@ echo "UPSTREAM_CI_PIPELINE_URL=$CI_PIPELINE_URL" >> build.env
 
 echo "𓃀𓂝𓏏𓃀𓂝𓏏𓃀𓂝𓏏𓃀𓂝𓏏𓃀𓂝𓏏𓃀𓂝𓏏𓃀𓂝𓏏𓃀𓂝𓏏𓃀𓂝𓏏𓃀𓂝𓏏𓃀𓂝𓏏𓃀𓂝𓏏𓃀𓂝𓏏𓃀𓂝𓏏"
 echo "You can find the raw disk images and sysupdate tree at:"
-echo "https://qoomon.github.io/aws-s3-bucket-browser/index.html?bucket=https://ci-build-artifacts.s3.kde.org/#${CI_MERGE_REQUEST_SOURCE_PROJECT_PATH:-${CI_PROJECT_PATH}}/j/$CI_JOB_ID/"
+echo "https://ci-build-artifacts.s3.kde.org/index.html#${CI_MERGE_REQUEST_SOURCE_PROJECT_PATH:-${CI_PROJECT_PATH}}/j/$CI_JOB_ID/"
 echo "𓃀𓂝𓏏𓃀𓂝𓏏𓃀𓂝𓏏𓃀𓂝𓏏𓃀𓂝𓏏𓃀𓂝𓏏𓃀𓂝𓏏𓃀𓂝𓏏𓃀𓂝𓏏𓃀𓂝𓏏𓃀𓂝𓏏𓃀𓂝𓏏𓃀𓂝𓏏𓃀𓂝𓏏"
