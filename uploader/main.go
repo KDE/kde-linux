@@ -141,7 +141,7 @@ func upload(client *minio.Client, bucket string, objectNamePrefix string) {
 }
 
 func main() {
-	remote := flag.String("remote", "", "remote url to upload to, e.g. s3+https://storage.kde.org/kde-linux/sysupdate/v2/store")
+	remote := flag.String("remote", "", "remote url to upload to, e.g. s3+https://s3.kde.org/kde-linux-images/sysupdate/v2/store")
 	flag.Parse()
 
 	remoteURI, err := url.Parse(*remote)
@@ -151,7 +151,7 @@ func main() {
 	if remoteURI.Scheme != "s3+https" {
 		log.Fatalln("Unsupported remote scheme:", remoteURI.Scheme)
 	}
-	if remoteURI.Host != "storage.kde.org" {
+	if remoteURI.Host != "s3.kde.org" {
 		log.Fatalln("Unsupported remote host:", remoteURI.Host)
 	}
 	parts := strings.SplitN(remoteURI.Path[1:], "/", 2)

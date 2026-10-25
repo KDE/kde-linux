@@ -24,7 +24,7 @@ make_debug_archive () {
   mkdir --parents /var/tmp/debugroot
 
   # Download and extract debug symbols produced by the packages pipeline.
-  curl --fail "https://storage.kde.org/kde-linux-packages/$KDE_LINUX_EDITION/artifacts/debug.tar.zst" \
+  curl --fail "https://kde-linux-packages.s3.kde.org/$KDE_LINUX_EDITION/artifacts/debug.tar.zst" \
     | zstd --decompress | tar --extract --directory=/var/tmp/debugroot
 
   # systemd-sysext uses the os-release in extension-release.d to verify the sysext matches the base OS,
@@ -74,7 +74,7 @@ EOF
 mkdir --parents mkosi.sandbox/etc/pacman.d
 # Ensure the base image does not go out of sync with the Arch snapshot used to build packages.
 # WARNING: code copy in bootstrap.sh
-BUILD_REPO=$(curl --fail --silent "https://storage.kde.org/kde-linux-packages/$KDE_LINUX_EDITION/repo/build_repo.txt")
+BUILD_REPO=$(curl --fail --silent "https://kde-linux-packages.s3.kde.org/$KDE_LINUX_EDITION/repo/build_repo.txt")
 if [ -z "$BUILD_REPO" ]; then
   echo "ERROR: Could not fetch build_repo.txt — refusing to build out-of-sync image." >&2
   exit 1
@@ -112,11 +112,11 @@ DESTDIR=$PWD/mkosi.extra make --directory=etc-factory install
 
 # Extract the KDE packages pipeline output into mkosi.extra so kde-builder built files
 # are baked directly into the image instead of going through the package repo.
-curl --fail "https://storage.kde.org/kde-linux-packages/$KDE_LINUX_EDITION/artifacts/install.tar.zst" \
+curl --fail "https://kde-linux-packages.s3.kde.org/$KDE_LINUX_EDITION/artifacts/install.tar.zst" \
     -o install.tar.zst
 
 # Generate a mkosi dropin with the packages from the packages pipeline
-curl --fail "https://storage.kde.org/kde-linux-packages/$KDE_LINUX_EDITION/artifacts/packages.txt" \
+curl --fail "https://kde-linux-packages.s3.kde.org/$KDE_LINUX_EDITION/artifacts/packages.txt" \
     -o packages.txt
 
 mkdir -p mkosi.conf.d

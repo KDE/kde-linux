@@ -35,7 +35,7 @@ cp /etc/pacman.conf /etc/pacman.conf.nolinux # store a backup for use in the pac
 # Ensure the packages repo and the base image do not go out of sync
 # by using the same snapshot date from BUILD_REPO.txt for both
 # WARNING: code copy in build.sh
-BUILD_REPO=$(curl --fail --silent https://storage.kde.org/kde-linux-packages/testing/repo/build_repo.txt)
+BUILD_REPO=$(curl --fail --silent https://kde-linux-packages.s3.kde.org/testing/repo/build_repo.txt)
 if [ -z "$BUILD_REPO" ]; then
   echo "ERROR: Could not fetch build_repo.txt — refusing to build out-of-sync image." >&2
   exit 1

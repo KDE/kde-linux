@@ -27,7 +27,7 @@ type release struct {
 }
 
 func connectToMinIO() *minio.Client {
-	endpoint := "storage.kde.org"
+	endpoint := "s3.kde.org"
 
 	minioClient, err := minioauth.Connect(endpoint)
 	if err != nil {
@@ -47,7 +47,7 @@ func connectToMinIO() *minio.Client {
 
 func loadReleasesMinIO(client *minio.Client, dir string, config *config) (releases map[string]release, err error) {
 	releases = make(map[string]release)
-	bucketName := "kde-linux"
+	bucketName := "kde-linux-images"
 	ctx := context.Background()
 
 	log.Println("Loading releases from MinIO bucket", bucketName)
@@ -78,7 +78,7 @@ func loadReleasesMinIO(client *minio.Client, dir string, config *config) (releas
 }
 
 func downloadCaibxFiles(client *minio.Client) (caibxFiles []string, err error) {
-	bucketName := "kde-linux"
+	bucketName := "kde-linux-images"
 	ctx := context.Background()
 
 	log.Println("Downloading caibx files from", bucketName)
@@ -153,7 +153,7 @@ type config struct {
 }
 
 func readConfig(client *minio.Client) (*config, error) {
-	configFile, err := client.GetObject(context.Background(), "kde-linux", "vacuum.yaml", minio.GetObjectOptions{})
+	configFile, err := client.GetObject(context.Background(), "kde-linux-images", "vacuum.yaml", minio.GetObjectOptions{})
 	if err != nil {
 		return nil, err
 	}
@@ -350,7 +350,7 @@ func main() {
 		}
 
 		log.Println("Pruning desync store with caibx files", caibxFiles)
-		args := []string{"prune", "--yes", "--error-retry-base-interval=8s", "--store", "s3+https://storage.kde.org/kde-linux/sysupdate/store"}
+		args := []string{"prune", "--yes", "--error-retry-base-interval=8s", "--store", "s3+https://s3.kde.org/kde-linux-images/sysupdate/store"}
 		args = append(args, caibxFiles...)
 		cmd := exec.Command("desync", args...)
 		cmd.Stdout = os.Stdout

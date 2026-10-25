@@ -55,19 +55,17 @@ kde-linux-resource-semaphore/resource-holder --resource "image-storage-$PUBLISH_
 PUBLISH_RESOURCE_HOLDER_PID=$!
 
 # For the vacuum helper and this script
-export SSH_IDENTITY="$PWD/.secure_files/ssh.key"
-export SSH_REALLY_DELETE=1
 export VACUUM_REALLY_DELETE=1
 export GNUPGHOME="$PWD/.secure_files/gpg"
 
 # upload tree built during staging
 V2_TREE="upload-tree/sysupdate/v2"
-S3_TARGET="s3+https://storage.kde.org/kde-linux/"
+S3_TARGET="s3+https://s3.kde.org/kde-linux-images/"
 S3_CHANNEL_TARGET="${S3_TARGET}${PUBLISH_DIR}/"
 S3_STORE="${S3_TARGET}sysupdate/store/"
 
 stage() {
-    S3_TARGET_STAGING="s3+https://storage.kde.org/ci-artifacts/${CI_MERGE_REQUEST_SOURCE_PROJECT_PATH:-${CI_PROJECT_PATH}}/p/$CI_PIPELINE_ID"
+    S3_TARGET_STAGING="s3+https://s3.kde.org/ci-build-artifacts/${CI_MERGE_REQUEST_SOURCE_PROJECT_PATH:-${CI_PROJECT_PATH}}/p/$CI_PIPELINE_ID"
 
     # Stage the freshly built image into the bucket.
     sudo chown -R "$USER":"$USER" "$OUTDIR"
@@ -168,7 +166,6 @@ publish() {
 }
 
 sudo chown -Rvf "$(id -u):$(id -g)" "$PWD/.secure_files" # Make sure we have access
-chmod 600 "$SSH_IDENTITY"
 if [[ ! -d "$GNUPGHOME" ]]; then
     mkdir "$GNUPGHOME"
     chmod 700 "$GNUPGHOME"

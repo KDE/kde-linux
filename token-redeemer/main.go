@@ -112,7 +112,7 @@ func (r *Redeemer) writeConfigAWS(creds Credentials) {
 func (r *Redeemer) writeConfigDesync(creds Credentials) {
 	config := DesyncConfig{
 		S3Credentials: map[string]DesyncS3Creds{
-			"https://storage.kde.org": {
+			"https://s3.kde.org": {
 				AwsCredentialsFile: r.awsConfigPath,
 			},
 		},

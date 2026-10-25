@@ -157,7 +157,7 @@ func parseURL(URLString string) *url.URL {
 	if parsedURL.Scheme != "s3+https" {
 		log.Fatalln("Unsupported URL scheme:", parsedURL.Scheme)
 	}
-	if parsedURL.Host != "storage.kde.org" {
+	if parsedURL.Host != "s3.kde.org" {
 		log.Fatalln("Unsupported URL host:", parsedURL.Host)
 	}
 	return parsedURL
@@ -186,10 +186,10 @@ func getBucketAndPath(bucketURL *url.URL) (string, string) {
 // Either downloads every build artifact from the source into --output,
 // or publishes the source tree into the destination.
 func main() {
-	src := flag.String("src", "", "source URL to publish from, e.g. s3+https://storage.kde.org/ci-artifacts/project/j/1")
+	src := flag.String("src", "", "source URL to publish from, e.g. s3+https://s3.kde.org/ci-build-artifacts/project/j/1")
 	downloadMode := flag.Bool("download", false, "download artifacts from the source tree")
 	output := flag.String("output", ".", "directory to download artifacts into")
-	dest := flag.String("dest", "", "destination URL to publish to, e.g. s3+https://storage.kde.org/kde-linux/")
+	dest := flag.String("dest", "", "destination URL to publish to, e.g. s3+https://s3.kde.org/kde-linux-images/")
 	flag.Parse()
 
 	if *downloadMode == (*dest != "") {
