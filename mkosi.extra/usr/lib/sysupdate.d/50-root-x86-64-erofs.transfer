@@ -8,7 +8,7 @@ AppStream=https://autoconfig.kde.org/kde-linux/%EDITION%/org.kde.linux.metainfo.
 [Source]
 Type=url-file
 # %W is the VARIANT_ID
-Path=https://storage.kde.org/kde-linux/%W/sysupdate/v2/
+Path=https://kde-linux-images.s3.kde.org/%W/sysupdate/v2/
 MatchPattern=kde-linux_@v_root-x86-64.erofs
 
 [Target]

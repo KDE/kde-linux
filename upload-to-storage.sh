@@ -53,7 +53,7 @@ go -C ./uploader/ run . --remote "s3+https://s3.kde.org/ci-build-artifacts/${CI_
 ISO_FILE=$(find upload-tree -maxdepth 1 -name '*.iso' | head -1 | xargs -r basename)
 echo "IMAGE_URL=https://ci-build-artifacts.s3.kde.org/${CI_MERGE_REQUEST_SOURCE_PROJECT_PATH:-${CI_PROJECT_PATH}}/j/$CI_JOB_ID/$ISO_FILE" >> build.env
 echo "VARIANT=${KDE_LINUX_EDITION}" >> build.env
-echo "CHANNEL_URL=https://storage.kde.org/kde-linux/${KDE_LINUX_EDITION}/" >> build.env # For upgrade test flows
+echo "CHANNEL_URL=https://kde-linux-images.s3.kde.org/${KDE_LINUX_EDITION}/" >> build.env # For upgrade test flows
 echo "STAGING_CHANNEL_URL=https://ci-build-artifacts.s3.kde.org/${CI_MERGE_REQUEST_SOURCE_PROJECT_PATH:-${CI_PROJECT_PATH}}/j/$CI_JOB_ID/sysupdate/v2/" >> build.env
 echo "SYSUPDATE_PUBKEY_B64=$SYSUPDATE_PUBKEY_B64" >> build.env
 echo "UPSTREAM_CI_PIPELINE_URL=$CI_PIPELINE_URL" >> build.env
