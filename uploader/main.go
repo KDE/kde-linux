@@ -17,26 +17,26 @@ import (
 	"strings"
 	"sync"
 
-	"invent.kde.org/kde-linux/kde-linux/minioauth"
-
-	"github.com/minio/minio-go/v7"
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/feature/s3/transfermanager"
+	"github.com/aws/aws-sdk-go-v2/service/s3"
 )
 
-func connectToMinIO(endpoint string) *minio.Client {
-	minioClient, err := minioauth.Connect(endpoint)
+func connectToS3(endpoint string) *s3.Client {
+	cfg, err := config.LoadDefaultConfig(
+		context.TODO(),
+		config.WithRegion("us-east-1"),
+	)
 	if err != nil {
-		log.Fatalln("Failed to connect to MinIO:", err)
+		log.Fatalf("failed to load SDK configuration, %v", err)
 	}
 
-	buckets, err := minioauth.ListBuckets(minioClient)
-	if err != nil {
-		log.Fatalln("Failed to list buckets:", err)
-	}
-	for _, bucket := range buckets {
-		log.Println(bucket)
-	}
-
-	return minioClient
+	client := s3.NewFromConfig(cfg, func(o *s3.Options) {
+		o.BaseEndpoint = aws.String("https://s3.kde.org")
+		o.UsePathStyle = true
+	})
+	return client
 }
 
 func sha256File(path string) string {
@@ -59,7 +59,7 @@ type UploadObject struct {
 	SHA256     string
 }
 
-func upload(client *minio.Client, bucket string, objectNamePrefix string) {
+func upload(client *s3.Client, bucket string, objectNamePrefix string) {
 	dir := "../upload-tree"
 
 	// Somewhat involved producer-consumer going on here.
@@ -69,6 +69,7 @@ func upload(client *minio.Client, bucket string, objectNamePrefix string) {
 	// - The workers calculate the sha and then push the complete objects into the results channel.
 	// - Once the calcs waitgroup is done we close the results channel as well to let the uploader drain and finish.
 
+	tmClient := transfermanager.New(client)
 	calcs := make(chan UploadObject, 32) // mind that the size causes this channel to buffer which prevents deadlocks
 	results := make(chan UploadObject, 32)
 
@@ -129,8 +130,15 @@ func upload(client *minio.Client, bucket string, objectNamePrefix string) {
 	// Upload. This loop only ends when results is closed and drained.
 	for res := range results {
 		log.Println("Uploading", res.ObjectName, "from", res.Path)
-		_, err := client.FPutObject(context.Background(), bucket, res.ObjectName, res.Path, minio.PutObjectOptions{
-			UserMetadata: map[string]string{
+		file, err := os.Open(res.Path)
+		if err != nil {
+			log.Fatalln("Failed to open file:", err)
+		}
+		_, err = tmClient.UploadObject(context.Background(), &transfermanager.UploadObjectInput{
+			Bucket: aws.String(bucket),
+			Key:    aws.String(res.ObjectName),
+			Body:   file,
+			Metadata: map[string]string{
 				"X-KDE-SHA256": res.SHA256,
 			},
 		})
@@ -169,8 +177,8 @@ func main() {
 	}
 
 	log.Println("Connecting to MinIO at", remoteURI.Host)
-	minioClient := connectToMinIO(remoteURI.Host)
+	s3Client := connectToS3(remoteURI.Host)
 
 	log.Println("Uploading to bucket", bucket, "with path prefix", path)
-	upload(minioClient, bucket, path)
+	upload(s3Client, bucket, path)
 }

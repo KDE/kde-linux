@@ -150,7 +150,7 @@ func main() {
 	}
 
 	redeemer := Redeemer{
-		tokensUrl:        "https://tokens.kde.org/minio/gitlab",
+		tokensUrl:        "https://tokens.kde.org/s3/gitlab",
 		desyncConfigPath: home + "/.config/desync/config.json",
 		awsConfigPath:    home + "/.aws/credentials",
 	}
