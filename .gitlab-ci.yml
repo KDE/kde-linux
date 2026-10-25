@@ -38,7 +38,7 @@ imaging:
       variables:
         IMAGING_MODE: test
   allow_failure: false
-  image: storage.kde.org/vm-images/kde-linux-builder
+  image: s3.kde.org/ci-vm-images/kde-linux-builder
   id_tokens: &tokens
     MINIO_OIDC:
       aud: https://tokens.kde.org
@@ -126,7 +126,7 @@ publish:
     - job: trigger-openqa
       artifacts: false
   allow_failure: false
-  image: storage.kde.org/vm-images/kde-linux-builder
+  image: s3.kde.org/ci-vm-images/kde-linux-builder
   id_tokens: *tokens
   variables: *variables
   resource_group: kde-linux-publish
@@ -153,7 +153,7 @@ publish-manual:
   needs:
     - job: imaging
       artifacts: true
-  image: storage.kde.org/vm-images/kde-linux-builder
+  image: s3.kde.org/ci-vm-images/kde-linux-builder
   id_tokens: *tokens
   variables: *variables
   resource_group: kde-linux-publish
