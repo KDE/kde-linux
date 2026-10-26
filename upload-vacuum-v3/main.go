@@ -58,7 +58,7 @@ func loadReleasesMinIO(client *minio.Client, dir string, config *config) (releas
 			client:    client,
 			bucket:    bucketName,
 			path:      object.Key,
-			sha256Sum: object.UserMetadata["X-Amz-Meta-X-Kde-Sha256"],
+			sha256Sum: object.UserMetadata["x-kde-sha256"],
 		})
 		if err != nil {
 			return
