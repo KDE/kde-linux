@@ -171,10 +171,6 @@ func main() {
 	if bucket == "" {
 		log.Fatalln("Invalid remote path, expected format: /bucket/path")
 	}
-	if path == "" {
-		log.Println("Warning: path is empty, uploading to bucket root")
-		path = "/"
-	}
 
 	log.Println("Connecting to MinIO at", remoteURI.Host)
 	s3Client := connectToS3(remoteURI.Host)
