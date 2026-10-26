@@ -18,6 +18,8 @@ ukify build \
     systemd.log_level=debug systemd.log_target=kmsg log_buf_len=1M printk.devkmsg=on systemd.show_status=auto rd.udev.log_level=3' \
   --output debug.addon.efi
 
+# also useful:  rd.systemd.break=pre-switch-root
+
 ukify build \
   --cmdline 'init=/usr/lib/systemd/systemd-bootchart' \
   --output bootchart.addon.efi

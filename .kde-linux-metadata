@@ -6,4 +6,4 @@
 #
 # This file is meant to be per-edition and should not ever get merged!
 
-KDE_LINUX_EDITION=testing
+KDE_LINUX_EDITION=testing-buildstream
