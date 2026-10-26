@@ -55,15 +55,13 @@ func loadReleasesMinIO(client *minio.Client, dir string, config *config) (releas
 
 		objInfo, error := client.StatObject(ctx, bucketName, object.Key, minio.StatObjectOptions{})
 		if error != nil {
-			log.Fatalln("Error fetching object stats:", error)
+			log.Println("Error fetching object stats: ", error, " : ", object.Key)
 		}
-		log.Println(objInfo.UserMetadata)
-
 		err = appendRelease(&releases, S3Artifact{
 			client:    client,
 			bucket:    bucketName,
 			path:      object.Key,
-			sha256Sum: objInfo.UserMetadata["x-kde-sha256"],
+			sha256Sum: objInfo.UserMetadata["X-Kde-Sha256"],
 		})
 		if err != nil {
 			return
