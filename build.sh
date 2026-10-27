@@ -140,7 +140,7 @@ cp $BUILDSTREAM_EFI/usr/share/ovmf/Shell.efi $BUILDSTREAM_ROOTFS/usr/share/ovmf/
 # Make sure permissions are sound
 ./permission-fix.sh
 
-wget --output-document=install.tar.zst "https://storage.kde.org/kde-linux-packages/$KDE_LINUX_EDITION/artifacts/install.tar.zst"
+wget --output-document=install.tar.zst "https://kde-linux-packages.s3.kde.org/$KDE_LINUX_EDITION/artifacts/install.tar.zst"
 
 mkosi \
     --environment="CI_COMMIT_SHORT_SHA=${CI_COMMIT_SHORT_SHA:-unknownSHA}" \
