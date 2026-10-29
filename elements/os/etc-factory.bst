@@ -4,13 +4,13 @@
 kind: manual
 
 build-depends:
-- kde-linux-packages.bst:kde-buildstream.bst:freedesktop-sdk.bst:public-stacks/buildsystem-make.bst
-- kde-linux-packages.bst:kde-buildstream.bst:freedesktop-sdk.bst:components/rust.bst
-- kde-linux-packages.bst:kde-buildstream.bst:freedesktop-sdk.bst:components/llvm.bst
-- kde-linux-packages.bst:kde-buildstream.bst:freedesktop-sdk.bst:components/pkg-config.bst
+- kde-buildstream.bst:freedesktop-sdk.bst:public-stacks/buildsystem-make.bst
+- kde-buildstream.bst:freedesktop-sdk.bst:components/rust.bst
+- kde-buildstream.bst:freedesktop-sdk.bst:components/llvm.bst
+- kde-buildstream.bst:freedesktop-sdk.bst:components/pkg-config.bst
 
 depends:
-- kde-linux-packages.bst:kde-buildstream.bst:freedesktop-sdk.bst:components/btrfs-progs.bst
+- kde-buildstream.bst:freedesktop-sdk.bst:components/btrfs-progs.bst
 
 config:
   build-commands:

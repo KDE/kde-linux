@@ -6,16 +6,16 @@ kind: compose
 # Mind that we don't need to compose drivers we don't ship (e.g. nvidia) because they won't end up in the initrd
 # but get loaded after the switch-root.
 build-depends:
-- kde-linux-packages.bst:kde-buildstream.bst:freedesktop-sdk.bst:components/systemd.bst
+- kde-buildstream.bst:freedesktop-sdk.bst:components/systemd.bst
 - os/plymouth-freetype.bst
-- kde-linux-packages.bst:kde-buildstream.bst:freedesktop-sdk.bst:components/lvm2.bst
-- kde-linux-packages.bst:kde-buildstream.bst:freedesktop-sdk.bst:components/linux.bst
-- kde-linux-packages.bst:kde-buildstream.bst:freedesktop-sdk.bst:components/linux-firmware.bst
-- kde-linux-packages.bst:kde-buildstream.bst:freedesktop-sdk-extra.bst:components/intel-ucode-maybe.bst
+- kde-buildstream.bst:freedesktop-sdk.bst:components/lvm2.bst
+- kde-buildstream.bst:freedesktop-sdk.bst:components/linux.bst
+- kde-buildstream.bst:freedesktop-sdk.bst:components/linux-firmware.bst
+- kde-buildstream.bst:freedesktop-sdk-extra.bst:components/intel-ucode-maybe.bst
 - os/os-release.bst
 - os/systemd-initrd-fonts.bst
 - os/systemd-initrd-mkosi-extra.bst
-- kde-linux-packages.bst:kde-buildstream.bst:freedesktop-sdk.bst:public-stacks/runtime-gnu.bst
+- kde-buildstream.bst:freedesktop-sdk.bst:public-stacks/runtime-gnu.bst
 
 config:
   exclude:

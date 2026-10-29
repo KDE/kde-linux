@@ -5,14 +5,14 @@
 kind: manual
 
 build-depends:
-- kde-linux-packages.bst:kde-buildstream.bst:freedesktop-sdk.bst:public-stacks/runtime-gnu.bst
-- kde-linux-packages.bst:kde-buildstream.bst:freedesktop-sdk.bst:bootstrap/stripper.bst
-- kde-linux-packages.bst:kde-buildstream.bst:freedesktop-sdk.bst:components/binutils.bst # for objdump
+- kde-buildstream.bst:freedesktop-sdk.bst:public-stacks/runtime-gnu.bst
+- kde-buildstream.bst:freedesktop-sdk.bst:bootstrap/stripper.bst
+- kde-buildstream.bst:freedesktop-sdk.bst:components/binutils.bst # for objdump
 
 depends:
 - os/btrfs-migrator.bst
 - os/etc-factory.bst
-- kde-linux-packages.bst:kde-buildstream.bst:freedesktop-sdk.bst:components/btrfs-progs.bst # runtime dep of btrfs stuff
+- kde-buildstream.bst:freedesktop-sdk.bst:components/btrfs-progs.bst # runtime dep of btrfs stuff
 
 config:
   install-commands:

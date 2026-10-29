@@ -9,20 +9,20 @@ kind: meson
 # implementations.
 
 build-depends:
-- kde-linux-packages.bst:kde-buildstream.bst:freedesktop-sdk.bst:public-stacks/buildsystem-meson.bst
-- kde-linux-packages.bst:kde-buildstream.bst:freedesktop-sdk.bst:components/_private/git-minimal.bst
-- kde-linux-packages.bst:kde-buildstream.bst:freedesktop-sdk.bst:components/docbook-xml.bst
-- kde-linux-packages.bst:kde-buildstream.bst:freedesktop-sdk.bst:components/docbook-xsl.bst
-- kde-linux-packages.bst:kde-buildstream.bst:freedesktop-sdk.bst:components/libxslt.bst
-- kde-linux-packages.bst:kde-buildstream.bst:freedesktop-sdk.bst:components/systemd.bst
+- kde-buildstream.bst:freedesktop-sdk.bst:public-stacks/buildsystem-meson.bst
+- kde-buildstream.bst:freedesktop-sdk.bst:components/_private/git-minimal.bst
+- kde-buildstream.bst:freedesktop-sdk.bst:components/docbook-xml.bst
+- kde-buildstream.bst:freedesktop-sdk.bst:components/docbook-xsl.bst
+- kde-buildstream.bst:freedesktop-sdk.bst:components/libxslt.bst
+- kde-buildstream.bst:freedesktop-sdk.bst:components/systemd.bst
 
 depends:
-- kde-linux-packages.bst:kde-buildstream.bst:freedesktop-sdk.bst:public-stacks/runtime-minimal.bst
-- kde-linux-packages.bst:kde-buildstream.bst:freedesktop-sdk.bst:components/freetype.bst
-- kde-linux-packages.bst:kde-buildstream.bst:freedesktop-sdk.bst:components/gtk3.bst
-- kde-linux-packages.bst:kde-buildstream.bst:freedesktop-sdk.bst:components/libdrm.bst
-- kde-linux-packages.bst:kde-buildstream.bst:freedesktop-sdk.bst:components/libevdev.bst
-- kde-linux-packages.bst:kde-buildstream.bst:freedesktop-sdk.bst:components/plymouth-logo.bst
+- kde-buildstream.bst:freedesktop-sdk.bst:public-stacks/runtime-minimal.bst
+- kde-buildstream.bst:freedesktop-sdk.bst:components/freetype.bst
+- kde-buildstream.bst:freedesktop-sdk.bst:components/gtk3.bst
+- kde-buildstream.bst:freedesktop-sdk.bst:components/libdrm.bst
+- kde-buildstream.bst:freedesktop-sdk.bst:components/libevdev.bst
+- kde-buildstream.bst:freedesktop-sdk.bst:components/plymouth-logo.bst
 
 variables:
   meson-local: >-

@@ -1,13 +1,13 @@
-# SPDX-FileCopyrightText: 2025 Aleix Pol Gonzalez <aleix.pol@codethink.co.uk>
+# SPDX-FileCopyrightText: 2026 KDE Linux Contributors
 # SPDX-License-Identifier: BSD-2-Clause
 
 kind: junction
 
 sources:
 - kind: git_repo
-  url: invent:kde-linux/kde-linux-packages.git
-  track: buildstream
-  ref: d1e9a07bc28d2b1fcbdcca3c841ed75a5b3f3453
+  url: invent:packaging/kde-buildstream.git
+  track: work/apol/gen-kde
+  ref: 71f88f79e7e8c8cebde2ebadc36bc63d360beb5b
 
 config:
   overrides:
