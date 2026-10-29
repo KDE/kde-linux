@@ -86,7 +86,7 @@ mkdir -p "$PWD/mkosi.extra/usr/lib"
 
 if [ "${KDECI_BUILD:-}" = "TRUE" ]; then
     # Set up cache overrides
-    git clone --depth=1 https://invent.kde.org/sitter/kde-buildstream.git
+    git clone --depth=1 https://invent.kde.org/packaging/kde-buildstream.git
     mkdir --parents ~/.config
     cp kde-buildstream/buildstream.conf.readable ~/.config/buildstream.conf
 fi
