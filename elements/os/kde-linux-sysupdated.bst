@@ -4,11 +4,11 @@
 kind: manual
 
 build-depends:
-- kde-linux-packages.bst:kde-buildstream.bst:freedesktop-sdk.bst:public-stacks/buildsystem-make.bst
-- kde-linux-packages.bst:kde-buildstream.bst:freedesktop-sdk.bst:components/go.bst
+- kde-buildstream.bst:freedesktop-sdk.bst:public-stacks/buildsystem-make.bst
+- kde-buildstream.bst:freedesktop-sdk.bst:components/go.bst
 
 depends:
-- kde-linux-packages.bst:kde-buildstream.bst:freedesktop-sdk.bst:public-stacks/runtime-minimal.bst
+- kde-buildstream.bst:freedesktop-sdk.bst:public-stacks/runtime-minimal.bst
 
 environment:
   GOTOOLCHAIN: local

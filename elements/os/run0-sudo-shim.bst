@@ -4,11 +4,11 @@
 kind: manual
 
 build-depends:
-- kde-linux-packages.bst:kde-buildstream.bst:freedesktop-sdk.bst:public-stacks/buildsystem-make.bst
-- kde-linux-packages.bst:kde-buildstream.bst:freedesktop-sdk.bst:components/rust.bst
+- kde-buildstream.bst:freedesktop-sdk.bst:public-stacks/buildsystem-make.bst
+- kde-buildstream.bst:freedesktop-sdk.bst:components/rust.bst
 
 depends:
-- kde-linux-packages.bst:kde-buildstream.bst:freedesktop-sdk.bst:components/systemd.bst
+- kde-buildstream.bst:freedesktop-sdk.bst:components/systemd.bst
 
 config:
   build-commands:

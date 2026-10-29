@@ -4,7 +4,7 @@
 kind: collect_initial_scripts
 
 build-depends:
-- kde-linux-packages.bst:kde-buildstream.bst:os/deps.bst
+- kde-buildstream.bst:os/deps.bst
 
 config:
   path: /etc/fdsdk/initial_scripts

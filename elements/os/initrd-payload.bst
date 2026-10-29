@@ -5,7 +5,7 @@
 kind: manual
 
 build-depends:
-- kde-linux-packages.bst:kde-buildstream.bst:freedesktop-sdk.bst:public-stacks/runtime-gnu.bst
+- kde-buildstream.bst:freedesktop-sdk.bst:public-stacks/runtime-gnu.bst
 
 depends:
 - os/btrfs-migrator.bst

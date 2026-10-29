@@ -4,8 +4,8 @@
 kind: manual
 
 build-depends:
-- kde-linux-packages.bst:kde-buildstream.bst:freedesktop-sdk.bst:public-stacks/runtime-gnu.bst
-- kde-linux-packages.bst:kde-buildstream.bst:freedesktop-sdk.bst:components/noto-fonts.bst
+- kde-buildstream.bst:freedesktop-sdk.bst:public-stacks/runtime-gnu.bst
+- kde-buildstream.bst:freedesktop-sdk.bst:components/noto-fonts.bst
 
 variables:
   strip-binaries: ''

@@ -23,11 +23,8 @@ make_debug_archive () {
   rm --recursive --force /var/tmp/debugroot
   mkdir --parents /var/tmp/debugroot
 
-  # Download and extract debug symbols produced by the packages pipeline.
-  curl --fail "https://kde-linux-packages.s3.kde.org/$KDE_LINUX_EDITION/artifacts/debug.tar.zst" \
-    | zstd --decompress | tar --extract --directory=/var/tmp/debugroot
-  # And the ones of the buildstream built OS.
-  cp --archive --reflink=auto "$BUILDSTREAM_DEBUGFS/usr" /var/tmp/debugroot/
+  bst build os/debug.bst
+  bst artifact checkout os/debug.bst --deps none --no-integrate --directory=/var/tmp/debugroot
 
   # systemd-sysext uses the os-release in extension-release.d to verify the sysext matches the base OS,
   # and can therefore be safely installed. Copy the base OS' os-release there.
@@ -97,22 +94,22 @@ fi
 rm -rf "$BUILDSTREAM_ROOTFS" "$BUILDSTREAM_BOOTFS" "$BUILDSTREAM_TOOLFS" "$BUILDSTREAM_INITRDFS" "$BUILDSTREAM_EFI" "$BUILDSTREAM_DEBUGFS"
 # Always track the latest packages. We have no way to track the "correct" version right now.
 # TODO: pass the ref in the install.tar or something so we can actually track the correct ref of the packages pipeline
-bst source track kde-linux-packages.bst os/*.bst
+bst source track kde-buildstream.bst os/*.bst
 bst build \
     os/filesystem.bst \
     os/debug.bst \
     os/initrd.bst \
     os/systemd-initrd-payload.bst \
-    kde-linux-packages.bst:kde-buildstream.bst:freedesktop-sdk.bst:components/ovmf-maybe.bst \
-    kde-linux-packages.bst:kde-buildstream.bst:freedesktop-sdk.bst:vm/prepare-image.bst
+    kde-buildstream.bst:freedesktop-sdk.bst:components/ovmf-maybe.bst \
+    kde-buildstream.bst:freedesktop-sdk.bst:vm/prepare-image.bst
 bst artifact checkout os/filesystem.bst --directory $BUILDSTREAM_ROOTFS
 # KDE Linux owns the login PAM policy. Do not let the freedesktop-sdk
 # shadow configuration get mixed with our Arch-derived pambase stack.
 rm --force "$BUILDSTREAM_ROOTFS/etc/pam.d/login"
 bst artifact checkout os/initrd.bst --directory $BUILDSTREAM_BOOTFS
 bst artifact checkout os/systemd-initrd-payload.bst --directory $BUILDSTREAM_INITRDFS
-bst artifact checkout kde-linux-packages.bst:kde-buildstream.bst:freedesktop-sdk.bst:vm/prepare-image.bst --deps none --directory $BUILDSTREAM_TOOLFS
-bst artifact checkout kde-linux-packages.bst:kde-buildstream.bst:freedesktop-sdk.bst:components/ovmf-maybe.bst --directory $BUILDSTREAM_EFI
+bst artifact checkout kde-buildstream.bst:freedesktop-sdk.bst:vm/prepare-image.bst --deps none --directory $BUILDSTREAM_TOOLFS
+bst artifact checkout kde-buildstream.bst:freedesktop-sdk.bst:components/ovmf-maybe.bst --directory $BUILDSTREAM_EFI
 bst artifact checkout os/debug.bst --directory $BUILDSTREAM_DEBUGFS
 
 mkdir -p $BUILDSTREAM_ROOTFS/usr/share/ovmf/
@@ -121,15 +118,12 @@ cp $BUILDSTREAM_EFI/usr/share/ovmf/Shell.efi $BUILDSTREAM_ROOTFS/usr/share/ovmf/
 # Make sure permissions are sound
 ./permission-fix.sh
 
-wget --output-document=install.tar.zst --progress=dot:giga "https://kde-linux-packages.s3.kde.org/$KDE_LINUX_EDITION/artifacts/install.tar.zst"
-
 mkosi \
     --environment="CI_COMMIT_SHORT_SHA=${CI_COMMIT_SHORT_SHA:-unknownSHA}" \
     --environment="CI_COMMIT_SHA=${CI_COMMIT_SHA:-unknownSHA}" \
     --environment="CI_PIPELINE_URL=${CI_PIPELINE_URL:-https://invent.kde.org}" \
     --environment="KDE_LINUX_EDITION=$KDE_LINUX_EDITION" \
     --image-version="$VERSION" \
-    --extra-tree="$PWD/install.tar.zst" \
     --extra-tree="$PWD/mkosi.extra" \
     "$@"
 

@@ -4,7 +4,7 @@
 kind: script
 
 build-depends:
-- kde-linux-packages.bst:kde-buildstream.bst:freedesktop-sdk.bst:public-stacks/buildsystem-make.bst
+- kde-buildstream.bst:freedesktop-sdk.bst:public-stacks/buildsystem-make.bst
 - filename: os/debug-compose.bst
   config:
     location: /debug
