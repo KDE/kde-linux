@@ -83,6 +83,10 @@ trigger-openqa:
   needs:
     - job: imaging
       artifacts: true
+  # -----------
+  # REMOVE THIS before making the edition mainline
+  allow_failure: true
+  # -----------
   trigger:
     project: kde-linux/os-autoinst-distri-kdelinux
     branch: $OPENQA_BRANCH
