@@ -55,8 +55,10 @@ func loadReleasesMinIO(client *minio.Client, dir string, config *config) (releas
 
 		objInfo, error := client.StatObject(ctx, bucketName, object.Key, minio.StatObjectOptions{})
 		if error != nil {
-			log.Println("Error fetching object stats: ", error, " : ", object.Key)
+			log.Fatalln("Error fetching object stats:", error)
 		}
+		log.Println(objInfo.UserMetadata)
+
 		err = appendRelease(&releases, S3Artifact{
 			client:    client,
 			bucket:    bucketName,
