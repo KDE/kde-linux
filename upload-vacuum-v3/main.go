@@ -52,6 +52,14 @@ func loadReleasesMinIO(client *minio.Client, dir string, config *config) (releas
 		if object.Err != nil {
 			log.Fatalln(object.Err)
 		}
+		if strings.HasSuffix(object.Key, "/") {
+			// Skip directories.
+			// TODO: revisit this when porting away from minioclient.
+			//   Technically we should be able to rely on ContentType at least,
+			//   but the entire object blob is malformed here, except for Key
+			//   (all fields are empty)
+			continue
+		}
 
 		objInfo, error := client.StatObject(ctx, bucketName, object.Key, minio.StatObjectOptions{})
 		if error != nil {
