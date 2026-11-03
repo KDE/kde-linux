@@ -219,6 +219,14 @@ systemd-repart \
     --el-torito-publisher="KDE" \
     "$ISO"
 
+# Pad to whole 2048-byte sectors, VirtualBox rejects the ISO otherwise.
+# sfdisk moves the backup GPT back to the end of the image.
+iso_size=$(stat --format=%s "$ISO")
+if [ $((iso_size % 2048)) -ne 0 ]; then
+    truncate --size=$(( (iso_size + 2047) / 2048 * 2048 )) "$ISO"
+    sfdisk --relocate gpt-bak-std "$ISO"
+fi
+
 # In case the owner is root
 chown -R user:user mkosi.output
 
