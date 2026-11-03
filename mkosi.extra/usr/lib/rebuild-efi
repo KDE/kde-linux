@@ -2,6 +2,9 @@
 # SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL
 # SPDX-FileCopyrightText: 2023-2025 Harald Sitter <sitter@kde.org>
 
+# complains about VERSION being spelled VERSION.
+# shellcheck disable=SC2153
+
 set -ex
 
 . /etc/os-release
@@ -41,6 +44,7 @@ ukify build \
   --linux "/usr/lib/modules/$kernel_version/vmlinuz" \
   --initrd initrd \
   --cmdline @cmdline \
+  --profile "TITLE=\"Installation\"" \
   --output live.efi
 
 # "preempt=full threadirqs" reduces latency especially for audio and gaming workflows.
@@ -74,6 +78,7 @@ ukify build \
   --linux "/usr/lib/modules/$kernel_version/vmlinuz" \
   --initrd initrd \
   --cmdline @cmdline \
+  --profile "TITLE=\"$VERSION ~ $VARIANT_ID\"" \
   --output kde-linux.efi
 
 # Mock artifact for upgrades, see build.sh
