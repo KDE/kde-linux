@@ -15,7 +15,8 @@ build() {
         /usr/lib/udev/cdrom_id \
         /usr/bin/btrfs \
         /usr/bin/blkid \
-        /usr/bin/systemd-dissect
+        /usr/bin/systemd-dissect \
+        /usr/bin/systemd-creds
 
     # The loop service will make the ISO be found by gpt-auto-root
     map add_systemd_unit \
