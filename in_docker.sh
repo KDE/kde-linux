@@ -7,6 +7,5 @@
 # Exit immediately if any command fails and print all commands before they are executed.
 set -ex
 
-# Bootstrap container for building and build.
-./bootstrap.sh
-./build.sh "$@"
+# Dependencies are installed by the Dockerfile.
+exec ./build.sh "$@"
