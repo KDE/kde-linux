@@ -208,14 +208,14 @@ mv "$OUTPUT/live" live-root
 time mkfs.erofs -zzstd -C 65536 --chunksize 65536 \
     kde-linux.cache/live.raw live-root > erofs-live.log 2>&1
 
-# Needs sudo so it can tinker with setuid files
-# shellcheck disable=SC2024
-time sudo mkfs.erofs --all-root -zzstd \
+# Run as root inside an unprivileged user namespace instead of using sudo:
+# our uid maps to root there, so mkfs.erofs can read mode-000 files such as
+# /etc/shadow. Setuid bits are kept, and --all-root makes every file
+# root-owned in the image. The output is created as our user, so no chown.
+time unshare --map-root-user mkfs.erofs --all-root -zzstd \
     -C 65536 --chunksize 65536 \
     "-T$EPOCH" --ignore-mtime \
     "$ROOTFS_EROFS" "$OUTPUT" > erofs.log 2>&1
-# Then chown back the result
-sudo chown $UID:$UID "$ROOTFS_EROFS"
 cp --reflink=auto "$ROOTFS_EROFS" kde-linux.cache/root.raw
 
 # Now assemble the image using systemd-repart and the definitions in mkosi.repart into $ISO.
