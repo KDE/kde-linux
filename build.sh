@@ -9,7 +9,7 @@
 # ourselves.
 
 # before you continue, make sure you have:
-#  lzip, mkosi, python-pefile, ukify, erofs-utils
+#  lzip, mkosi, python-pefile, ukify, erofs-utils, ruby-nokogiri
 #  as the errors will be buried in logs and hard to find.
 
 set -ex
