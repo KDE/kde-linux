@@ -8,6 +8,10 @@
 # tree using mkosi and then construct shipable .iso9660 (and gpt raw disk images) for installation and tarballs (for systemd-sysupdate)
 # ourselves.
 
+# before you continue, make sure you have:
+#  lzip, mkosi, python-pefile, ukify, erofs-utils
+#  as the errors will be buried in logs and hard to find.
+
 set -ex
 
 . .kde-linux-metadata
