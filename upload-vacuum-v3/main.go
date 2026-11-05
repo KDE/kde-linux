@@ -52,11 +52,21 @@ func loadReleasesMinIO(client *minio.Client, dir string, config *config) (releas
 		if object.Err != nil {
 			log.Fatalln(object.Err)
 		}
+		if strings.HasSuffix(object.Key, "/") {
+			// Skip directories.
+			// TODO: revisit this when porting away from minioclient.
+			//   Technically we should be able to rely on ContentType at least,
+			//   but the entire object blob is malformed here, except for Key
+			//   (all fields are empty)
+			continue
+		}
 
 		objInfo, error := client.StatObject(ctx, bucketName, object.Key, minio.StatObjectOptions{})
 		if error != nil {
-			log.Println("Error fetching object stats: ", error, " : ", object.Key)
+			log.Fatalln("Error fetching object stats:", error)
 		}
+		log.Println(objInfo.UserMetadata)
+
 		err = appendRelease(&releases, S3Artifact{
 			client:    client,
 			bucket:    bucketName,
