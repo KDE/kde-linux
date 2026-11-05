@@ -245,7 +245,7 @@ fi
 chown -R $UID:$UID mkosi.output
 
 # Create a torrent for the image
-./torrent-create.rb "$VERSION" "$OUTPUT" "$ISO"
+./torrent-create.sh "$VERSION" "$OUTPUT" "$ISO"
 
 go install -v github.com/folbricht/desync/cmd/desync@latest
 ~/go/bin/desync make --print-stats --chunk-size 1024:2048:4096 "$ROOTFS_CAIBX" "$ROOTFS_EROFS"
