@@ -65,8 +65,6 @@ pacman --sync --refresh --refresh --noconfirm --sysupgrade \
     qemu-base \
     qemu-img \
     rsync \
-    ruby \
-    ruby-nokogiri \
     rust \
     squashfs-tools \
     transmission-cli \
