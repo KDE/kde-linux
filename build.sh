@@ -94,7 +94,7 @@ fi
 rm -rf "$BUILDSTREAM_ROOTFS" "$BUILDSTREAM_BOOTFS" "$BUILDSTREAM_TOOLFS" "$BUILDSTREAM_INITRDFS" "$BUILDSTREAM_EFI"
 # Always track the latest packages. We have no way to track the "correct" version right now.
 # TODO: pass the ref in the install.tar or something so we can actually track the correct ref of the packages pipeline
-bst source track kde-linux-packages.bst
+bst source track kde-linux-packages.bst os/*.bst
 bst build \
     os/filesystem.bst \
     os/initrd.bst \
