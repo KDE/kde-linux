@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: CC0-1.0
-# SPDX-FileCopyrightText: 2026 KDE Linux Contributors
+# SPDX-FileCopyrightText: none
 
 # Only provisioning is copied into the image; sources are mounted at runtime.
 **
