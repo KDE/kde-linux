@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: kde-linux\n"
 "Report-Msgid-Bugs-To: https://bugs.kde.org\n"
-"POT-Creation-Date: 2026-10-18 00:47+0000\n"
+"POT-Creation-Date: 2026-10-17 10:43+0000\n"
 "PO-Revision-Date: 2026-03-18 17:15+0100\n"
 "Last-Translator: Freek de Kruijf <freekdekruijf@kde.nl>\n"
 "Language-Team: \n"
@@ -18,6 +18,7 @@ msgstr ""
 "X-Generator: Lokalize 25.12.3\n"
 
 #: mkosi.extra/usr/lib/command-not-found-handler.py:82
+#, python-brace-format
 msgid ""
 "KDE Linux does not include the “{}” tool.\n"
 "\n"
@@ -28,6 +29,7 @@ msgstr ""
 "Probeer, in plaats daarvan, “{}” te gebruiken."
 
 #: mkosi.extra/usr/lib/command-not-found-handler.py:84
+#, python-brace-format
 msgid ""
 "KDE Linux does not include the “{}” package manager.\n"
 "\n"
@@ -39,6 +41,7 @@ msgstr ""
 "installeren van software die niet beschikbaar is in Discover, zie {}"
 
 #: mkosi.extra/usr/lib/command-not-found-handler.py:86
+#, python-brace-format
 msgid ""
 "KDE Linux does not pre-install the “{}” package manager, but it can be added "
 "manually.\n"
@@ -51,6 +54,7 @@ msgstr ""
 "Om dat te doen, volg de instructies op {}"
 
 #: mkosi.extra/usr/lib/command-not-found-handler.py:102
+#, python-brace-format
 msgid ""
 "KDE Linux does not include the “{}” command.\n"
 "\n"

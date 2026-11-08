@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: kde-linux\n"
 "Report-Msgid-Bugs-To: https://bugs.kde.org\n"
-"POT-Creation-Date: 2026-10-18 00:47+0000\n"
+"POT-Creation-Date: 2026-10-17 10:43+0000\n"
 "PO-Revision-Date: 2026-03-18 12:49+0200\n"
 "Last-Translator: Yuri Chornoivan <yurchor@ukr.net>\n"
 "Language-Team: Ukrainian <trans-uk@lists.fedoraproject.org>\n"
@@ -19,6 +19,7 @@ msgstr ""
 "X-Generator: Lokalize 23.04.3\n"
 
 #: mkosi.extra/usr/lib/command-not-found-handler.py:82
+#, python-brace-format
 msgid ""
 "KDE Linux does not include the “{}” tool.\n"
 "\n"
@@ -29,6 +30,7 @@ msgstr ""
 "Замість нього спробуйте скористатися «{}»."
 
 #: mkosi.extra/usr/lib/command-not-found-handler.py:84
+#, python-brace-format
 msgid ""
 "KDE Linux does not include the “{}” package manager.\n"
 "\n"
@@ -42,6 +44,7 @@ msgstr ""
 "у Discover, див. {}"
 
 #: mkosi.extra/usr/lib/command-not-found-handler.py:86
+#, python-brace-format
 msgid ""
 "KDE Linux does not pre-install the “{}” package manager, but it can be added "
 "manually.\n"
@@ -54,6 +57,7 @@ msgstr ""
 "Для встановлення скористайтеся настановами, які наведено тут: {}"
 
 #: mkosi.extra/usr/lib/command-not-found-handler.py:102
+#, python-brace-format
 msgid ""
 "KDE Linux does not include the “{}” command.\n"
 "\n"
