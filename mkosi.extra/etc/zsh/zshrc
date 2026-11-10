@@ -4,3 +4,21 @@
 command_not_found_handler () {
     python3 /usr/lib/command-not-found-handler.py "$@"
 }
+
+# run0 and sudo look up the command themselves, so the handler above never
+# hears about a missing one. Check the common "sudo foo" form here.
+run0 () {
+    if [[ $1 != (|-*|*/*|*=*) ]] && ! whence -p "$1" >/dev/null; then
+        command_not_found_handler "$@"
+        return
+    fi
+    command run0 "$@"
+}
+
+sudo () {
+    if [[ $1 != (|-*|*/*|*=*) ]] && ! whence -p "$1" >/dev/null; then
+        command_not_found_handler "$@"
+        return
+    fi
+    command sudo "$@"
+}
