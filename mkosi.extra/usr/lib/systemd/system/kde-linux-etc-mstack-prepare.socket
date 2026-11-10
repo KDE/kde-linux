@@ -1,0 +1,16 @@
+# SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL
+# SPDX-FileCopyrightText: 2026 Harald Sitter <sitter@kde.org>
+
+[Unit]
+Description=Socket for etc-mstack-prepare hook
+
+[Socket]
+# systemd-sysupdate invokes io.systemd.SysUpdate.Notify.OnCompletedUpdate on
+# every socket linked into this directory after a successful update
+ListenStream=/run/systemd/sysupdate/notify/etc-mstack-prepare.socket
+# one service instance per varlink connection, socket on stdin/stdout
+Accept=yes
+RuntimeDirectory=systemd/sysupdate/notify
+
+[Install]
+WantedBy=sockets.target

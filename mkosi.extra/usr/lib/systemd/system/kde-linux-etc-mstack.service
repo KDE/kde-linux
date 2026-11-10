@@ -1,0 +1,29 @@
+# SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL
+# SPDX-FileCopyrightText: 2026 Harald Sitter <sitter@kde.org>
+
+[Unit]
+Description=Manage etc-mstack for IMAGE_VERSION %A
+RefuseManualStart=yes
+DefaultDependencies=no
+ConditionPathExists=!/sysroot/system/etc.mstack.v/etc_%A.mstack
+ConditionPathExists=/etc/initrd-release
+ConditionKernelCommandLine=!systemd.volatile
+
+# Doesn't exist anymore but let's express intent here
+Conflicts=etc-factory.service
+
+# First transition to rootfsv3 if needed so we have a consistent state to work with
+After=kde-linux-rootfs-transition.service
+
+# Used as `layer@0`
+Requires=sysusr-usr.mount
+After=sysusr-usr.mount
+# Used as `rw`
+Requires=sysroot-system.mount
+After=sysroot-system.mount
+# The mount that consumes our mstack
+Before=sysetc-etc.mount
+
+[Service]
+Type=oneshot
+ExecStart=etc-mstack

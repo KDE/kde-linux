@@ -106,9 +106,9 @@ rm --recursive --force kde-linux-sysupdated
 git clone https://invent.kde.org/kde-linux/kde-linux-sysupdated
 DESTDIR=$PWD/mkosi.extra make --directory=kde-linux-sysupdated install
 
-rm --recursive --force etc-factory
-git clone https://invent.kde.org/kde-linux/etc-factory
-DESTDIR=$PWD/mkosi.extra make --directory=etc-factory install
+cargo install --root "$PWD/mkosi.extra/usr/" --git https://invent.kde.org/kde-linux/etc-mstack \
+    etc-mstack \
+    etc-mstack-prepare
 
 # Extract the KDE packages pipeline output into mkosi.extra so kde-builder built files
 # are baked directly into the image instead of going through the package repo.
