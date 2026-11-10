@@ -17,7 +17,6 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 import libcalamares
-from libcalamares.utils import host_env_process_output
 import gettext
 _ = gettext.translation(
     "calamares-python", localedir=libcalamares.utils.gettext_path(),
@@ -334,13 +333,6 @@ def _populate_base_filesystem(state: InstallState) -> None:
 
 def _apply_factory_and_sysusers(state: InstallState) -> None:
     root = str(state.root)
-
-    _report(0.92, _("Applying factory configuration…"))
-    # Apply the factory
-    host_env_process_output(
-        ["/usr/lib/etc-factory", "--sysroot", f"{root}/", "--replace", "--migrate"],
-        None,
-    )
 
     _report(0.95, _("Initializing users…"))
     # Initialize systemd stuff

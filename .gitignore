@@ -20,10 +20,8 @@ run0-sudo-shim.tar.gz
 
 /mkosi.extra/usr/bin/run0-sudo-shim
 /mkosi.extra/usr/lib/btrfs-migrator
-/mkosi.extra/usr/lib/etc-factory
 /mkosi.extra/usr/lib/kde-linux-sysupdated
 /mkosi.extra/usr/lib/kde-linux-sysupdated-redirector
-/mkosi.extra/usr/lib/systemd/system/etc-factory.service
 /mkosi.extra/usr/lib/systemd/system/kde-linux-sysupdated.service
 /mkosi.extra/usr/lib/systemd/system/kde-linux-sysupdated.socket
 
@@ -37,8 +35,6 @@ kde-linux_*
 /kde-linux.cache
 /kde-linux-sysupdated
 /mkosi.sandbox/etc/pacman.conf
-
-/etc-factory
 
 /live-root/
 

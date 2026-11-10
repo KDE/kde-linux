@@ -1,0 +1,14 @@
+# SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL
+# SPDX-FileCopyrightText: 2026 Harald Sitter <sitter@kde.org>
+
+[Unit]
+Description=etc-mstack-prepare hook
+RefuseManualStart=yes
+
+[Service]
+Type=oneshot
+ExecStart=etc-mstack-prepare
+# the accepted varlink socket: one JSON-line call on stdin, reply on stdout
+StandardInput=socket
+StandardOutput=socket
+StandardError=journal
