@@ -172,6 +172,28 @@ cat <<- EOF >> /etc/bash.bashrc
 command_not_found_handle () {
     python3 /usr/lib/command-not-found-handler.py "\$@"
 }
+
+# run0 and sudo look up the command themselves, so the handler above never
+# hears about a missing one. Check the common "sudo foo" form here.
+run0 () {
+    case "\$1" in ""|-*|*/*|*=*) ;; *)
+        if ! type -P -- "\$1" >/dev/null; then
+            command_not_found_handle "\$@"
+            return
+        fi ;;
+    esac
+    command run0 "\$@"
+}
+
+sudo () {
+    case "\$1" in ""|-*|*/*|*=*) ;; *)
+        if ! type -P -- "\$1" >/dev/null; then
+            command_not_found_handle "\$@"
+            return
+        fi ;;
+    esac
+    command sudo "\$@"
+}
 EOF
 
 # Configure plocate to index bind mounts (needed on BTRFS)

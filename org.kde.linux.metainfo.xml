@@ -60,7 +60,7 @@ SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted
   <summary xml:lang="ko">KDE Plasma 데스크톱 환경에 초점을 맞춘 근대적인 리눅스 배포판</summary>
   <summary xml:lang="lt">Šiuolaikinis Linux platinamasis paketas, kurio dėmesys sutelktas į KDE Plasma darbalaukio aplinką</summary>
   <summary xml:lang="lv">Moderns „Linux“ distributīvs, kura centrā ir KDE „Plasma“ darbvirsmas vide.</summary>
-  <summary xml:lang="nb">En moderne Linux-distribusjon fokusert på skrivebordsmiljøet KDE Plasma</summary>
+  <summary xml:lang="nb">En moderne Linux-distribusjon med fokus på skrivebordsmiljøet KDE Plasma</summary>
   <summary xml:lang="nl">Een moderne Linux distributie gericht op de KDE Plasma bureaubladomgeving</summary>
   <summary xml:lang="nn">Ein moderne Linux-distribusjon med fokus på skrivebords­miljøet KDE Plasma</summary>
   <summary xml:lang="pl">Nowoczesna dystrybucja Linuksa skupiona na środowisku pulpitu KDE Plazma</summary>
@@ -136,7 +136,7 @@ SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted
       <li xml:lang="ko">최신 KDE Plasma 데스크톱 환경</li>
       <li xml:lang="lt">Naujausia KDE Plasma darbalaukio aplinka</li>
       <li xml:lang="lv">Jaunākā KDE „Plasma“ darbvirsmas vide</li>
-      <li xml:lang="nb">Nyeste KDE Plasma skrivebordsmiljø</li>
+      <li xml:lang="nb">Den nyeste utgaven av KDE Plasma</li>
       <li xml:lang="nl">Laatste KDE Plasma bureaubladomgeving</li>
       <li xml:lang="nn">Den nyaste utgåva av KDE Plasma</li>
       <li xml:lang="pl">Najświeższe środowisko pulpitu KDE Plazma</li>
@@ -171,7 +171,7 @@ SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted
       <li xml:lang="ko">다양한 KDE 앱 모음</li>
       <li xml:lang="lt">Platus KDE programų rinkinys</li>
       <li xml:lang="lv">Visaptveroša KDE programmu svīta</li>
-      <li xml:lang="nb">Omfattende pakke av KDE-programmer</li>
+      <li xml:lang="nb">En omfattende samling av KDE-programmer</li>
       <li xml:lang="nl">Uitgebreide suite van KDE toepassingen</li>
       <li xml:lang="nn">Ei omfattande samling KDE-program</li>
       <li xml:lang="pl">Rozbudowany zestaw Aplikacji KDE</li>
@@ -316,7 +316,7 @@ SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted
   <developer_name xml:lang="ko">KDE 리눅스 팀</developer_name>
   <developer_name xml:lang="lt">KDE Linux komanda</developer_name>
   <developer_name xml:lang="lv">„KDE Linux“ komanda</developer_name>
-  <developer_name xml:lang="nb">KDE Linux-laget</developer_name>
+  <developer_name xml:lang="nb">KDE Linux-gruppa</developer_name>
   <developer_name xml:lang="nl">KDE Linux-team</developer_name>
   <developer_name xml:lang="nn">KDE Linux-gruppa</developer_name>
   <developer_name xml:lang="pl">Zespół KDE Linux</developer_name>
@@ -357,6 +357,7 @@ SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted
         <p xml:lang="ka">KDE Linux-ის პირველი ვერსია, ფუნქციებით:</p>
         <p xml:lang="ko">다음을 포함하는 KDE 리눅스의 첫 릴리스:</p>
         <p xml:lang="lt">Pradinė KDE Linux laida, kurioje yra:</p>
+        <p xml:lang="nb">Første utgave av KDE Linux har:</p>
         <p xml:lang="nl">Eerste versie van KDE Linux met de volgende kenmerken:</p>
         <p xml:lang="nn">Første utgåve av KDE Linux har:</p>
         <p xml:lang="pl">Pierwsze wydanie KDE Linux zawiera:</p>
@@ -389,6 +390,7 @@ SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted
           <li xml:lang="ka">KDE Plasma</li>
           <li xml:lang="ko">KDE Plasma</li>
           <li xml:lang="lt">KDE Plasma</li>
+          <li xml:lang="nb">KDE Plasma</li>
           <li xml:lang="nl">KDE Plasma</li>
           <li xml:lang="nn">KDE Plasma</li>
           <li xml:lang="pl">Plazma KDE</li>
@@ -420,6 +422,7 @@ SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted
           <li xml:lang="ka">Linux kernel 6.7</li>
           <li xml:lang="ko">리눅스 커널 6.7</li>
           <li xml:lang="lt">Linux branduolys 6.7</li>
+          <li xml:lang="nb">Linux versjon 6.7</li>
           <li xml:lang="nl">Linux kernel 6.7</li>
           <li xml:lang="nn">Linux versjon 6.7</li>
           <li xml:lang="pl">Jądro Linuksa 6.7</li>
@@ -451,6 +454,7 @@ SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted
           <li xml:lang="ka">განახლებული KDE-ის აპლიკაციების ნაკრები</li>
           <li xml:lang="ko">업데이트된 KDE 앱 모음</li>
           <li xml:lang="lt">Atnaujintas KDE programų rinkinys</li>
+          <li xml:lang="nb">Oppdaterte KDE-programmer</li>
           <li xml:lang="nl">Bijgewerkte KDE-toepassingensuite</li>
           <li xml:lang="nn">Oppdaterte KDE-program</li>
           <li xml:lang="pl">Uaktualniony pakiet aplikacji KDE</li>
@@ -521,7 +525,7 @@ SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted
       <caption xml:lang="ko">Plasma를 구동 중인 KDE 리눅스 데스크톱</caption>
       <caption xml:lang="lt">KDE Linux darbalaukis naudojantis Plasma</caption>
       <caption xml:lang="lv">„KDE Linux“ darbvirsma ar „Plasma“</caption>
-      <caption xml:lang="nb">KDE Linux skrivebord med Plasma</caption>
+      <caption xml:lang="nb">KDE Linux-skrivebord med Plasma</caption>
       <caption xml:lang="nl">KDE Linux bureaublad met Plasma</caption>
       <caption xml:lang="nn">KDE Linux-skrivebord med Plasma</caption>
       <caption xml:lang="pl">Pulpit KDE Linux z Plazmą</caption>
