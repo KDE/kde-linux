@@ -8,7 +8,9 @@ MARKER="/tmp/kde-linux-os-release-generator.marker"
 
 if [ "$SYSTEMD_IN_INITRD" = "1" ] && [ ! -e "$MARKER" ]; then
     . /usr/lib/os-release
-    printf "Image ID: %s; Image Version: %s" "$IMAGE_ID" "$IMAGE_VERSION" \
-        | systemd-cat --identifier=kde-linux --priority=info
+    # Generators run before the journal sockets are available.
+    # Journald collects this message from the kernel buffer once it starts.
+    printf '<6>kde-linux: Image ID: %s; Image Version: %s\n' "$IMAGE_ID" "$IMAGE_VERSION" \
+        > /dev/kmsg
     touch "$MARKER"
 fi
