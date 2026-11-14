@@ -23,6 +23,7 @@ config:
     cp -a mkosi-extra-src/usr/lib/rootfs-transition "$INSTALL_ROOT/usr/lib/rootfs-transition"
     cp -a mkosi-extra-src/usr/lib/btrfs-migrator "$INSTALL_ROOT/usr/lib/btrfs-migrator"
     cp -a mkosi-extra-src/usr/lib/etc-factory "$INSTALL_ROOT/usr/lib/etc-factory"
+    cp -a mkosi-extra-src/usr/lib/systemd/system-generators/00-kde-linux-os-release "$INSTALL_ROOT/usr/lib/systemd/system-generators/00-kde-linux-os-release"
     cp -a mkosi-extra-src/usr/lib/systemd/system-generators/kde-linux-live-generator "$INSTALL_ROOT/usr/lib/systemd/system-generators/kde-linux-live-generator"
     cp -a mkosi-extra-src/usr/lib/systemd/system-generators/kde-linux-mount-generator "$INSTALL_ROOT/usr/lib/systemd/system-generators/kde-linux-mount-generator"
     cp -a mkosi-extra-src/usr/lib/systemd/system/etc-factory.service "$INSTALL_ROOT/usr/lib/systemd/system/etc-factory.service"
