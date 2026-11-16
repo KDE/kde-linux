@@ -21,7 +21,11 @@ config:
   # Drop some static libs.
   # Be very careful with what you add here.
   # Some things are actually needed to build stuff! (notably some gcc .a files)
-  - rm /usr/lib/x86_64-linux-gnu/libQt*.a
+  # Qt has static-only modules (e.g. JsonRpcPrivate), keep whatever cmake still references.
+  - |
+    for lib in /usr/lib/%{gcc_triplet}/libQt*.a; do
+      grep -rqF "/${lib##*/}" /usr/lib/%{gcc_triplet}/cmake || rm -v "$lib"
+    done
   # Mesa's extension bundles the same LLVM shared library as the base system.
   # Its consumers use the SONAME, so the dynamic loader can use the system copy.
   - rm /usr/lib/%{gcc_triplet}/GL/default/lib/libLLVM.so.*
