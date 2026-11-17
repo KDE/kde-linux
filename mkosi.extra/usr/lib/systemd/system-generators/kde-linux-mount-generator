@@ -118,9 +118,11 @@ After=sysroot-usr.mount
 Before=initrd-fs.target
 
 [Mount]
-Type=mstack
-What=/sysroot/system/etc.mstack.v/etc_%A.mstack
+Type=overlay
+What=overlay
 Where=/sysetc/etc
+# These are the same mount options as mstack would use, with index=off added.
+Options=rw,relatime,lowerdir+=/sysroot/system/etc.mstack.v/etc_%A.mstack/layer@0,upperdir=/sysroot/system/etc.mstack.v/etc_%A.mstack/rw/data,workdir=/sysroot/system/etc.mstack.v/etc_%A.mstack/rw/work,redirect_dir=nofollow,uuid=on,metacopy=off,userxattr,index=off
 EOF
 
     mkdir "$normal_dir/initrd-fs.target.requires/" || true
