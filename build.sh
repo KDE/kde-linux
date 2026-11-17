@@ -26,6 +26,8 @@ make_debug_archive () {
   # Download and extract debug symbols produced by the packages pipeline.
   curl --fail "https://kde-linux-packages.s3.kde.org/$KDE_LINUX_EDITION/artifacts/debug.tar.zst" \
     | zstd --decompress | tar --extract --directory=/var/tmp/debugroot
+  # And the ones of the buildstream built OS.
+  cp --archive --reflink=auto "$BUILDSTREAM_DEBUGFS/usr" /var/tmp/debugroot/
 
   # systemd-sysext uses the os-release in extension-release.d to verify the sysext matches the base OS,
   # and can therefore be safely installed. Copy the base OS' os-release there.
@@ -68,6 +70,7 @@ BUILDSTREAM_BOOTFS="buildstream-bootfs"
 BUILDSTREAM_TOOLFS="buildstream-toolfs"
 BUILDSTREAM_INITRDFS="buildstream-initrdfs"
 BUILDSTREAM_EFI="buildstream-efi"
+BUILDSTREAM_DEBUGFS="buildstream-debugfs"
 
 cat <<EOF > "include/kde-linux-image.yml"
 # SPDX-FileCopyrightText: 2026 KDE Linux Contributors
@@ -115,12 +118,13 @@ if [ "${KDECI_BUILD:-}" = "TRUE" ]; then
     cp kde-buildstream/buildstream.conf.readable ~/.config/buildstream.conf
 fi
 
-rm -rf "$BUILDSTREAM_ROOTFS" "$BUILDSTREAM_BOOTFS" "$BUILDSTREAM_TOOLFS" "$BUILDSTREAM_INITRDFS" "$BUILDSTREAM_EFI"
+rm -rf "$BUILDSTREAM_ROOTFS" "$BUILDSTREAM_BOOTFS" "$BUILDSTREAM_TOOLFS" "$BUILDSTREAM_INITRDFS" "$BUILDSTREAM_EFI" "$BUILDSTREAM_DEBUGFS"
 # Always track the latest packages. We have no way to track the "correct" version right now.
 # TODO: pass the ref in the install.tar or something so we can actually track the correct ref of the packages pipeline
 bst source track kde-linux-packages.bst
 bst build \
     os/filesystem.bst \
+    os/debug.bst \
     os/initrd.bst \
     os/systemd-initrd-payload.bst \
     kde-linux-packages.bst:kde-buildstream.bst:freedesktop-sdk.bst:components/ovmf-maybe.bst \
@@ -133,6 +137,7 @@ bst artifact checkout os/initrd.bst --directory $BUILDSTREAM_BOOTFS
 bst artifact checkout os/systemd-initrd-payload.bst --directory $BUILDSTREAM_INITRDFS
 bst artifact checkout kde-linux-packages.bst:kde-buildstream.bst:freedesktop-sdk.bst:vm/prepare-image.bst --deps none --directory $BUILDSTREAM_TOOLFS
 bst artifact checkout kde-linux-packages.bst:kde-buildstream.bst:freedesktop-sdk.bst:components/ovmf-maybe.bst --directory $BUILDSTREAM_EFI
+bst artifact checkout os/debug.bst --directory $BUILDSTREAM_DEBUGFS
 
 mkdir -p $BUILDSTREAM_ROOTFS/usr/share/ovmf/
 cp $BUILDSTREAM_EFI/usr/share/ovmf/Shell.efi $BUILDSTREAM_ROOTFS/usr/share/ovmf/Shell.efi

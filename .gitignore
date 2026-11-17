@@ -52,4 +52,5 @@ packages.txt
 /buildstream-toolfs/
 /buildstream-initrdfs/
 /buildstream-efi/
+/buildstream-debugfs/
 source-checkout/
