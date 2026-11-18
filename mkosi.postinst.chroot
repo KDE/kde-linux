@@ -35,6 +35,15 @@ cat <<- EOF > /usr/share/icons/default/index.theme
 Inherits=breeze_cursors
 EOF
 
+# Regenerate all icon theme caches now that everything is in. Caches written earlier (pacman hook,
+# freedesktop-sdk) miss what came later, e.g. the KDE payload, and since mkfs.erofs sets all mtimes
+# to the same value kiconthemes takes them as up to date and won't find those icons.
+for theme in /usr/share/icons/*/; do
+    if [ -f "$theme/index.theme" ]; then
+        gtk-update-icon-cache --quiet --force "$theme"
+    fi
+done
+
 # IMAGE_VERSION is %Y%m%d%H%M and is exported by mkosi. Derive the readable
 # date from it here; passing it via mkosi's Environment= truncates at the
 # space because that setting is a space separated list of assignments.
