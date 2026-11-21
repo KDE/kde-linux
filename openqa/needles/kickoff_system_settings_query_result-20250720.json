@@ -1,0 +1,27 @@
+{
+  "area": [
+    {
+      "xpos": 185,
+      "ypos": 282,
+      "width": 468,
+      "height": 32,
+      "type": "exclude"
+    },
+    {
+      "xpos": 18,
+      "ypos": 281,
+      "width": 163,
+      "height": 35,
+      "type": "match",
+      "match": 90,
+      "click_point": {
+        "xpos": 27.5,
+        "ypos": 17.5
+      }
+    }
+  ],
+  "properties": [],
+  "tags": [
+    "kickoff_system_settings_query_result"
+  ]
+}

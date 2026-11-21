@@ -1,0 +1,53 @@
+{
+  "area": [
+    {
+      "xpos": 450,
+      "ypos": 254,
+      "width": 195,
+      "height": 34,
+      "type": "exclude"
+    },
+    {
+      "xpos": 942,
+      "ypos": 256,
+      "width": 71,
+      "height": 32,
+      "type": "exclude"
+    },
+    {
+      "xpos": 657,
+      "ypos": 259,
+      "width": 175,
+      "height": 26,
+      "type": "match",
+      "margin": 50
+    },
+    {
+      "xpos": 455,
+      "ypos": 377,
+      "width": 564,
+      "height": 326,
+      "type": "exclude"
+    },
+    {
+      "xpos": 468,
+      "ypos": 330,
+      "width": 530,
+      "height": 39,
+      "type": "match",
+      "margin": 50
+    },
+    {
+      "xpos": 492,
+      "ypos": 293,
+      "width": 515,
+      "height": 28,
+      "type": "match",
+      "margin": 50
+    }
+  ],
+  "properties": [],
+  "tags": [
+    "plasma_panel_digital_clock_default_popup"
+  ]
+}

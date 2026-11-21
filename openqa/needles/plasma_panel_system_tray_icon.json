@@ -1,0 +1,20 @@
+{
+  "area": [
+    {
+      "xpos": 871,
+      "ypos": 717,
+      "width": 29,
+      "height": 39,
+      "type": "match",
+      "match": 90,
+      "click_point": {
+        "xpos": 19,
+        "ypos": 24
+      }
+    }
+  ],
+  "properties": [],
+  "tags": [
+    "plasma_panel_system_tray_icon"
+  ]
+}

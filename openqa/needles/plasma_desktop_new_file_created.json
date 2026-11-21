@@ -1,0 +1,16 @@
+{
+  "area": [
+    {
+      "xpos": 14,
+      "ypos": 5,
+      "width": 96,
+      "height": 91,
+      "type": "match",
+      "match": 90
+    }
+  ],
+  "properties": [],
+  "tags": [
+    "plasma_desktop_new_file_created"
+  ]
+}

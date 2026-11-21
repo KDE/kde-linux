@@ -1,0 +1,15 @@
+{
+  "area": [
+    {
+      "xpos": 325,
+      "ypos": 324,
+      "width": 328,
+      "height": 23,
+      "type": "match"
+    }
+  ],
+  "properties": [],
+  "tags": [
+    "bootup_fde"
+  ]
+}

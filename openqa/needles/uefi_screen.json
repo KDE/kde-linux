@@ -1,0 +1,16 @@
+{
+  "properties": [],
+  "tags": [
+    "uefi_screen"
+  ],
+  "area": [
+    {
+      "xpos": 495,
+      "ypos": 371,
+      "width": 290,
+      "height": 21,
+      "type": "match",
+      "match": "90"
+    }
+  ]
+}

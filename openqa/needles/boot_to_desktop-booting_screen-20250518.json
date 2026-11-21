@@ -1,0 +1,24 @@
+{
+  "area": [
+    {
+      "xpos": 395,
+      "width": 225,
+      "type": "match",
+      "ypos": 339,
+      "height": 92,
+      "match": 90
+    },
+    {
+      "xpos": 434,
+      "type": "match",
+      "width": 160,
+      "ypos": 601,
+      "height": 151,
+      "match": 90
+    }
+  ],
+  "properties": [],
+  "tags": [
+    "booting_screen"
+  ]
+}

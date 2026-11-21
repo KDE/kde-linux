@@ -1,0 +1,24 @@
+{
+  "area": [
+    {
+      "xpos": 297,
+      "ypos": 12,
+      "width": 95,
+      "height": 17,
+      "type": "match",
+      "match": 90
+    },
+    {
+      "xpos": 313,
+      "ypos": 43,
+      "width": 468,
+      "height": 26,
+      "type": "match",
+      "match": 40
+    }
+  ],
+  "properties": [],
+  "tags": [
+    "krunner_text_systemsettings"
+  ]
+}
