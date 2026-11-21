@@ -1,0 +1,16 @@
+{
+  "area": [
+    {
+      "ypos": 357,
+      "match": "90",
+      "height": 36,
+      "type": "match",
+      "xpos": 367,
+      "width": 290
+    }
+  ],
+  "tags": [
+    "buildstream",
+    "uefi_screen"
+  ]
+}

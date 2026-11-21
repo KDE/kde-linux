@@ -1,0 +1,16 @@
+{
+  "area": [
+    {
+      "xpos": 266,
+      "ypos": 273,
+      "width": 486,
+      "height": 170,
+      "type": "match",
+      "match": 90
+    }
+  ],
+  "properties": [],
+  "tags": [
+    "plasma_desktop_create_file_popup"
+  ]
+}

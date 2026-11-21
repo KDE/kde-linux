@@ -1,0 +1,16 @@
+{
+  "area": [
+    {
+      "xpos": 59,
+      "ypos": 190,
+      "width": 585,
+      "height": 270,
+      "type": "match",
+      "match": 40
+    }
+  ],
+  "properties": [],
+  "tags": [
+    "zsh_startup_file_missing"
+  ]
+}

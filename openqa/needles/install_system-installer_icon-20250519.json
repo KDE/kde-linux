@@ -1,0 +1,15 @@
+{
+  "area": [
+    {
+      "ypos": 6,
+      "xpos": 12,
+      "type": "match",
+      "width": 89,
+      "height": 94
+    }
+  ],
+  "properties": [],
+  "tags": [
+    "installer_icon"
+  ]
+}

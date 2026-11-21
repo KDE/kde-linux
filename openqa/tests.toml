@@ -1,0 +1,94 @@
+# SPDX-License-Identifier: CC0-1.0
+# SPDX-FileCopyrightText: None
+
+name = "KDE Linux"
+distri = "KDE-Linux"
+
+[suites.install-system]
+action = "install"
+tests = [
+    { path = "common/bootup.py", type = "openqa" },
+    { path = "common/basic_test.py", type = "python" },
+    { path = "common/network.py", type = "python", fatal = true },
+    { path = "kdelinux/desktop/a11y.py", type = "selenium", user = "live", instance = "a11y_live" },
+    { path = "kdelinux-live/calamares_install.py", type = "selenium", override = "kdelinux-live/calamares_install.openqa.py" },
+    { path = "common/reboot.py", type = "openqa" },
+    { path = "common/bootup.py", type = "openqa" },
+    { path = "kdelinux/desktop/a11y.py", type = "selenium", user = "plasma_setup", instance = "a11y_plasma_setup" },
+    { path = "kdelinux/desktop/plasma_setup.py", type = "selenium", user = "plasma_setup", fatal = true },
+    { path = "kdelinux/sddm/sddm_password_login.py", type = "openqa" },
+    { path = "kdelinux/desktop/plasma_welcome.py", type = "selenium", user = "installed", timeout = 300 },
+    { path = "common/system_settings/disable_screen_lock.py", type = "openqa", enabled = false },
+    # Make autologin happen only in sanity test
+    { path = "kdelinux/system_settings/configure_automatic_login.py", type = "selenium", user = "installed", fatal = true, enabled = false },
+    { path = "kdelinux/desktop/secret_service_persistence_set.py", type = "python", user = "installed" },
+    { path = "kdelinux/desktop/secret_service_persistence_get.py", type = "selenium", user = "installed" },
+    { path = "kdelinux/system/collect_logs.py", type = "selenium", override = "kdelinux/system/collect_logs.openqa.py" },
+    { path = "common/shutdown.py", type = "openqa" },
+]
+
+[suites.upgrade-system]
+action = "upgrade"
+tests = [
+    { path = "common/bootup.py", type = "openqa" },
+    { path = "kdelinux/sddm/sddm_password_login.py", type = "openqa" },
+    { path = "common/basic_test.py", type = "python" },
+    { path = "kdelinux/system/etc_mstack_preupgrade.py", type = "python" },
+    { path = "common/network.py", type = "python", fatal = true },
+    { path = "kdelinux/app/discover_upgrade.py", type = "selenium", user = "installed", timeout = 1200, fatal = true },
+    { path = "common/reboot.py", type = "openqa" },
+    # Check the upgraded build, then reboot into the old build.
+    { path = "common/bootup.py", type = "openqa" },
+    { path = "kdelinux/sddm/sddm_password_login.py", type = "openqa" },
+    { path = "common/basic_test.py", type = "python" },
+    { path = "kdelinux/system/etc_mstack_postupgrade.py", type = "python" },
+    { path = "kdelinux/system/verify_upgrade.py", type = "openqa" },
+    { path = "common/reboot.py", type = "openqa" },
+    { path = "common/bootup.py", type = "openqa" },
+    { path = "kdelinux/sddm/sddm_password_login.py", type = "openqa" },
+    { path = "common/basic_test.py", type = "python" },
+    { path = "kdelinux/system/verify_upgrade.py", type = "openqa" },
+    { path = "kdelinux/system/collect_logs.py", type = "selenium", override = "kdelinux/system/collect_logs.openqa.py" },
+    { path = "common/shutdown.py", type = "openqa" },
+]
+
+[suites.sanity-test]
+action = "test"
+tests = [
+    { path = "common/bootup.py", type = "openqa" },
+    { path = "kdelinux/sddm/sddm_password_login.py", type = "openqa" },
+    { path = "common/basic_test.py", type = "python" },
+    { path = "common/network.py", type = "python", fatal = true },
+    { path = "kdelinux/desktop/a11y.py", type = "selenium", user = "installed", instance = "a11y_installed" },
+    { path = "kdelinux/system_settings/default_applications.py", type = "selenium", user = "installed" },
+    { path = "kdelinux/desktop/panel.py", type = "selenium", user = "installed" },
+    { path = "kdelinux/desktop/task_switcher.py", type = "selenium", user = "installed" },
+    { path = "kdelinux/desktop/create_file.py", type = "selenium", user = "installed" },
+    { path = "kdelinux/desktop/clipboard.py", type = "selenium", user = "installed" },
+    { path = "kdelinux/desktop/krunner.py", type = "selenium", user = "installed" },
+    { path = "kdelinux/desktop/secret_service.py", type = "selenium", user = "installed" },
+    { path = "kdelinux/desktop/vaults.py", type = "selenium", user = "installed" },
+    # Disabled while flaky.
+    { path = "kdelinux/desktop/drkonqi.py", type = "selenium", user = "installed", timeout = 120, enabled = false },
+    { path = "kdelinux/app/dolphin.py", type = "selenium", user = "installed" },
+    { path = "kdelinux/app/firefox.py", type = "selenium", user = "installed", timeout = 180 },
+    { path = "kdelinux/app/package_compatibility_helper.py", type = "selenium", user = "installed" },
+    { path = "kdelinux/app/discover_install.py", type = "selenium", user = "installed", timeout = 800 },
+    { path = "kdelinux/system/polkit_rules.py", type = "python" },
+    { path = "kdelinux/system/system_development.py", type = "selenium", user = "installed", timeout = 400 },
+    { path = "kdelinux/system/snapper.py", type = "python", timeout = 300 },
+    { path = "kdelinux/system/logout.py", type = "selenium", user = "installed" },
+    { path = "kdelinux/sddm/sddm_password_login.py", type = "openqa" },
+    { path = "kdelinux/desktop/secret_service_persistence_get.py", type = "selenium", user = "installed" },
+    { path = "kdelinux/system/desktop_session_services.py", type = "selenium", user = "installed" },
+    { path = "kdelinux/system/collect_logs.py", type = "selenium", override = "kdelinux/system/collect_logs.openqa.py" },
+    { path = "common/shutdown.py", type = "openqa" },
+]
+
+[flows.install]
+suites = ["install-system", "sanity-test"]
+variables = ["FDE_INSTALL"]
+
+[flows.upgrade]
+suites = ["install-system", "upgrade-system", "sanity-test"]
+variables = ["FDE_INSTALL"]

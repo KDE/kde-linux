@@ -59,7 +59,7 @@ repos:
       - id: codespell
         name: codespell
         entry: .gitlab-ci/scripts/pre-commit-tool codespell
-        args: ["--ignore-words-list=overlayed,unparseable"]
+        args: ["--ignore-words-list=overlayed,unparseable,bootup"]
         language: system
         types: [text]
         exclude: ^po/|\.(desktop|metainfo\.xml)$

@@ -1,0 +1,16 @@
+{
+  "area": [
+    {
+      "xpos": 9,
+      "ypos": 719,
+      "width": 249,
+      "height": 35,
+      "type": "match",
+      "match": 90
+    }
+  ],
+  "properties": [],
+  "tags": [
+    "bottom_panel_left_part"
+  ]
+}

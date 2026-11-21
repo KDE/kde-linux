@@ -1,0 +1,16 @@
+{
+  "area": [
+    {
+      "xpos": 0,
+      "ypos": 32,
+      "width": 253,
+      "height": 17,
+      "type": "match",
+      "match": 90
+    }
+  ],
+  "properties": [],
+  "tags": [
+    "not_login_tty"
+  ]
+}

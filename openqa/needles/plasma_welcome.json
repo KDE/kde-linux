@@ -1,0 +1,29 @@
+{
+  "area": [
+    {
+      "height": 56,
+      "ypos": 298,
+      "width": 191,
+      "type": "match",
+      "xpos": 418
+    },
+    {
+      "type": "match",
+      "xpos": 459,
+      "width": 107,
+      "ypos": 365,
+      "height": 31
+    },
+    {
+      "ypos": 695,
+      "height": 38,
+      "type": "match",
+      "width": 213,
+      "xpos": 738
+    }
+  ],
+  "properties": [],
+  "tags": [
+    "plasma_welcome"
+  ]
+}

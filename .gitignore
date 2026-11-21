@@ -53,3 +53,4 @@ packages.txt
 /buildstream-initrdfs/
 /buildstream-efi/
 source-checkout/
+/openqa/**/__pycache__/

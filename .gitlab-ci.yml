@@ -87,6 +87,8 @@ trigger-openqa:
     SYSUPDATE_PUBKEY_B64: $SYSUPDATE_PUBKEY_B64
     UPSTREAM_CI_PIPELINE_URL: $UPSTREAM_CI_PIPELINE_URL
     OPENQA_BRANCH: master
+    TEST_REPOSITORY: ${CI_PROJECT_URL}.git
+    TEST_REVISION: $CI_COMMIT_SHA
 
 # Collect the JUnit files produced by the triggered openQA pipeline.
 openqa-report:

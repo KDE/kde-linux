@@ -1,0 +1,20 @@
+{
+  "area": [
+    {
+      "xpos": 321,
+      "ypos": 37,
+      "width": 207,
+      "height": 28,
+      "type": "match",
+      "match": 90,
+      "click_point": {
+        "xpos": 104,
+        "ypos": 16
+      }
+    }
+  ],
+  "properties": [],
+  "tags": [
+    "plasma_desktop_right_click_create_new_menu_text_file"
+  ]
+}

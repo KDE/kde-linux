@@ -1,0 +1,22 @@
+{
+  "area": [
+    {
+      "width": 288,
+      "height": 40,
+      "xpos": 368,
+      "type": "match",
+      "ypos": 352
+    },
+    {
+      "ypos": 357,
+      "type": "exclude",
+      "xpos": 495,
+      "height": 34,
+      "width": 109
+    }
+  ],
+  "properties": [],
+  "tags": [
+    "uefi_screen"
+  ]
+}

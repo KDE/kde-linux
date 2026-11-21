@@ -1,0 +1,22 @@
+{
+  "area": [
+    {
+      "xpos": 580,
+      "ypos": 274,
+      "width": 434,
+      "height": 373,
+      "type": "match"
+    },
+    {
+      "xpos": 6,
+      "ypos": 650,
+      "width": 1015,
+      "height": 111,
+      "type": "exclude"
+    }
+  ],
+  "properties": [],
+  "tags": [
+    "plasma_panel_system_tray_default_popup"
+  ]
+}

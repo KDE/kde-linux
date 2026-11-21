@@ -1,6 +1,11 @@
 version = 1
 
 [[annotations]]
+path = ["openqa/needles/**.json", "openqa/needles/**.png"]
+SPDX-FileCopyrightText = "None"
+SPDX-License-Identifier = "CC0-1.0"
+
+[[annotations]]
 path = "mkosi.extra/usr/share/plymouth/themes/breeze-bgrt/*"
 SPDX-FileCopyrightText = "Plymouth Developers"
 SPDX-License-Identifier = "GPL-2.0-or-later"

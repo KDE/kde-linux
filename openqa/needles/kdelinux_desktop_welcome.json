@@ -1,0 +1,57 @@
+{
+  "area": [
+    {
+      "ypos": 153,
+      "width": 637,
+      "type": "match",
+      "xpos": 193,
+      "height": 530
+    },
+    {
+      "xpos": 191,
+      "height": 64,
+      "type": "match",
+      "width": 639,
+      "ypos": 86
+    },
+    {
+      "ypos": 162,
+      "width": 635,
+      "type": "exclude",
+      "xpos": 191,
+      "height": 471
+    },
+    {
+      "ypos": 84,
+      "width": 205,
+      "type": "exclude",
+      "height": 23,
+      "xpos": 410
+    },
+    {
+      "type": "exclude",
+      "height": 21,
+      "xpos": 759,
+      "ypos": 86,
+      "width": 72
+    },
+    {
+      "height": 23,
+      "xpos": 188,
+      "type": "exclude",
+      "width": 27,
+      "ypos": 85
+    },
+    {
+      "xpos": 449,
+      "ypos": 650,
+      "width": 119,
+      "height": 23,
+      "type": "exclude"
+    }
+  ],
+  "properties": [],
+  "tags": [
+    "kdelinux_desktop_welcome"
+  ]
+}
