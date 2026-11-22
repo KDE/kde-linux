@@ -26,7 +26,7 @@ pacman-key --populate
 # Restore the pacman.conf file from the pacman package. The docker one is crippled with NoExtract options and the like :(
 #  --refresh twice to force a refresh
 mkdir /tmp/pacman
-pacman --sync --refresh --refresh --downloadonly --noconfirm pacman
+pacman --sync --refresh --refresh --downloadonly --nodeps --nodeps --noconfirm pacman
 tar --extract --file "$(printf '%s\n' /var/cache/pacman/pkg/pacman-[0-9]*.pkg.tar.zst | sort -V | tail -n 1)" --directory /tmp/pacman
 cp /tmp/pacman/etc/pacman.conf /etc/pacman.conf
 
