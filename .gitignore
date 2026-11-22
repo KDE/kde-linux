@@ -18,6 +18,10 @@
 /run0-sudo-shim/
 run0-sudo-shim.tar.gz
 
+/mkosi.extra/usr/.crates.toml
+/mkosi.extra/usr/.crates2.json
+/mkosi.extra/usr/bin/etc-mstack
+/mkosi.extra/usr/bin/etc-mstack-prepare
 /mkosi.extra/usr/bin/run0-sudo-shim
 /mkosi.extra/usr/lib/btrfs-migrator
 /mkosi.extra/usr/lib/kde-linux-sysupdated
