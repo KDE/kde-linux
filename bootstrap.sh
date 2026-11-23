@@ -3,7 +3,7 @@
 # SPDX-FileCopyrightText: 2024 Harald Sitter <sitter@kde.org>
 # SPDX-FileCopyrightText: 2024 Bruno Pajdek <brupaj@proton.me>
 
-# Bootstraps an Arch Linux Docker container to be ready for building KDE Linux.
+# Provisions the Arch Linux CI builder VM.
 
 # WARNING: DO NOT CALL INTO OTHER SCRIPTS HERE.
 # This file needs to be self-contained because it gets run by the CI VM provisioning in isolation.
