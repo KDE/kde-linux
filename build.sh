@@ -18,28 +18,27 @@ if [ -z "${CI:-}" ] && [ -d .git/hooks ] && [ ! -e .git/hooks/pre-commit ] && [ 
 fi
 
 # Creates a sysext containing the KDE debug symbols, downloaded from the packages pipeline.
-make_debug_archive () {
-  # Create an empty directory at /var/tmp/debugroot to extract the debug symbols into before compressing.
-  rm --recursive --force /var/tmp/debugroot
-  mkdir --parents /var/tmp/debugroot
+make_debug_archive () (
+  set -o pipefail
+  debugroot=$(mktemp --directory /var/tmp/kde-linux-debugroot.XXXXXXXX)
+  trap 'rm --recursive --force -- "$debugroot"' EXIT
 
   # Download and extract debug symbols produced by the packages pipeline.
   curl --fail "https://kde-linux-packages.s3.kde.org/$KDE_LINUX_EDITION/artifacts/debug.tar.zst" \
-    | zstd --decompress | tar --extract --directory=/var/tmp/debugroot
+    | zstd --decompress | tar --extract --directory="$debugroot"
   # And the ones of the buildstream built OS.
-  cp --archive --reflink=auto "$BUILDSTREAM_DEBUGFS/usr" /var/tmp/debugroot/
+  cp --archive --reflink=auto "$BUILDSTREAM_DEBUGFS/usr" "$debugroot/"
 
   # systemd-sysext uses the os-release in extension-release.d to verify the sysext matches the base OS,
   # and can therefore be safely installed. Copy the base OS' os-release there.
-  mkdir --parents /var/tmp/debugroot/usr/lib/extension-release.d/
-  cp "${OUTPUT}/usr/lib/os-release" /var/tmp/debugroot/usr/lib/extension-release.d/extension-release.debug
+  mkdir --parents "$debugroot/usr/lib/extension-release.d/"
+  cp "${OUTPUT}/usr/lib/os-release" "$debugroot/usr/lib/extension-release.d/extension-release.debug"
 
-  # Compress /var/tmp/debugroot/usr into a zstd tarball at $DEBUG_TAR.
+  # Compress "$debugroot/"usr into a zstd tarball at $DEBUG_TAR.
   # We only need usr because that's where all the relevant stuff lives.
-  tar --directory=/var/tmp/debugroot --create --file="$DEBUG_TAR" usr
+  tar --directory="$debugroot" --create --file="$DEBUG_TAR" usr
   zstd --threads=0 --rm "$DEBUG_TAR" # --threads=0 automatically uses the optimal number
-  rm --recursive --force /var/tmp/debugroot
-}
+)
 
 EPOCH=$(date --utc +%s) # The epoch (only used to then construct the various date strings)
 VERSION=$(date --utc --date="@$EPOCH" +%Y%m%d%H%M)
