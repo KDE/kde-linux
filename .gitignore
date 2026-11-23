@@ -54,3 +54,6 @@ packages.txt
 /buildstream-efi/
 /buildstream-debugfs/
 source-checkout/
+
+/build-inputs.sha256
+/build-inputs.patch

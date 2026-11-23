@@ -66,6 +66,8 @@ imaging:
     paths:
       - "**/erofs.log"
       - "buildstream-logs/**/*.log"
+      - build-inputs.sha256
+      - build-inputs.patch
     reports:
       dotenv: build.env
 

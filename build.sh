@@ -24,8 +24,7 @@ make_debug_archive () {
   mkdir --parents /var/tmp/debugroot
 
   # Download and extract debug symbols produced by the packages pipeline.
-  curl --fail "https://kde-linux-packages.s3.kde.org/$KDE_LINUX_EDITION/artifacts/debug.tar.zst" \
-    | zstd --decompress | tar --extract --directory=/var/tmp/debugroot
+  tar --zstd --extract --file="$package_inputs/debug.tar.zst" --directory=/var/tmp/debugroot
   # And the ones of the buildstream built OS.
   cp --archive --reflink=auto "$BUILDSTREAM_DEBUGFS/usr" /var/tmp/debugroot/
 
@@ -95,9 +94,28 @@ if [ "${KDECI_BUILD:-}" = "TRUE" ]; then
 fi
 
 rm -rf "$BUILDSTREAM_ROOTFS" "$BUILDSTREAM_BOOTFS" "$BUILDSTREAM_TOOLFS" "$BUILDSTREAM_INITRDFS" "$BUILDSTREAM_EFI" "$BUILDSTREAM_DEBUGFS"
-# Always track the latest packages. We have no way to track the "correct" version right now.
-# TODO: pass the ref in the install.tar or something so we can actually track the correct ref of the packages pipeline
-bst source track kde-linux-packages.bst os/*.bst
+# With an expected checksum file, use the source refs supplied by the checkout.
+# The file uses sha256sum format for install.tar.zst and debug.tar.zst, in that order.
+if [[ -z "${KDE_LINUX_INPUT_SHA256SUMS:-}" ]]; then
+    bst source track kde-linux-packages.bst os/*.bst
+fi
+
+package_inputs=$(mktemp --directory "$PWD/kde-linux.cache/package-inputs.XXXXXXXX")
+trap 'rm --recursive --force -- "$package_inputs"' EXIT
+package_url="https://kde-linux-packages.s3.kde.org/$KDE_LINUX_EDITION/artifacts"
+wget --output-document="$package_inputs/install.tar.zst" --progress=dot:giga "$package_url/install.tar.zst"
+wget --output-document="$package_inputs/debug.tar.zst" --progress=dot:giga "$package_url/debug.tar.zst"
+(
+    cd "$package_inputs"
+    sha256sum -- install.tar.zst debug.tar.zst
+) > build-inputs.sha256
+if [[ -n "${KDE_LINUX_INPUT_SHA256SUMS:-}" ]] &&
+   ! cmp --silent -- "$KDE_LINUX_INPUT_SHA256SUMS" build-inputs.sha256; then
+    echo "Package archives do not match $KDE_LINUX_INPUT_SHA256SUMS." >&2
+    exit 1
+fi
+git diff HEAD -- elements > build-inputs.patch
+
 bst build \
     os/filesystem.bst \
     os/debug.bst \
@@ -121,15 +139,13 @@ cp $BUILDSTREAM_EFI/usr/share/ovmf/Shell.efi $BUILDSTREAM_ROOTFS/usr/share/ovmf/
 # Make sure permissions are sound
 ./permission-fix.sh
 
-wget --output-document=install.tar.zst --progress=dot:giga "https://kde-linux-packages.s3.kde.org/$KDE_LINUX_EDITION/artifacts/install.tar.zst"
-
 mkosi \
     --environment="CI_COMMIT_SHORT_SHA=${CI_COMMIT_SHORT_SHA:-unknownSHA}" \
     --environment="CI_COMMIT_SHA=${CI_COMMIT_SHA:-unknownSHA}" \
     --environment="CI_PIPELINE_URL=${CI_PIPELINE_URL:-https://invent.kde.org}" \
     --environment="KDE_LINUX_EDITION=$KDE_LINUX_EDITION" \
     --image-version="$VERSION" \
-    --extra-tree="$PWD/install.tar.zst" \
+    --extra-tree="$package_inputs/install.tar.zst" \
     --extra-tree="$PWD/mkosi.extra" \
     "$@"
 
@@ -228,7 +244,7 @@ chown -R $UID:$UID mkosi.output
 # Create a torrent for the image
 ./torrent-create.py "$VERSION" "$OUTPUT" "$ISO"
 
-go install -v github.com/folbricht/desync/cmd/desync@latest
+go install -v github.com/folbricht/desync/cmd/desync@f67d01e
 ~/go/bin/desync make --print-stats --chunk-size 1024:2048:4096 "$ROOTFS_CAIBX" "$ROOTFS_EROFS"
 # Be very careful with this file. It is here for backwards compat. It must not appear in SHA256SUMS.
 # https://github.com/systemd/systemd/issues/38605
