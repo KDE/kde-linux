@@ -4,6 +4,9 @@
 name = "KDE Linux"
 distri = "KDE-Linux"
 
+[artifact.installation]
+variables = ["FDE_INSTALL"]
+
 [suites.install-system]
 action = "install"
 tests = [
@@ -26,6 +29,7 @@ tests = [
     { path = "kdelinux/system/collect_logs.py", type = "selenium", override = "kdelinux/system/collect_logs.openqa.py" },
     { path = "common/shutdown.py", type = "openqa" },
 ]
+artifact = "installation"
 
 [suites.upgrade-system]
 action = "upgrade"
@@ -88,7 +92,9 @@ tests = [
 [flows.install]
 suites = ["install-system", "sanity-test"]
 variables = ["FDE_INSTALL"]
+artifact_push = "installation"
 
 [flows.upgrade]
 suites = ["install-system", "upgrade-system", "sanity-test"]
 variables = ["FDE_INSTALL"]
+artifact_pull = "installation"
