@@ -1,9 +1,11 @@
 #!/bin/sh
 
 # SPDX-License-Identifier: ISC
-# SPDX-FileCopyrightText: 2025 Thomas Duckworth <tduck@filotimoproject.org>
 # SPDX-FileCopyrightText: 2009-2014 Red Hat, Inc.
 # SPDX-FileCopyrightText: 2025 Velocity Limitless, LLC.
+# SPDX-FileCopyrightText: 2025 Thomas Duckworth <tduck@filotimoproject.org>
+# SPDX-FileCopyrightText: 2026 Peter Jung <admin@ptr1337.dev>
+# SPDX-FileCopyrightText: 2026 Lev Gorodetskii <github@drsr.io>
 
 # See https://gitlab.com/VelocityLimitless/Projects/iw-setregdomain
 
@@ -23,7 +25,7 @@
 #
 
 REGDOMAIN=/etc/iw-regdomain
-LOCALTIME=/etc/localtime
+ZONE=$(timedatectl show -P Timezone 2>/dev/null)
 
 LOGGER="/usr/bin/logger -t iw-set-regdomain"
 
@@ -40,8 +42,7 @@ getcountry() {
 
 if [ -f "$REGDOMAIN" ]
 then
-    # This should set COUNTRY
-    . "$REGDOMAIN"
+    COUNTRY=$(sed -n 's/^COUNTRY=//p' "$REGDOMAIN" | head -1)
     if [ -n "$COUNTRY" ]
     then
         /usr/bin/iw reg set "$COUNTRY"
@@ -49,32 +50,41 @@ then
     fi
 fi
 
-if [ -f "$LOCALTIME" ]
-then
-    ZONE=$(readlink -f "$LOCALTIME")
-    ZONE=${ZONE#/usr/share/zoneinfo/}
-else
-    $LOGGER -s "Timezone information not found. Unable to set wireless regulatory domain."
-    exit 1
-fi
-
-if [ -z "$ZONE" -o "$ZONE" = "$LOCALTIME" ]
+if [ -z "$ZONE" ]
 then
     $LOGGER -s "Could not determine timezone. Unable to set wireless regulatory domain."
     exit 1
 fi
 
+# Zones with no single associated country
+case "$ZONE" in
+    UTC|UCT|Universal|Zulu|GMT|GMT[+-]0|GMT0|Greenwich|Factory|posixrules|\
+    CET|EET|WET|MET|EST|MST|HST|EST5EDT|CST6CDT|MST7MDT|PST8PDT|\
+    Etc/*)
+        $LOGGER "Timezone is $ZONE, with no associated country. Not setting wireless regulatory domain."
+        exit 0
+        ;;
+esac
+
 COUNTRY=$(getcountry)
+
+# Not in zone.tab: resolve backward-compat aliases (e.g. US/Pacific,
+# Asia/Calcutta) to their canonical name and retry. This must not run before
+# the direct lookup, as many zone.tab entries are themselves links into
+# another country's zone (e.g. Europe/Amsterdam -> Europe/Brussels).
+TZDATA_ZI=/usr/share/zoneinfo/tzdata.zi
+if [ -z "$COUNTRY" ] && [ -f "$TZDATA_ZI" ]
+then
+    CANON=$(awk -v z="$ZONE" '$1=="L" && $3==z {print $2; exit}' "$TZDATA_ZI")
+    if [ -n "$CANON" ]
+    then
+        ZONE=$CANON
+        COUNTRY=$(getcountry)
+    fi
+fi
 
 if [ -z "$COUNTRY" ]
 then
-    case "$ZONE" in
-        UTC|UCT|Universal|Zulu|GMT|Etc/UTC|Etc/UCT|Etc/Universal|Etc/Zulu|Etc/GMT)
-            $LOGGER "Timezone is $ZONE, with no associated country. Not setting wireless regulatory domain."
-            exit 0
-            ;;
-    esac
-
     $LOGGER -s "Could not determine country for $ZONE. Unable to set wireless regulatory domain."
     exit 1
 fi
