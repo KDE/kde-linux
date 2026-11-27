@@ -1,0 +1,11 @@
+// SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL
+// SPDX-FileCopyrightText: 2025 Nate Graham <nate@kde.org>
+
+// Allow admin user to interact with the firewall KCM (open, enable, disable) without being
+// prompted to authenticate.
+
+polkit.addRule(function(action, subject) {
+    if ((action.id == "org.kde.ufw.queryapps" || action.id == "org.kde.ufw.modify") && subject.local && subject.active && subject.isInGroup("wheel")) {
+        return polkit.Result.YES;
+    }
+});
