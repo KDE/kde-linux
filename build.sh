@@ -122,7 +122,14 @@ cp $BUILDSTREAM_EFI/usr/share/ovmf/Shell.efi $BUILDSTREAM_ROOTFS/usr/share/ovmf/
 
 wget --output-document=install.tar.zst --progress=dot:giga "https://kde-linux-packages.s3.kde.org/$KDE_LINUX_EDITION/artifacts/install.tar.zst"
 
-mkosi \
+# Keep Mkosi's ownership changes visible to the rootfs image builder.
+image_namespace=()
+if (( EUID != 0 )); then
+    image_namespace=(unshare --map-auto --map-root-user --)
+fi
+
+"${image_namespace[@]}" mkosi \
+    --package-cache-directory="$PWD/kde-linux.cache/mkosi-packages" \
     --environment="CI_COMMIT_SHORT_SHA=${CI_COMMIT_SHORT_SHA:-unknownSHA}" \
     --environment="CI_COMMIT_SHA=${CI_COMMIT_SHA:-unknownSHA}" \
     --environment="CI_PIPELINE_URL=${CI_PIPELINE_URL:-https://invent.kde.org}" \
@@ -188,11 +195,7 @@ mv "$OUTPUT/live" live-root
 time mkfs.erofs -zzstd -C 65536 --chunksize 65536 \
     kde-linux.cache/live.raw live-root > erofs-live.log 2>&1
 
-# Run as root inside an unprivileged user namespace instead of using sudo:
-# our uid maps to root there, so mkfs.erofs can read mode-000 files such as
-# /etc/shadow. Setuid bits are kept, and --all-root makes every file
-# root-owned in the image. The output is created as our user, so no chown.
-time unshare --map-root-user mkfs.erofs --all-root -zzstd \
+time "${image_namespace[@]}" mkfs.erofs -zzstd \
     -C 65536 --chunksize 65536 \
     "-T$EPOCH" --ignore-mtime \
     "$ROOTFS_EROFS" "$OUTPUT" > erofs.log 2>&1
@@ -220,9 +223,6 @@ if [ $((iso_size % 2048)) -ne 0 ]; then
     truncate --size=$(( (iso_size + 2047) / 2048 * 2048 )) "$ISO"
     sfdisk --relocate gpt-bak-std "$ISO"
 fi
-
-# In case the owner is root
-chown -R $UID:$UID mkosi.output
 
 # Create a torrent for the image
 ./torrent-create.py "$VERSION" "$OUTPUT" "$ISO"

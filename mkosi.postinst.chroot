@@ -194,6 +194,7 @@ rm -rf \
     /usr/lib/modules/*/kernel/net/rxrpc/rxrpc.ko.zst \
     /usr/lib/modules/*/kernel/fs/afs/kafs.ko.zst
 
+systemd-sysusers
 for f in /etc/fdsdk/initial_scripts/*; do
     $f /
 done
